@@ -19,8 +19,8 @@ export default function Login() {
 
   return (
     <main className="flex min-h-full flex-col items-center justify-center">
-      <div className="w-full max-w-md">
-        <h1 className="text-4xl font-bold text-center mb-8">Iniciar Sesión</h1>
+      <div className="w-full max-w-md border-gray-300 border-2 rounded-md">
+        <h1 className="text-4xl font-bold text-center my-5">Iniciar Sesión</h1>
 
         <div className="flex flex-col gap-6 bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md">
           {/* Social Login Buttons */}
@@ -69,7 +69,7 @@ export default function Login() {
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 dark:bg-gray-700 dark:border-gray-600"
+                className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 dark:bg-gray-300 dark:border-gray-600 text-gray-800"
                 required
               />
             </div>
@@ -83,7 +83,7 @@ export default function Login() {
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 dark:bg-gray-700 dark:border-gray-600"
+                className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 dark:bg-gray-300 dark:border-gray-600 text-gray-800"
                 required
               />
             </div>
