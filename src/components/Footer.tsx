@@ -26,7 +26,7 @@ export default function Footer() {
             </svg>
             <div>
               <h3 className="font-semibold mb-1">Dirección</h3>
-              <p className="text-gray-300">Priv. Las Rosas 71, Temixco, Morelos, México</p>
+              <p className="text-gray-300">Priv. Las Rosas 71, Temixco, Morelos, 62580</p>
             </div>
           </div>
 
