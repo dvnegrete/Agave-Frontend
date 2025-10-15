@@ -11,15 +11,17 @@ function Layout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen flex flex-col">
       <div className='text-center'>
         <div className="flex flex-col justify-center items-center md:flex-row md:justify-evenly p-8">
-          <h1 className='flex items-center mt-6 text-3xl font-bold text-gray-900 md:text-4xl dark:text-white md:order-1'>
-            <span>Condominio El Agave</span>
-            <img
-              className="md:mt-0 mx-2"
-              src="/logo_el_agave.png"
-              alt={imgAlt}
-              width={60}
-              height={60}
-            />
+          <h1 className='mt-6 text-3xl font-bold text-gray-900 md:text-4xl dark:text-white md:order-1'>
+            <a href="/" className='flex items-center'>
+              <span>Condominio El Agave</span>
+              <img
+                className="md:mt-0 mx-2"
+                src="/logo_el_agave.png"
+                alt={imgAlt}
+                width={60}
+                height={60}
+              />
+            </a>
           </h1>
           <img
             className="rounded-full mt-3 md:mt-0"
