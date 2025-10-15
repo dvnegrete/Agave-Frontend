@@ -51,7 +51,7 @@ export default function Footer() {
           </div>
 
           {/* Email */}
-          {/* <div className="flex items-start gap-3">
+          <div className="flex items-start gap-3">
             <svg
               className="w-6 h-6 mt-1 flex-shrink-0"
               fill="none"
@@ -68,13 +68,13 @@ export default function Footer() {
             <div>
               <h3 className="font-semibold mb-1">Email</h3>
               <a
-                href="mailto:contacto@elagave.com"
+                href="mailto:contacto@condominioelagave.com.mx"
                 className="text-gray-300 hover:text-blue-400 transition-colors"
               >
-                contacto@elagave.com
+                contacto@condominioelagave.com.mx
               </a>
             </div>
-          </div> */}
+          </div>
         </div>
 
         {/* Copyright */}
