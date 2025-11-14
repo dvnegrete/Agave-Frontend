@@ -2,13 +2,19 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Home from './components/Home'
 import Login from './components/Login'
 import Footer from './components/Footer'
+import { HamburgerMenu } from './components/HamburgerMenu'
+import { VoucherList } from './components/VoucherList'
+import { TransactionUpload } from './components/TransactionUpload'
+import { BankReconciliation } from './components/BankReconciliation'
+import { ApiStatus } from './components/ApiStatus'
 import './App.css'
 
 const imgAlt = "El Agave logo";
 
-function Layout({ children }: { children: React.ReactNode }) {
+function Layout({ children, showMenu = false }: { children: React.ReactNode; showMenu?: boolean }) {
   return (
     <div className="min-h-screen flex flex-col">
+      {showMenu && <HamburgerMenu />}
       <div className='text-center'>
         <div className="flex flex-col justify-center items-center md:flex-row md:justify-evenly p-8">
           <h1 className='mt-6 text-3xl font-bold text-gray-900 md:text-4xl dark:text-white md:order-1'>
@@ -41,9 +47,13 @@ function Layout({ children }: { children: React.ReactNode }) {
 function App() {
   return (
     <BrowserRouter>
+      <ApiStatus />
       <Routes>
-        <Route path="/" element={<Layout><Home /></Layout>} />
+        <Route path="/" element={<Layout showMenu={true}><Home /></Layout>} />
         <Route path="/login" element={<Layout><Login /></Layout>} />
+        <Route path="/vouchers" element={<Layout showMenu={true}><VoucherList /></Layout>} />
+        <Route path="/transactions" element={<Layout showMenu={true}><TransactionUpload /></Layout>} />
+        <Route path="/reconciliation" element={<Layout showMenu={true}><BankReconciliation /></Layout>} />
       </Routes>
     </BrowserRouter>
   )

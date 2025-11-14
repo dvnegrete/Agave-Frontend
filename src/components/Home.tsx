@@ -17,12 +17,38 @@ export default function Home() {
         alt="El Agave"
       />
 
-      <a
-        href="/login"
-        className="bg-blue-600 hover:bg-blue-700 text-white font-medium text-lg mb-4 my-5 py-2 px-4 rounded"
-      >
-        Iniciar Sesión
-      </a>
+      <div className="flex flex-col gap-3 items-center">
+        <a
+          href="/login"
+          className="bg-blue-600 hover:bg-blue-700 text-white font-medium text-lg py-2 px-4 rounded"
+        >
+          Iniciar Sesión
+        </a>
+
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
+          Acceso rápido:
+        </p>
+        <div className="flex flex-wrap gap-2 justify-center">
+          <a
+            href="/vouchers"
+            className="bg-green-600 hover:bg-green-700 text-white text-sm py-2 px-3 rounded"
+          >
+            📝 Vouchers
+          </a>
+          <a
+            href="/transactions"
+            className="bg-purple-600 hover:bg-purple-700 text-white text-sm py-2 px-3 rounded"
+          >
+            💰 Transacciones
+          </a>
+          <a
+            href="/reconciliation"
+            className="bg-orange-600 hover:bg-orange-700 text-white text-sm py-2 px-3 rounded"
+          >
+            🔄 Conciliación
+          </a>
+        </div>
+      </div>
 
       {/* Sección de Información */}
       <div className="w-full max-w-xl mt-8 flex gap-4 justify-center">
