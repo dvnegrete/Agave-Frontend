@@ -18,9 +18,9 @@ export const getVouchers = async (
 ): Promise<VouchersResponse> => {
   const params = new URLSearchParams();
 
-  if (query?.page) params.append('page', query.page.toString());
-  if (query?.limit) params.append('limit', query.limit.toString());
-  if (query?.status) params.append('status', query.status);
+  if (query?.confirmation_status !== undefined) {
+    params.append('confirmation_status', query.confirmation_status.toString());
+  }
   if (query?.startDate) params.append('startDate', query.startDate);
   if (query?.endDate) params.append('endDate', query.endDate);
 

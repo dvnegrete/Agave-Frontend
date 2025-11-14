@@ -1,61 +1,91 @@
-import { useVouchers, useVoucherMutations } from '../hooks/useVouchers';
+import { useState } from 'react';
+import { useVouchersQuery, useVoucherMutations } from '../hooks/useVouchersQuery';
+import { useFormatDate } from '../hooks/useFormatDate';
+import { getVoucherById } from '../services/voucherService';
 
 export function VoucherList() {
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [loadingViewUrl, setLoadingViewUrl] = useState<number | null>(null);
+
   const {
     vouchers,
-    loading,
-    error,
     total,
-    page,
-    limit,
-    setPage,
-    refetch,
-  } = useVouchers({ status: 'pending' });
+    isLoading,
+    isFetching,
+    error,
+  } = useVouchersQuery();
 
-  const { create, update, remove, loading: mutating } = useVoucherMutations();
+  const { create, update, remove, isLoading: mutating } = useVoucherMutations();
+
+  const toggleExpand = (id: number) => {
+    setExpandedId(expandedId === id ? null : id);
+  };
+
+  const handleViewVoucher = async (id: number) => {
+    setLoadingViewUrl(id);
+    try {
+      const voucher = await getVoucherById(id.toString());
+
+      console.log('📄 [View Voucher] Respuesta de la API:', voucher);
+
+      if (voucher.viewUrl) {
+        console.log('🔗 [View Voucher] Abriendo URL:', voucher.viewUrl);
+        window.open(voucher.viewUrl, '_blank');
+      } else {
+        console.warn('⚠️ [View Voucher] No hay viewUrl disponible:', voucher);
+        alert('No hay URL de visualización disponible para este comprobante');
+      }
+    } catch (err) {
+      console.error('❌ [View Voucher] Error al obtener el comprobante:', err);
+      alert('Error al obtener el comprobante');
+    } finally {
+      setLoadingViewUrl(null);
+    }
+  };
 
   const handleCreateVoucher = async () => {
     try {
       await create({
-        voucherNumber: 'V-' + Date.now(),
-        date: new Date().toISOString().split('T')[0],
-        description: 'Nuevo voucher de ejemplo',
-        entries: [
-          {
-            accountId: 'account-1',
-            debit: 1000,
-            credit: 0,
-            description: 'Cargo de ejemplo',
-          },
-        ],
+        authorization_number: 'AUTH-' + Date.now(),
+        date: new Date().toISOString(),
+        confirmation_code: 'CONF-' + Math.random().toString(36).substr(2, 9).toUpperCase(),
+        amount: 1000,
+        confirmation_status: false,
+        url: '',
       });
-      refetch();
+      // React Query automáticamente invalida y refetch las queries
     } catch (err) {
       console.error('Error creating voucher:', err);
+      alert('Error al crear el voucher');
     }
   };
 
-  const handleApproveVoucher = async (id: string) => {
+  const handleConfirmVoucher = async (id: number) => {
     try {
-      await update(id, { status: 'approved' });
-      refetch();
+      await update({
+        id: id.toString(),
+        data: { confirmation_status: true }
+      });
+      // React Query automáticamente invalida y refetch las queries
     } catch (err) {
-      console.error('Error approving voucher:', err);
+      console.error('Error confirming voucher:', err);
+      alert('Error al confirmar el voucher');
     }
   };
 
-  const handleDeleteVoucher = async (id: string) => {
+  const handleDeleteVoucher = async (id: number) => {
     if (confirm('¿Estás seguro de eliminar este voucher?')) {
       try {
-        await remove(id);
-        refetch();
+        await remove(id.toString());
+        // React Query automáticamente invalida y refetch las queries
       } catch (err) {
         console.error('Error deleting voucher:', err);
+        alert('Error al eliminar el voucher');
       }
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center p-8">
         <div className="text-lg">Cargando vouchers...</div>
@@ -71,10 +101,30 @@ export function VoucherList() {
     );
   }
 
+  // Validar que vouchers sea un array
+  if (!vouchers || !Array.isArray(vouchers)) {
+    return (
+      <div className="flex justify-center items-center p-8">
+        <div className="text-lg text-gray-500">No hay vouchers disponibles</div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Vouchers Pendientes</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-bold">Vouchers</h1>
+          {isFetching && !isLoading && (
+            <div className="flex items-center text-sm text-gray-500">
+              <svg className="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Actualizando...
+            </div>
+          )}
+        </div>
         <button
           onClick={handleCreateVoucher}
           disabled={mutating}
@@ -84,100 +134,118 @@ export function VoucherList() {
         </button>
       </div>
 
-      <div className="bg-white shadow-md rounded-lg overflow-hidden">
+      <div className="shadow-md border-2 border-gray-300 rounded-lg overflow-hidden">
         <table className="min-w-full">
-          <thead className="bg-gray-100">
+          <thead className="bg-gray-200">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Número
+              <th className="px-6 py-3 text-center text-xs font-medium text-gray-800 uppercase tracking-wider">
+                Casa
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-center text-xs font-medium text-gray-800 uppercase tracking-wider">
                 Fecha
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Descripción
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-center text-xs font-medium text-gray-800 uppercase tracking-wider">
                 Monto
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-center text-xs font-medium text-gray-800 uppercase tracking-wider">
                 Estado
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-center text-xs font-medium text-gray-800 uppercase tracking-wider">
                 Acciones
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="background-general divide-y divide-gray-200">
             {vouchers.map((voucher) => (
-              <tr key={voucher.id}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  {voucher.voucherNumber}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  {new Date(voucher.date).toLocaleDateString()}
-                </td>
-                <td className="px-6 py-4">{voucher.description}</td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  ${voucher.totalAmount.toFixed(2)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span
-                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      voucher.status === 'approved'
-                        ? 'bg-green-100 text-green-800'
-                        : voucher.status === 'rejected'
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-yellow-100 text-yellow-800'
-                    }`}
-                  >
-                    {voucher.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
-                  <button
-                    onClick={() => handleApproveVoucher(voucher.id)}
-                    disabled={mutating}
-                    className="text-green-600 hover:text-green-900 mr-3 disabled:opacity-50"
-                  >
-                    Aprobar
-                  </button>
-                  <button
-                    onClick={() => handleDeleteVoucher(voucher.id)}
-                    disabled={mutating}
-                    className="text-red-600 hover:text-red-900 disabled:opacity-50"
-                  >
-                    Eliminar
-                  </button>
-                </td>
-              </tr>
+              <>
+                <tr key={voucher.id} className={expandedId === voucher.id ? 'bg-blue-50' : ''}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                    {voucher.number_house}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                    {useFormatDate(voucher.date)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-center font-semibold">
+                    ${voucher.amount.toFixed(2)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    <span
+                      className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${voucher.confirmation_status
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-yellow-100 text-yellow-800'
+                        }`}
+                    >
+                      {voucher.confirmation_status ? 'Confirmado' : 'Pendiente'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                    <button
+                      onClick={() => toggleExpand(voucher.id)}
+                      className="text-blue-600 hover:text-blue-900 font-medium"
+                    >
+                      {expandedId === voucher.id ? 'Ocultar detalles' : 'Ver detalles'}
+                    </button>
+                  </td>
+                </tr>
+                {expandedId === voucher.id && (
+                  <tr key={`${voucher.id}-details`} className="bg-blue-50">
+                    <td colSpan={5} className="px-6 py-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm font-semibold text-gray-700">Número de Autorización:</p>
+                          <p className="text-sm text-gray-900">{voucher.authorization_number}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-700">Código de Confirmación:</p>
+                          <p className="text-sm text-gray-900 font-mono">{voucher.confirmation_code}</p>
+                        </div>
+                      </div>
+                      <div className="mt-4 flex gap-3">
+                        <button
+                          onClick={() => handleViewVoucher(voucher.id)}
+                          disabled={loadingViewUrl === voucher.id}
+                          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50 flex items-center gap-2"
+                        >
+                          {loadingViewUrl === voucher.id ? (
+                            <>
+                              <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              Cargando...
+                            </>
+                          ) : (
+                            'Ver comprobante'
+                          )}
+                        </button>
+                        {!voucher.confirmation_status && (
+                          <button
+                            onClick={() => handleConfirmVoucher(voucher.id)}
+                            disabled={mutating}
+                            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
+                          >
+                            Confirmar
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleDeleteVoucher(voucher.id)}
+                          disabled={mutating}
+                          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </>
             ))}
           </tbody>
         </table>
       </div>
 
-      {/* Pagination */}
-      <div className="mt-4 flex justify-between items-center">
-        <div className="text-sm text-gray-700">
-          Mostrando {vouchers.length} de {total} vouchers
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setPage(page - 1)}
-            disabled={page === 1}
-            className="px-4 py-2 border rounded hover:bg-gray-100 disabled:opacity-50"
-          >
-            Anterior
-          </button>
-          <span className="px-4 py-2">Página {page}</span>
-          <button
-            onClick={() => setPage(page + 1)}
-            disabled={vouchers.length < limit}
-            className="px-4 py-2 border rounded hover:bg-gray-100 disabled:opacity-50"
-          >
-            Siguiente
-          </button>
-        </div>
+      <div className="mt-4 text-sm text-gray-700">
+        Total: {total} vouchers
       </div>
     </div>
   );

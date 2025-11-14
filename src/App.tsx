@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import Home from './components/Home'
 import Login from './components/Login'
 import Footer from './components/Footer'
@@ -8,6 +10,17 @@ import { TransactionUpload } from './components/TransactionUpload'
 import { BankReconciliation } from './components/BankReconciliation'
 import { ApiStatus } from './components/ApiStatus'
 import './App.css'
+
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+      staleTime: 5 * 60 * 1000, // 5 minutos
+    },
+  },
+})
 
 const imgAlt = "El Agave logo";
 
@@ -46,16 +59,19 @@ function Layout({ children, showMenu = false }: { children: React.ReactNode; sho
 
 function App() {
   return (
-    <BrowserRouter>
-      <ApiStatus />
-      <Routes>
-        <Route path="/" element={<Layout showMenu={true}><Home /></Layout>} />
-        <Route path="/login" element={<Layout><Login /></Layout>} />
-        <Route path="/vouchers" element={<Layout showMenu={true}><VoucherList /></Layout>} />
-        <Route path="/transactions" element={<Layout showMenu={true}><TransactionUpload /></Layout>} />
-        <Route path="/reconciliation" element={<Layout showMenu={true}><BankReconciliation /></Layout>} />
-      </Routes>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <ApiStatus />
+        <Routes>
+          <Route path="/" element={<Layout showMenu={true}><Home /></Layout>} />
+          <Route path="/login" element={<Layout><Login /></Layout>} />
+          <Route path="/vouchers" element={<Layout showMenu={true}><VoucherList /></Layout>} />
+          <Route path="/transactions" element={<Layout showMenu={true}><TransactionUpload /></Layout>} />
+          <Route path="/reconciliation" element={<Layout showMenu={true}><BankReconciliation /></Layout>} />
+        </Routes>
+      </BrowserRouter>
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   )
 }
 

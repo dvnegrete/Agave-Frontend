@@ -1,38 +1,37 @@
 // Voucher Types
 export interface Voucher {
-  id: string;
-  voucherNumber: string;
+  id: number;
   date: string;
-  description: string;
-  totalAmount: number;
-  status: 'pending' | 'approved' | 'rejected';
-  createdAt: string;
-  updatedAt: string;
-  entries?: VoucherEntry[];
-}
-
-export interface VoucherEntry {
-  id: string;
-  voucherId: string;
-  accountId: string;
-  debit: number;
-  credit: number;
-  description?: string;
+  authorization_number: string;
+  confirmation_code: string;
+  amount: number;
+  confirmation_status: boolean;
+  url: string;
+  viewUrl?: string;
+  number_house: number;
+  created_at: string;
+  updated_at: string;
+  [key: string]: any;
 }
 
 export interface CreateVoucherRequest {
-  voucherNumber: string;
+  authorization_number: string;
   date: string;
-  description: string;
-  entries: Omit<VoucherEntry, 'id' | 'voucherId'>[];
+  confirmation_code: string;
+  amount: number;
+  confirmation_status: boolean;
+  url: string;
+  [key: string]: any;
 }
 
 export interface UpdateVoucherRequest {
-  voucherNumber?: string;
+  authorization_number?: string;
   date?: string;
-  description?: string;
-  status?: 'pending' | 'approved' | 'rejected';
-  entries?: Omit<VoucherEntry, 'id' | 'voucherId'>[];
+  confirmation_code?: string;
+  amount?: number;
+  confirmation_status?: boolean;
+  url?: string;
+  [key: string]: any;
 }
 
 export interface VouchersResponse {
@@ -45,9 +44,10 @@ export interface VouchersResponse {
 export interface VoucherQuery {
   page?: number;
   limit?: number;
-  status?: 'pending' | 'approved' | 'rejected';
+  confirmation_status?: boolean;
   startDate?: string;
   endDate?: string;
+  [key: string]: any;
 }
 
 // Transaction Bank Types

@@ -1,20 +1,28 @@
 import { useState } from 'react';
-import { useBankReconciliation } from '../hooks/useBankReconciliation';
-import { useTransactionsBank } from '../hooks/useTransactionsBank';
-import { useVouchers } from '../hooks/useVouchers';
+import { useBankReconciliationMutations } from '../hooks/useBankReconciliationQuery';
+import { useTransactionsBankQuery } from '../hooks/useTransactionsBankQuery';
+import { useVouchersQuery } from '../hooks/useVouchersQuery';
 import { useFormatDate } from '../hooks/useFormatDate';
 import { StartReconciliationModal } from './StartReconciliationModal';
 import type { StartReconciliationResponse } from '../types/api.types';
 
 export function BankReconciliation() {
-  const { transactions, refetch: refetchTransactions } = useTransactionsBank({
+  const {
+    transactions,
+    refetch: refetchTransactions,
+  } = useTransactionsBankQuery({
     reconciled: false,
   });
-  const { vouchers, refetch: refetchVouchers } = useVouchers({
-    status: 'approved',
+
+  const {
+    vouchers,
+    refetch: refetchVouchers,
+  } = useVouchersQuery({
+    confirmation_status: true,
   });
+
   const { start, reconcile, reconcileBulk, undo, reconciling, error } =
-    useBankReconciliation();
+    useBankReconciliationMutations();
 
   const [selectedTransaction, setSelectedTransaction] = useState<string | null>(
     null

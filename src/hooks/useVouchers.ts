@@ -44,7 +44,7 @@ export const useVouchers = (query?: VoucherQuery) => {
     fetchVouchers();
 
     return () => abortController.abort();
-  }, [query?.status, query?.startDate, query?.endDate, page, limit]);
+  }, [query?.confirmation_status, query?.startDate, query?.endDate, page, limit]);
 
   const refetch = async () => {
     setLoading(true);
