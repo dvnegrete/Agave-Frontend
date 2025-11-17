@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useVouchersQuery, useVoucherMutations } from '../hooks/useVouchersQuery';
 import { useFormatDate } from '../hooks/useFormatDate';
+import { useSortBy } from '../hooks/useSortBy';
 import { getVoucherById } from '../services/voucherService';
 
 export function VoucherList() {
@@ -13,7 +14,17 @@ export function VoucherList() {
     isLoading,
     isFetching,
     error,
-  } = useVouchersQuery();
+  } = useVouchersQuery({
+    confirmation_status: false
+  });
+
+  const { sortedItems: sortedVouchers, sortConfig, setSortField } = useSortBy(
+    vouchers,
+    {
+      initialField: 'number_house',
+      initialOrder: 'asc'
+    }
+  );
 
   const { create, update, remove, isLoading: mutating } = useVoucherMutations();
 
@@ -29,10 +40,8 @@ export function VoucherList() {
       console.log('📄 [View Voucher] Respuesta de la API:', voucher);
 
       if (voucher.viewUrl) {
-        console.log('🔗 [View Voucher] Abriendo URL:', voucher.viewUrl);
         window.open(voucher.viewUrl, '_blank');
       } else {
-        console.warn('⚠️ [View Voucher] No hay viewUrl disponible:', voucher);
         alert('No hay URL de visualización disponible para este comprobante');
       }
     } catch (err) {
@@ -138,17 +147,53 @@ export function VoucherList() {
         <table className="min-w-full">
           <thead className="bg-gray-200">
             <tr>
-              <th className="px-6 py-3 text-center text-xs font-medium text-gray-800 uppercase tracking-wider">
-                Casa
+              <th
+                onClick={() => setSortField('number_house')}
+                className={`px-6 py-3 text-center text-xs font-medium uppercase tracking-wider cursor-pointer select-none hover:bg-gray-300 transition-colors ${
+                  sortConfig.field === 'number_house'
+                    ? 'text-gray-900 bg-gray-300'
+                    : 'text-gray-800'
+                }`}
+              >
+                Casa {sortConfig.field === 'number_house' && (
+                  <span>{sortConfig.order === 'asc' ? '▲' : '▼'}</span>
+                )}
               </th>
-              <th className="px-6 py-3 text-center text-xs font-medium text-gray-800 uppercase tracking-wider">
-                Fecha
+              <th
+                onClick={() => setSortField('date')}
+                className={`px-6 py-3 text-center text-xs font-medium uppercase tracking-wider cursor-pointer select-none hover:bg-gray-300 transition-colors ${
+                  sortConfig.field === 'date'
+                    ? 'text-gray-900 bg-gray-300'
+                    : 'text-gray-800'
+                }`}
+              >
+                Fecha {sortConfig.field === 'date' && (
+                  <span>{sortConfig.order === 'asc' ? '▲' : '▼'}</span>
+                )}
               </th>
-              <th className="px-6 py-3 text-center text-xs font-medium text-gray-800 uppercase tracking-wider">
-                Monto
+              <th
+                onClick={() => setSortField('amount')}
+                className={`px-6 py-3 text-center text-xs font-medium uppercase tracking-wider cursor-pointer select-none hover:bg-gray-300 transition-colors ${
+                  sortConfig.field === 'amount'
+                    ? 'text-gray-900 bg-gray-300'
+                    : 'text-gray-800'
+                }`}
+              >
+                Monto {sortConfig.field === 'amount' && (
+                  <span>{sortConfig.order === 'asc' ? '▲' : '▼'}</span>
+                )}
               </th>
-              <th className="px-6 py-3 text-center text-xs font-medium text-gray-800 uppercase tracking-wider">
-                Estado
+              <th
+                onClick={() => setSortField('confirmation_status')}
+                className={`px-6 py-3 text-center text-xs font-medium uppercase tracking-wider cursor-pointer select-none hover:bg-gray-300 transition-colors ${
+                  sortConfig.field === 'confirmation_status'
+                    ? 'text-gray-900 bg-gray-300'
+                    : 'text-gray-800'
+                }`}
+              >
+                Estado {sortConfig.field === 'confirmation_status' && (
+                  <span>{sortConfig.order === 'asc' ? '▲' : '▼'}</span>
+                )}
               </th>
               <th className="px-6 py-3 text-center text-xs font-medium text-gray-800 uppercase tracking-wider">
                 Acciones
@@ -156,9 +201,9 @@ export function VoucherList() {
             </tr>
           </thead>
           <tbody className="background-general divide-y divide-gray-200">
-            {vouchers.map((voucher) => (
+            {sortedVouchers.map((voucher) => (
               <>
-                <tr key={voucher.id} className={expandedId === voucher.id ? 'bg-blue-50' : ''}>
+                <tr key={voucher.id} className={expandedId === voucher.id ? 'bg-blue-200 text-gray-800' : ''}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                     {voucher.number_house}
                   </td>
@@ -181,14 +226,14 @@ export function VoucherList() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                     <button
                       onClick={() => toggleExpand(voucher.id)}
-                      className="text-blue-600 hover:text-blue-900 font-medium"
+                      className="text-blue-600 hover:text-blue-900 font-medium cursor-pointer"
                     >
                       {expandedId === voucher.id ? 'Ocultar detalles' : 'Ver detalles'}
                     </button>
                   </td>
                 </tr>
                 {expandedId === voucher.id && (
-                  <tr key={`${voucher.id}-details`} className="bg-blue-50">
+                  <tr key={`${voucher.id}-details`} className="bg-blue-200">
                     <td colSpan={5} className="px-6 py-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
