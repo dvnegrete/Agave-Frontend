@@ -37,13 +37,16 @@ export const getTransactionsBank = async (
  */
 export const uploadTransactionsBank = async (
   file: File,
+  bank: string,
   signal?: AbortSignal
 ): Promise<UploadTransactionsResponse> => {
   const formData = new FormData();
   formData.append('file', file);
 
+  const endpoint = `${API_ENDPOINTS.transactionsBankUpload}?bank=${encodeURIComponent(bank)}`;
+
   return httpClient.post<UploadTransactionsResponse>(
-    API_ENDPOINTS.transactionsBankUpload,
+    endpoint,
     formData,
     { signal }
   );

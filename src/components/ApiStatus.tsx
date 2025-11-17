@@ -26,7 +26,7 @@ export function ApiStatus() {
     };
 
     checkApi();
-    const interval = setInterval(checkApi, 30000); // Check every 30 seconds
+    const interval = setInterval(checkApi, 5 * 60 * 1000); // Check every 5 minutes
 
     return () => clearInterval(interval);
   }, []);

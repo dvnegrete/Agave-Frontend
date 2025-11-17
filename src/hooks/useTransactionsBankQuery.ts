@@ -71,7 +71,8 @@ export const useTransactionBankMutations = () => {
   const queryClient = useQueryClient();
 
   const uploadMutation = useMutation({
-    mutationFn: (file: File) => uploadTransactionsBank(file),
+    mutationFn: ({ file, bank }: { file: File; bank: string }) =>
+      uploadTransactionsBank(file, bank),
     onSuccess: () => {
       // Invalidar todas las queries de listas de transacciones
       queryClient.invalidateQueries({ queryKey: transactionBankKeys.lists() });

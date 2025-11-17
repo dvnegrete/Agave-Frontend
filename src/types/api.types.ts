@@ -65,12 +65,35 @@ export interface BankTransaction {
   updatedAt: string;
 }
 
+export interface UploadedTransaction {
+  date: string;
+  time: string;
+  concept: string;
+  amount: number;
+  currency: string;
+  is_deposit: boolean;
+  bank_name: string;
+  validation_flag: boolean;
+  status: string;
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface UploadTransactionsResponse {
-  success: boolean;
   message: string;
-  imported: number;
-  duplicated: number;
-  errors: number;
+  success: boolean;
+  totalTransactions: number;
+  validTransactions: number;
+  invalidTransactions: number;
+  previouslyProcessedTransactions: number;
+  transactions: UploadedTransaction[];
+  errors: any[];
+  dateRange: {
+    start: string;
+    end: string;
+  };
+  lastDayTransaction: UploadedTransaction[];
 }
 
 export interface TransactionsBankQuery {
@@ -103,13 +126,27 @@ export interface ReconciliationSummary {
   manualValidationRequired: number;
 }
 
-export interface MatchedReconciliation {
-  voucherId: number;
-  transactionId: number;
-  amount: number;
-  date: string;
-  matchConfidence: number;
+export const ConfidenceLevel = {
+  HIGH: 'high',
+  MEDIUM: 'medium',
+  LOW: 'low',
+  MANUAL: 'manual',
+} as const;
+
+export type ConfidenceLevel = typeof ConfidenceLevel[keyof typeof ConfidenceLevel];
+
+export interface MatchCriteria {
   [key: string]: any;
+}
+
+export interface MatchedReconciliation {
+  transactionBankId: string;
+  amount: number;
+  houseNumber: number;
+  matchCriteria: MatchCriteria[];
+  confidenceLevel: ConfidenceLevel;
+  voucherId?: number;
+  dateDifferenceHours?: number;
 }
 
 export interface PendingVoucher {
@@ -148,8 +185,8 @@ export interface ManualValidationCase {
 export interface StartReconciliationResponse {
   summary: ReconciliationSummary;
   conciliados: MatchedReconciliation[];
-  pendientes: PendingVoucher[];
-  sobrantes: SurplusTransaction[];
+  unfundedVouchers: PendingVoucher[];
+  unclaimedDeposits: SurplusTransaction[];
   manualValidationRequired: ManualValidationCase[];
 }
 

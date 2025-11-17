@@ -37,16 +37,16 @@ export function StartReconciliationModal({
         console.log('✅ Resultado del proceso:', {
           summary: response.summary,
           conciliados: response.conciliados.length,
-          pendientes: response.pendientes.length,
-          sobrantes: response.sobrantes.length,
+          unfundedVouchers: response.unfundedVouchers.length,
+          unclaimedDeposits: response.unclaimedDeposits.length,
           manualValidation: response.manualValidationRequired.length,
         });
 
         // Log detallado de cada sección
         console.group('📋 Detalles de Conciliación');
         console.log('Conciliados:', response.conciliados);
-        console.log('Pendientes:', response.pendientes);
-        console.log('Sobrantes:', response.sobrantes);
+        console.log('Comprobantes NO conciliados:', response.unfundedVouchers);
+        console.log('Movimientos bancarios No asociados ni conciliados:', response.unclaimedDeposits);
         console.log('Validación Manual:', response.manualValidationRequired);
         console.groupEnd();
 

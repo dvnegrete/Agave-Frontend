@@ -30,7 +30,7 @@ export function BankReconciliation() {
   const [selectedVoucher, setSelectedVoucher] = useState<string | null>(null);
   const [showStartModal, setShowStartModal] = useState(false);
   const [reconciliationResult, setReconciliationResult] = useState<StartReconciliationResponse | null>(null);
-  const [activeTab, setActiveTab] = useState<'summary' | 'conciliados' | 'pendientes' | 'sobrantes' | 'manual'>('summary');
+  const [activeTab, setActiveTab] = useState<'summary' | 'conciliados' | 'unfundedVouchers' | 'unclaimedDeposits' | 'manual'>('summary');
 
   // Suppress unused variable warnings for commented code
   void transactions;
@@ -125,6 +125,7 @@ export function BankReconciliation() {
         </div>
       )}
 
+
       {/* Start Reconciliation Modal */}
       <StartReconciliationModal
         isOpen={showStartModal}
@@ -161,24 +162,24 @@ export function BankReconciliation() {
               ✅ Conciliados ({reconciliationResult.conciliados.length})
             </button>
             <button
-              onClick={() => setActiveTab('pendientes')}
+              onClick={() => setActiveTab('unfundedVouchers')}
               className={`px-4 py-2 font-medium cursor-pointer transition-colors ${
-                activeTab === 'pendientes'
+                activeTab === 'unfundedVouchers'
                   ? 'border-b-2 border-yellow-600 text-yellow-600'
                   : 'text-gray-200 hover:text-gray-500'
               }`}
             >
-              ⏳ Pendientes ({reconciliationResult.pendientes.length})
+              ⏳ Comprobantes NO Conciliados ({reconciliationResult.unfundedVouchers.length})
             </button>
             <button
-              onClick={() => setActiveTab('sobrantes')}
+              onClick={() => setActiveTab('unclaimedDeposits')}
               className={`px-4 py-2 font-medium cursor-pointer transition-colors ${
-                activeTab === 'sobrantes'
+                activeTab === 'unclaimedDeposits'
                   ? 'border-b-2 border-orange-600 text-orange-600'
                   : 'text-gray-200 hover:text-gray-500'
               }`}
             >
-              ➕ Sobrantes ({reconciliationResult.sobrantes.length})
+              ➕ Depósitos Bancarios NO Asociados/conciliados ({reconciliationResult.unclaimedDeposits.length})
             </button>
             <button
               onClick={() => setActiveTab('manual')}
@@ -229,25 +230,37 @@ export function BankReconciliation() {
               <table className="min-w-full">
                 <thead className="bg-green-50">
                   <tr>
-                    <th className="px-4 py-2 text-left text-sm font-medium text-green-900">Voucher ID</th>
-                    <th className="px-4 py-2 text-left text-sm font-medium text-green-900">Transacción ID</th>
+                    <th className="px-4 py-2 text-center text-sm font-medium text-green-900">Casa</th>
                     <th className="px-4 py-2 text-right text-sm font-medium text-green-900">Monto</th>
-                    <th className="px-4 py-2 text-left text-sm font-medium text-green-900">Fecha</th>
-                    <th className="px-4 py-2 text-right text-sm font-medium text-green-900">Confianza</th>
+                    <th className="px-4 py-2 text-center text-sm font-medium text-green-900">Conciliado. Nivel de Confianza </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {reconciliationResult.conciliados.map((item, idx) => (
                     <tr key={idx} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 text-sm">{item.voucherId ?? 'N/A'}</td>
-                      <td className="px-4 py-3 text-sm">{item.transactionId ?? 'N/A'}</td>
+                      <td className="px-4 py-3 text-sm text-center">{item.houseNumber ?? 'N/A'}</td>
                       <td className="px-4 py-3 text-sm text-right">
                         ${item.amount ? item.amount.toFixed(2) : '0.00'}
                       </td>
-                      <td className="px-4 py-3 text-sm">{useFormatDate(item.date)}</td>
-                      <td className="px-4 py-3 text-sm text-right">
-                        <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">
-                          {item.matchConfidence ? (item.matchConfidence * 100).toFixed(0) : '0'}%
+                      <td className="px-4 py-3 text-sm text-center">
+                        <span
+                          className={`px-2 py-1 rounded text-xs font-medium ${
+                            item.confidenceLevel === 'high'
+                              ? 'bg-green-100 text-green-800'
+                              : item.confidenceLevel === 'medium'
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : item.confidenceLevel === 'low'
+                                  ? 'bg-orange-100 text-orange-800'
+                                  : 'bg-blue-100 text-blue-800'
+                          }`}
+                        >
+                          {item.confidenceLevel === 'high'
+                            ? 'Alta'
+                            : item.confidenceLevel === 'medium'
+                              ? 'Media'
+                              : item.confidenceLevel === 'low'
+                                ? 'Baja'
+                                : 'Manual'}
                         </span>
                       </td>
                     </tr>
@@ -260,7 +273,7 @@ export function BankReconciliation() {
             </div>
           )}
 
-          {activeTab === 'pendientes' && (
+          {activeTab === 'unfundedVouchers' && (
             <div className="overflow-x-auto">
               <table className="min-w-full">
                 <thead className="bg-yellow-600">
@@ -272,7 +285,7 @@ export function BankReconciliation() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {reconciliationResult.pendientes.map((item, idx) => (
+                  {reconciliationResult.unfundedVouchers.map((item, idx) => (
                     <tr key={idx} className="hover:bg-gray-">
                       <td className="px-4 py-3 text-sm">{item.voucherId ?? 'N/A'}</td>
                       <td className="px-4 py-3 text-sm">{useFormatDate(item.date)}</td>
@@ -284,13 +297,13 @@ export function BankReconciliation() {
                   ))}
                 </tbody>
               </table>
-              {reconciliationResult.pendientes.length === 0 && (
-                <p className="text-center text-gray-500 py-8">No hay vouchers pendientes</p>
+              {reconciliationResult.unfundedVouchers.length === 0 && (
+                <p className="text-center text-gray-500 py-8">No hay comprobantes NO conciliados</p>
               )}
             </div>
           )}
 
-          {activeTab === 'sobrantes' && (
+          {activeTab === 'unclaimedDeposits' && (
             <div className="overflow-x-auto">
               <table className="min-w-full">
                 <thead className="bg-orange-400">
@@ -302,7 +315,7 @@ export function BankReconciliation() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {reconciliationResult.sobrantes.map((item, idx) => (
+                  {reconciliationResult.unclaimedDeposits.map((item, idx) => (
                     <tr key={idx} className="hover:bg-gray-50">
                       <td className="px-4 py-3 text-sm">{item.transactionId ?? 'N/A'}</td>
                       <td className="px-4 py-3 text-sm text-right">
@@ -314,8 +327,8 @@ export function BankReconciliation() {
                   ))}
                 </tbody>
               </table>
-              {reconciliationResult.sobrantes.length === 0 && (
-                <p className="text-center text-gray-500 py-8">No hay transacciones sobrantes</p>
+              {reconciliationResult.unclaimedDeposits.length === 0 && (
+                <p className="text-center text-gray-500 py-8">No hay movimientos bancarios sin asociar/conciliar</p>
               )}
             </div>
           )}
