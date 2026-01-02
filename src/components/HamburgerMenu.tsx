@@ -32,7 +32,7 @@ export function HamburgerMenu() {
       {/* Hamburger Button */}
       <button
         onClick={toggleMenu}
-        className="fixed top-4 left-4 z-50 p-2 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-300 transition-colors cursor-pointer"
+        className="fixed top-4 left-4 z-50 p-2 bg-primary bg-blue-600 rounded-lg shadow-md hover:bg-primary-light transition-colors cursor-pointer"
         aria-label="Toggle menu"
       >
         <div className="w-6 h-5 flex flex-col justify-between">
@@ -57,20 +57,20 @@ export function HamburgerMenu() {
       {/* Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 background-general bg-opacity-50 z-40 transition-opacity"
+          className="fixed inset-0 z-40 bg-gray-200/90 dark:bg-gray-800/90 transition-opacity"
           onClick={closeMenu}
         ></div>
       )}
 
       {/* Sidebar Menu */}
       <aside
-        className={`fixed top-0 left-0 h-full w-64 bg-gray-400 shadow-xl z-40 transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 left-0 h-full w-64 bg-gray-200/100 dark:bg-gray-800/100 shadow-xl z-40 transform transition-transform duration-300 ease-in-out ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div className="p-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">El Agave</h2>
-          <p className="text-sm text-gray-500 mb-8">Sistema de Gestión</p>
+          <h2 className="text-2xl font-bold text-foreground mb-2">El Agave</h2>
+          <p className="text-sm text-foreground-secondary mb-8">Sistema de Gestión</p>
 
           <nav>
             <ul className="space-y-2">
@@ -83,8 +83,8 @@ export function HamburgerMenu() {
                       onClick={closeMenu}
                       className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                         isActive
-                          ? 'bg-blue-600 text-gray-200 font-semibold'
-                          : 'text-gray-700 hover:bg-blue-300'
+                          ? 'bg-primary font-bold shadow-sm bg-gray-400/50'
+                          : 'text-foreground'
                       }`}
                     >
                       <span className="text-xl">{item.icon}</span>
@@ -97,11 +97,11 @@ export function HamburgerMenu() {
           </nav>
 
           <div className="absolute bottom-6 left-6 right-6">
-            <div className="border-t pt-4">
-              <p className="text-xs text-gray-200 text-center">
+            <div className="border-t border-base pt-4">
+              <p className="text-xs text-foreground-secondary text-center">
                 Demo
               </p>
-              <p className="text-xs text-gray-200 text-center mt-1">
+              <p className="text-xs text-foreground-secondary text-center mt-1">
                 v1.0.0
               </p>
             </div>

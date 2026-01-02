@@ -20,36 +20,36 @@ export default function Home() {
       <div className="flex flex-col gap-3 items-center">
         <a
           href="/login"
-          className="bg-blue-600 hover:bg-blue-700 text-white font-medium text-lg py-2 px-4 rounded"
+          className="bg-primary hover:bg-primary-dark text-white font-medium text-lg py-2 px-4 rounded"
         >
           Iniciar Sesión
         </a>
 
-        <a href="/subir-comprobante" className='w-full px-6 py-3 text-lg text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors font-medium cursor-pointer text-center'>
+        <a href="/subir-comprobante" className='w-full px-6 py-3 text-lg text-white bg-primary rounded-md hover:bg-primary-dark transition-colors font-medium cursor-pointer text-center'>
           Subir comprobante de mantenimiento
         </a>
 
 
 
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
+        <p className="text-sm text-foreground-secondary mt-4">
           Acceso rápido:
         </p>
         <div className="flex flex-wrap gap-2 justify-center">
           <a
             href="/vouchers"
-            className="bg-green-600 hover:bg-green-700 text-white text-sm py-2 px-3 rounded"
+            className="bg-success hover:bg-success-light text-white text-sm py-2 px-3 rounded transition-colors"
           >
             📝 Vouchers
           </a>
           <a
             href="/transactions"
-            className="bg-purple-600 hover:bg-purple-700 text-white text-sm py-2 px-3 rounded"
+            className="bg-info hover:bg-info-light text-white text-sm py-2 px-3 rounded transition-colors"
           >
             💰 Transacciones
           </a>
           <a
             href="/reconciliation"
-            className="bg-orange-600 hover:bg-orange-700 text-white text-sm py-2 px-3 rounded"
+            className="bg-warning hover:bg-warning-light text-white text-sm py-2 px-3 rounded transition-colors"
           >
             🔄 Conciliación
           </a>
@@ -60,16 +60,16 @@ export default function Home() {
       <div className="w-full max-w-xl mt-8 flex gap-4 justify-center">
         <button
           onClick={() => setShowQuienesSomos(true)}
-          className="text-xs text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 underline transition-colors cursor-pointer"
+          className="text-xs text-foreground-secondary hover:text-primary underline transition-colors cursor-pointer"
         >
           Quiénes Somos
         </button>
 
-        <span className="text-xs text-gray-400 dark:text-gray-600">|</span>
+        <span className="text-xs text-foreground-tertiary">|</span>
 
         <button
           onClick={() => setShowAvisoPrivacidad(true)}
-          className="text-xs text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 underline transition-colors cursor-pointer"
+          className="text-xs text-foreground-secondary hover:text-primary underline transition-colors cursor-pointer"
         >
           Aviso de Privacidad
         </button>

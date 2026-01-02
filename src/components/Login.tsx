@@ -65,16 +65,16 @@ export default function Login() {
   };
 
   return (
-    <main className="flex min-h-full flex-col items-center justify-center">
-      <div className="w-full max-w-md border-gray-300 border-2 rounded-md">
-        <h1 className="text-4xl font-bold text-center my-5">Iniciar Sesión</h1>
+    <main className="flex min-h-full flex-col items-center justify-center bg-base">
+      <div className="w-full max-w-md border-base border-2 rounded-md">
+        <h1 className="text-4xl font-bold text-center my-5 text-base">Iniciar Sesión</h1>
 
-        <div className="flex flex-col gap-6 bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md">
+        <div className="flex flex-col gap-6 bg-secondary p-8 rounded-lg shadow-md">
           {/* Social Login Buttons */}
           <div className="flex flex-col gap-3">
             <button
               onClick={handleGoogleLogin}
-              className="w-full flex items-center justify-center gap-3 px-6 py-3 text-lg bg-white border-2 border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors font-semibold cursor-pointer"
+              className="w-full flex items-center justify-center gap-3 px-6 py-3 text-lg bg-base border-2 border-base text-foreground rounded-md hover:bg-tertiary transition-colors font-semibold cursor-pointer"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -98,10 +98,10 @@ export default function Login() {
 
           <div className="relative py-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
+              <div className="w-full border-t border-base"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white dark:bg-gray-800 text-gray-500">O continúa con email</span>
+              <span className="px-2 bg-secondary text-foreground-tertiary">O continúa con email</span>
             </div>
           </div>
 
@@ -143,7 +143,7 @@ export default function Login() {
           {/* Email/Password Form */}
           <form onSubmit={handleSubmit} className="flex flex-col gap-2">
             <div className="flex flex-col gap-2">
-              <label htmlFor="email" className="text-lg font-semibold">
+              <label htmlFor="email" className="text-lg font-semibold text-base">
                 Correo Electrónico
               </label>
               <input
@@ -151,13 +151,13 @@ export default function Login() {
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 dark:bg-gray-300 dark:border-gray-600 text-gray-800"
+                className="px-4 py-2 border border-base rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-base text-foreground"
                 required
               />
             </div>
 
             <div className="flex flex-col gap-2">
-              <label htmlFor="password" className="text-lg font-semibold">
+              <label htmlFor="password" className="text-lg font-semibold text-base">
                 Contraseña
               </label>
               <input
@@ -165,22 +165,22 @@ export default function Login() {
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 dark:bg-gray-300 dark:border-gray-600 text-gray-800"
+                className="px-4 py-2 border border-base rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-base text-foreground"
                 required
               />
             </div>
 
             <button
               type="submit"
-              className="w-full px-6 py-3 text-xl text-white bg-blue-600 rounded-md hover:bg-blue-800 transition-colors font-semibold cursor-pointer"
+              className="w-full px-6 py-3 text-xl text-white bg-primary rounded-md hover:bg-primary-dark transition-colors font-semibold cursor-pointer"
             >
               Entrar
             </button>
           </form>
-          
+
           <a
             href="/"
-            className="text-center text-white hover:underline hover:bg-gray-300 hover:text-blue-950 hover:font-bold rounded-lg py-2"
+            className="text-center text-foreground hover:underline hover:bg-tertiary hover:text-primary hover:font-bold rounded-lg py-2 transition-colors"
           >
             Volver al inicio
           </a>
