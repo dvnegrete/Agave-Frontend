@@ -4,6 +4,7 @@ import { useFormatDate } from '../hooks/useFormatDate';
 import { useSortBy } from '../hooks/useSortBy';
 import { getVoucherById } from '../services/voucherService';
 import { Button } from '../ui/Button';
+import { StatusBadge } from '../ui/StatusBadge';
 
 export function VoucherList() {
   const [expandedId, setExpandedId] = useState<number | null>(null);
@@ -227,14 +228,11 @@ export function VoucherList() {
                     ${voucher.amount.toFixed(2)}
                   </td>
                   <td className="px-6 py-5 whitespace-nowrap text-center">
-                    <span
-                      className={`px-4 py-2 inline-flex text-xs leading-5 font-bold rounded-full transition-all duration-200 ${voucher.confirmation_status
-                          ? 'bg-success/30 text-success border border-success/50 shadow-sm'
-                          : 'bg-warning/30 text-warning border border-warning/50 shadow-sm'
-                        }`}
-                    >
-                      {voucher.confirmation_status ? '✓ Confirmado' : '⏳ Pendiente'}
-                    </span>
+                    <StatusBadge
+                      status={voucher.confirmation_status ? 'success' : 'warning'}
+                      label={voucher.confirmation_status ? 'Confirmado' : 'Pendiente'}
+                      icon={voucher.confirmation_status ? '✓' : '⏳'}
+                    />
                   </td>
                   <td className="px-6 py-5 whitespace-nowrap text-sm text-center">
                     <button

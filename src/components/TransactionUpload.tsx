@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { useUploadTransactions } from '../hooks/useTransactionsBank';
 import { useFormatDate } from '../hooks/useFormatDate';
+import { Button } from '../ui/Button';
+import { StatusBadge } from '../ui/StatusBadge';
+import { StatsCard } from '../ui/StatsCard';
 
 export function TransactionUpload() {
   const { upload, uploading, uploadResult, uploadError, reset } =
@@ -52,7 +55,7 @@ export function TransactionUpload() {
 
       {/* Upload Section */}
       <div className="background-general shadow-lg rounded-lg border-4 p-6 mb-6">
-        <h2 className="text-xl font-bold mb-4">📤 Cargar Transacciones Bancarias</h2>
+        <h2 className="text-xl font-bold mb-4">🏦 Cargar Transacciones Bancarias</h2>
 
         {/* Bank Selection */}
         <div className="mb-4">
@@ -106,39 +109,14 @@ export function TransactionUpload() {
         </div>
 
         {/* Upload Button */}
-        <button
+        <Button
           onClick={handleUpload}
           disabled={!selectedFile || uploading}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          isLoading={uploading}
+          variant="primary"
         >
-          {uploading ? (
-            <>
-              <svg
-                className="animate-spin h-5 w-5"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                ></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
-              </svg>
-              Subiendo...
-            </>
-          ) : (
-            <>📤 Subir Transacciones</>
-          )}
-        </button>
+          🏦 Subir Transacciones
+        </Button>
 
         {/* Upload Error */}
         {uploadError && (
@@ -158,24 +136,30 @@ export function TransactionUpload() {
 
           {/* Summary Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-blue-50 p-4 rounded">
-              <p className="text-sm text-gray-600">Total Transacciones</p>
-              <p className="text-2xl font-bold text-blue-700">{uploadResult.totalTransactions}</p>
-            </div>
-            <div className="bg-green-50 p-4 rounded">
-              <p className="text-sm text-gray-600">Válidas</p>
-              <p className="text-2xl font-bold text-green-700">{uploadResult.validTransactions}</p>
-            </div>
-            <div className="bg-red-50 p-4 rounded">
-              <p className="text-sm text-gray-600">Inválidas</p>
-              <p className="text-2xl font-bold text-red-700">{uploadResult.invalidTransactions}</p>
-            </div>
-            <div className="bg-yellow-50 p-4 rounded">
-              <p className="text-sm text-gray-600">Previamente Procesadas</p>
-              <p className="text-2xl font-bold text-yellow-700">
-                {uploadResult.previouslyProcessedTransactions}
-              </p>
-            </div>
+            <StatsCard
+              label="Total Transacciones"
+              value={uploadResult.totalTransactions}
+              variant="primary"
+              icon="📊"
+            />
+            <StatsCard
+              label="Válidas"
+              value={uploadResult.validTransactions}
+              variant="success"
+              icon="✅"
+            />
+            <StatsCard
+              label="Inválidas"
+              value={uploadResult.invalidTransactions}
+              variant="error"
+              icon="❌"
+            />
+            <StatsCard
+              label="Previamente Procesadas"
+              value={uploadResult.previouslyProcessedTransactions}
+              variant="warning"
+              icon="⚠️"
+            />
           </div>
 
           {/* Date Range */}
@@ -219,26 +203,18 @@ export function TransactionUpload() {
                           </span>
                         </td>
                         <td className="px-4 py-3 text-sm text-center">
-                          <span
-                            className={`px-2 py-1 rounded text-xs font-medium ${
-                              txn.is_deposit
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-red-100 text-red-800'
-                            }`}
-                          >
-                            {txn.is_deposit ? 'Depósito' : 'Retiro'}
-                          </span>
+                          <StatusBadge
+                            status={txn.is_deposit ? 'deposit' : 'withdrawal'}
+                            label={txn.is_deposit ? 'Depósito' : 'Retiro'}
+                            icon={txn.is_deposit ? '📥' : '📤'}
+                          />
                         </td>
                         <td className="px-4 py-3 text-sm text-center">
-                          <span
-                            className={`px-2 py-1 rounded text-xs font-medium ${
-                              txn.status === 'pending'
-                                ? 'bg-yellow-100 text-yellow-800'
-                                : 'bg-blue-100 text-blue-800'
-                            }`}
-                          >
-                            {txn.status === 'pending' ? 'Pendiente' : txn.status}
-                          </span>
+                          <StatusBadge
+                            status={txn.status === 'pending' ? 'pending' : 'success'}
+                            label={txn.status === 'pending' ? 'Pendiente' : txn.status}
+                            icon={txn.status === 'pending' ? '⏳' : '✓'}
+                          />
                         </td>
                       </tr>
                     ))}
@@ -277,15 +253,11 @@ export function TransactionUpload() {
                           </span>
                         </td>
                         <td className="px-4 py-3 text-sm text-center">
-                          <span
-                            className={`px-2 py-1 rounded text-xs font-medium ${
-                              txn.is_deposit
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-red-100 text-red-800'
-                            }`}
-                          >
-                            {txn.is_deposit ? 'Depósito' : 'Retiro'}
-                          </span>
+                          <StatusBadge
+                            status={txn.is_deposit ? 'deposit' : 'withdrawal'}
+                            label={txn.is_deposit ? 'Depósito' : 'Retiro'}
+                            icon={txn.is_deposit ? '📥' : '📤'}
+                          />
                         </td>
                       </tr>
                     ))}
