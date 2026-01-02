@@ -133,7 +133,7 @@ export function Table<T = any>({
                     <td
                       key={`${getRowKey(row, idx)}-${column.id}`}
                       className={`
-                        ${alignmentClasses[column.align || 'left']}
+                        ${alignmentClasses[column.align || 'center']}
                         ${column.className || ''}
                       `}
                     >

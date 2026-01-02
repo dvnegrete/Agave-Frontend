@@ -20,8 +20,6 @@ const tabColorStyles: Record<string, string> = {
   red: 'border-red-600 text-red-600',
 };
 
-const tabInactiveStyles = 'text-gray-200 hover:text-gray-500';
-
 export function Tabs({ tabs, activeTab, onTabChange }: TabsProps) {
   return (
     <div className="flex gap-2 mb-6 border-b overflow-x-auto">
@@ -32,7 +30,7 @@ export function Tabs({ tabs, activeTab, onTabChange }: TabsProps) {
           className={`px-4 py-2 font-medium cursor-pointer transition-colors whitespace-nowrap ${
             activeTab === tab.id
               ? `border-b-2 ${tabColorStyles[tab.color || 'blue']}`
-              : tabInactiveStyles
+              : ''
           }`}
         >
           {tab.icon && <span className="mr-1">{tab.icon}</span>}

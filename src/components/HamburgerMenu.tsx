@@ -98,12 +98,12 @@ export function HamburgerMenu() {
 
           <div className="absolute bottom-6 left-6 right-6">
             <div className="border-t border-base pt-4">
-              <p className="text-xs text-foreground-secondary text-center">
+              {/* <p className="text-xs text-foreground-secondary text-center">
                 Demo
               </p>
               <p className="text-xs text-foreground-secondary text-center mt-1">
                 v1.0.0
-              </p>
+              </p> */}
             </div>
           </div>
         </div>

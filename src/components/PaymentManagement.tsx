@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import { usePeriodsQuery, usePeriodMutations, usePaymentHistoryQuery, useHouseBalanceQuery, usePeriodConfigMutations } from '../hooks/usePaymentManagement';
 import { useFormatDate } from '../hooks/useFormatDate';
+import { Button } from '../ui/Button';
+import { Tabs, type TabItem } from '../ui/Tabs';
+import { StatusBadge } from '../ui/StatusBadge';
+import { StatsCard } from '../ui/StatsCard';
+import { Table, type TableColumn } from '../ui/Table';
 
 type ActiveTab = 'periods' | 'create-period' | 'house-payments' | 'house-balance';
 
@@ -82,56 +87,24 @@ export function PaymentManagement() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Gestión de Pagos</h1>
+      <h1 className="text-3xl font-bold mb-6">💰 Gestión de Pagos</h1>
 
       {/* Tab Navigation */}
-      <div className="flex gap-2 mb-6 flex-wrap">
-        <button
-          onClick={() => setActiveTab('periods')}
-          className={`px-4 py-2 rounded font-medium transition-colors ${
-            activeTab === 'periods'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-          }`}
-        >
-          Períodos
-        </button>
-        <button
-          onClick={() => setActiveTab('create-period')}
-          className={`px-4 py-2 rounded font-medium transition-colors ${
-            activeTab === 'create-period'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-          }`}
-        >
-          Crear Período
-        </button>
-        <button
-          onClick={() => setActiveTab('house-payments')}
-          className={`px-4 py-2 rounded font-medium transition-colors ${
-            activeTab === 'house-payments'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-          }`}
-        >
-          Pagos por Casa
-        </button>
-        <button
-          onClick={() => setActiveTab('house-balance')}
-          className={`px-4 py-2 rounded font-medium transition-colors ${
-            activeTab === 'house-balance'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-          }`}
-        >
-          Saldo de Casa
-        </button>
-      </div>
+      <Tabs
+        tabs={[
+          { id: 'periods', label: 'Períodos', icon: '📋', color: 'blue' },
+          { id: 'create-period', label: 'Crear Período', icon: '➕', color: 'blue' },
+          { id: 'house-payments', label: 'Pagos por Casa', icon: '🏠', color: 'blue' },
+          { id: 'house-balance', label: 'Saldo de Casa', icon: '💵', color: 'blue' },
+        ] as TabItem[]}
+        activeTab={activeTab}
+        onTabChange={(tabId) => setActiveTab(tabId as ActiveTab)}
+      />
 
       {/* Períodos Tab */}
       {activeTab === 'periods' && (
         <div className="background-general shadow-lg rounded-lg border-4 p-6">
-          <h2 className="text-2xl font-bold mb-4">Períodos de Facturación</h2>
+          <h2 className="text-2xl font-bold mb-4">📋 Períodos de Facturación</h2>
 
           {periodsError && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -141,35 +114,50 @@ export function PaymentManagement() {
 
           {periodsLoading ? (
             <div className="text-center py-8">Cargando períodos...</div>
-          ) : periods.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">No hay períodos registrados</div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full border-collapse">
-                <thead className="bg-gray-200">
-                  <tr>
-                    <th className="px-4 py-2 text-left text-sm font-semibold">Período</th>
-                    <th className="px-4 py-2 text-left text-sm font-semibold">Año</th>
-                    <th className="px-4 py-2 text-left text-sm font-semibold">Mes</th>
-                    <th className="px-4 py-2 text-left text-sm font-semibold">Fecha Inicio</th>
-                    <th className="px-4 py-2 text-left text-sm font-semibold">Fecha Fin</th>
-                    <th className="px-4 py-2 text-left text-sm font-semibold">Creado</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {periods.map((period) => (
-                    <tr key={period.id} className="hover:bg-gray-100">
-                      <td className="px-4 py-3 text-sm">{period.period_name}</td>
-                      <td className="px-4 py-3 text-sm">{period.year}</td>
-                      <td className="px-4 py-3 text-sm">{period.month}</td>
-                      <td className="px-4 py-3 text-sm">{useFormatDate(period.start_date)}</td>
-                      <td className="px-4 py-3 text-sm">{useFormatDate(period.end_date)}</td>
-                      <td className="px-4 py-3 text-sm">{useFormatDate(period.created_at)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <Table
+              columns={[
+                {
+                  id: 'period_name',
+                  header: 'Período',
+                  align: 'left',
+                  render: (period) => period.period_name,
+                },
+                {
+                  id: 'year',
+                  header: 'Año',
+                  align: 'center',
+                  render: (period) => period.year,
+                },
+                {
+                  id: 'month',
+                  header: 'Mes',
+                  align: 'center',
+                  render: (period) => period.month,
+                },
+                {
+                  id: 'start_date',
+                  header: 'Fecha Inicio',
+                  align: 'center',
+                  render: (period) => useFormatDate(period.start_date),
+                },
+                {
+                  id: 'end_date',
+                  header: 'Fecha Fin',
+                  align: 'center',
+                  render: (period) => useFormatDate(period.end_date),
+                },
+                {
+                  id: 'created_at',
+                  header: 'Creado',
+                  align: 'center',
+                  render: (period) => useFormatDate(period.created_at),
+                },
+              ] as TableColumn[]}
+              data={periods}
+              emptyMessage="No hay períodos registrados"
+              hoverable
+            />
           )}
         </div>
       )}
@@ -177,11 +165,11 @@ export function PaymentManagement() {
       {/* Crear Período Tab */}
       {activeTab === 'create-period' && (
         <div className="background-general shadow-lg rounded-lg border-4 p-6">
-          <h2 className="text-2xl font-bold mb-4">Crear Nuevo Período</h2>
+          <h2 className="text-2xl font-bold mb-4">➕ Crear Nuevo Período</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-foreground mb-2">
                 Año
               </label>
               <input
@@ -189,12 +177,12 @@ export function PaymentManagement() {
                 value={newYear}
                 onChange={(e) => setNewYear(parseInt(e.target.value))}
                 disabled={periodMutating}
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                className="w-full px-4 py-2 bg-base border-2 border-base rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed text-foreground transition-all duration-200"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-foreground mb-2">
                 Mes (1-12)
               </label>
               <input
@@ -204,26 +192,27 @@ export function PaymentManagement() {
                 value={newMonth}
                 onChange={(e) => setNewMonth(parseInt(e.target.value))}
                 disabled={periodMutating}
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                className="w-full px-4 py-2 bg-base border-2 border-base rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed text-foreground transition-all duration-200"
               />
             </div>
           </div>
 
           <div className="flex gap-3">
-            <button
+            <Button
               onClick={handleCreatePeriod}
               disabled={periodMutating}
-              className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded font-medium disabled:opacity-50 transition-colors"
+              isLoading={periodMutating}
+              variant="success"
             >
-              {periodMutating ? 'Creando...' : 'Crear Período'}
-            </button>
-            <button
+              Crear Período
+            </Button>
+            <Button
               onClick={() => setActiveTab('periods')}
               disabled={periodMutating}
-              className="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded font-medium disabled:opacity-50 transition-colors"
+              variant="sameUi"
             >
               Cancelar
-            </button>
+            </Button>
           </div>
 
           {/* Crear Configuración */}
@@ -232,7 +221,7 @@ export function PaymentManagement() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-foreground mb-2">
                   Monto Mantenimiento
                 </label>
                 <input
@@ -246,12 +235,12 @@ export function PaymentManagement() {
                     })
                   }
                   disabled={configMutating}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                  className="w-full px-4 py-2 bg-base border-2 border-base rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed text-foreground transition-all duration-200"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-foreground mb-2">
                   Monto Agua
                 </label>
                 <input
@@ -265,12 +254,12 @@ export function PaymentManagement() {
                     })
                   }
                   disabled={configMutating}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                  className="w-full px-4 py-2 bg-base border-2 border-base rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed text-foreground transition-all duration-200"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-foreground mb-2">
                   Cuota Extraordinaria
                 </label>
                 <input
@@ -284,12 +273,12 @@ export function PaymentManagement() {
                     })
                   }
                   disabled={configMutating}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                  className="w-full px-4 py-2 bg-base border-2 border-base rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed text-foreground transition-all duration-200"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-foreground mb-2">
                   Día de Vencimiento
                 </label>
                 <input
@@ -304,18 +293,19 @@ export function PaymentManagement() {
                     })
                   }
                   disabled={configMutating}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                  className="w-full px-4 py-2 bg-base border-2 border-base rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed text-foreground transition-all duration-200"
                 />
               </div>
             </div>
 
-            <button
+            <Button
               onClick={handleCreateConfig}
               disabled={configMutating}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded font-medium disabled:opacity-50 transition-colors"
+              isLoading={configMutating}
+              variant="info"
             >
-              {configMutating ? 'Creando...' : 'Crear Configuración'}
-            </button>
+              Crear Configuración
+            </Button>
           </div>
         </div>
       )}
@@ -323,10 +313,10 @@ export function PaymentManagement() {
       {/* Pagos por Casa Tab */}
       {activeTab === 'house-payments' && (
         <div className="background-general shadow-lg rounded-lg border-4 p-6">
-          <h2 className="text-2xl font-bold mb-4">Historial de Pagos por Casa</h2>
+          <h2 className="text-2xl font-bold mb-4">🏠 Historial de Pagos por Casa</h2>
 
           <div className="mb-6">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-foreground mb-2">
               Número de Casa
             </label>
             <input
@@ -336,12 +326,12 @@ export function PaymentManagement() {
                 setSelectedHouseId(e.target.value ? parseInt(e.target.value) : null)
               }
               placeholder="Ingresa el número de casa"
-              className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 bg-base border-2 border-base rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-foreground placeholder-foreground-tertiary transition-all duration-200"
             />
           </div>
 
           {historyLoading && (
-            <div className="text-center py-8">Cargando historial de pagos...</div>
+            <div className="text-center py-8 text-foreground-secondary">Cargando historial de pagos...</div>
           )}
 
           {selectedHouseId && paymentHistory ? (
@@ -390,19 +380,35 @@ export function PaymentManagement() {
                             </td>
                             <td className="px-3 py-2">{useFormatDate(assignment.due_date)}</td>
                             <td className="px-3 py-2">
-                              <span
-                                className={`px-2 py-1 rounded text-xs font-semibold ${getStatusColor(
-                                  assignment.payment_status
-                                )}`}
-                              >
-                                {assignment.payment_status === 'pending'
-                                  ? 'Pendiente'
-                                  : assignment.payment_status === 'paid'
-                                  ? 'Pagado'
-                                  : assignment.payment_status === 'partially_paid'
-                                  ? 'Parcialmente Pagado'
-                                  : 'Vencido'}
-                              </span>
+                              <StatusBadge
+                                status={
+                                  assignment.payment_status === 'paid'
+                                    ? 'success'
+                                    : assignment.payment_status === 'pending'
+                                      ? 'pending'
+                                      : assignment.payment_status === 'partially_paid'
+                                        ? 'warning'
+                                        : 'error'
+                                }
+                                label={
+                                  assignment.payment_status === 'pending'
+                                    ? 'Pendiente'
+                                    : assignment.payment_status === 'paid'
+                                      ? 'Pagado'
+                                      : assignment.payment_status === 'partially_paid'
+                                        ? 'Parcialmente Pagado'
+                                        : 'Vencido'
+                                }
+                                icon={
+                                  assignment.payment_status === 'paid'
+                                    ? '✓'
+                                    : assignment.payment_status === 'pending'
+                                      ? '⏳'
+                                      : assignment.payment_status === 'partially_paid'
+                                        ? '⚠️'
+                                        : '❌'
+                                }
+                              />
                             </td>
                             <td className="px-3 py-2 text-right">
                               ${(assignment.paid_amount || 0).toFixed(2)}
@@ -440,10 +446,10 @@ export function PaymentManagement() {
       {/* Saldo de Casa Tab */}
       {activeTab === 'house-balance' && (
         <div className="background-general shadow-lg rounded-lg border-4 p-6">
-          <h2 className="text-2xl font-bold mb-4">Saldo de Casa</h2>
+          <h2 className="text-2xl font-bold mb-4">💵 Saldo de Casa</h2>
 
           <div className="mb-6">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-foreground mb-2">
               Número de Casa
             </label>
             <input
@@ -453,12 +459,12 @@ export function PaymentManagement() {
                 setSelectedHouseId(e.target.value ? parseInt(e.target.value) : null)
               }
               placeholder="Ingresa el número de casa"
-              className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 bg-base border-2 border-base rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-foreground placeholder-foreground-tertiary transition-all duration-200"
             />
           </div>
 
           {balanceLoading && (
-            <div className="text-center py-8">Cargando saldo...</div>
+            <div className="text-center py-8 text-foreground-secondary">Cargando saldo...</div>
           )}
 
           {selectedHouseId && balance ? (
