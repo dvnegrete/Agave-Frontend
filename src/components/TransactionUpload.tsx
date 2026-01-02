@@ -4,6 +4,7 @@ import { useFormatDate } from '../hooks/useFormatDate';
 import { Button } from '../ui/Button';
 import { StatusBadge } from '../ui/StatusBadge';
 import { StatsCard } from '../ui/StatsCard';
+import { Table, type TableColumn } from '../ui/Table';
 
 export function TransactionUpload() {
   const { upload, uploading, uploadResult, uploadError, reset } =
@@ -179,91 +180,125 @@ export function TransactionUpload() {
               <h3 className="text-lg font-semibold mb-3">
                 Transacciones Procesadas ({uploadResult.transactions.length})
               </h3>
-              <div className="overflow-x-auto max-h-96 overflow-y-auto border rounded">
-                <table className="min-w-full">
-                  <thead className="bg-gray-200 sticky top-0">
-                    <tr>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-700">Fecha</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-700">Hora</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-700">Concepto</th>
-                      <th className="px-4 py-2 text-right text-xs font-medium text-gray-700">Monto</th>
-                      <th className="px-4 py-2 text-center text-xs font-medium text-gray-700">Tipo</th>
-                      <th className="px-4 py-2 text-center text-xs font-medium text-gray-700">Estado</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {uploadResult.transactions.map((txn, idx) => (
-                      <tr key={txn.id || idx} className="hover:bg-gray-500">
-                        <td className="px-4 py-3 text-sm">{useFormatDate(txn.date)}</td>
-                        <td className="px-4 py-3 text-sm">{txn.time}</td>
-                        <td className="px-4 py-3 text-sm">{txn.concept}</td>
-                        <td className="px-4 py-3 text-sm text-right font-semibold">
-                          <span className={txn.is_deposit ? 'text-green-700' : 'text-red-700'}>
-                            {txn.is_deposit ? '+' : '-'}${txn.amount.toFixed(2)} {txn.currency}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-sm text-center">
-                          <StatusBadge
-                            status={txn.is_deposit ? 'deposit' : 'withdrawal'}
-                            label={txn.is_deposit ? 'Depósito' : 'Retiro'}
-                            icon={txn.is_deposit ? '📥' : '📤'}
-                          />
-                        </td>
-                        <td className="px-4 py-3 text-sm text-center">
-                          <StatusBadge
-                            status={txn.status === 'pending' ? 'pending' : 'success'}
-                            label={txn.status === 'pending' ? 'Pendiente' : txn.status}
-                            icon={txn.status === 'pending' ? '⏳' : '✓'}
-                          />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <Table
+                columns={[
+                  {
+                    id: 'date',
+                    header: 'Fecha',
+                    align: 'left',
+                    render: (txn) => useFormatDate(txn.date),
+                  },
+                  {
+                    id: 'time',
+                    header: 'Hora',
+                    align: 'left',
+                    render: (txn) => txn.time,
+                  },
+                  {
+                    id: 'concept',
+                    header: 'Concepto',
+                    align: 'left',
+                    render: (txn) => txn.concept,
+                  },
+                  {
+                    id: 'amount',
+                    header: 'Monto',
+                    align: 'right',
+                    render: (txn) => (
+                      <span className={txn.is_deposit ? 'text-success font-bold' : 'text-error font-bold'}>
+                        {txn.is_deposit ? '+' : '-'}${txn.amount.toFixed(2)} {txn.currency}
+                      </span>
+                    ),
+                  },
+                  {
+                    id: 'type',
+                    header: 'Tipo',
+                    align: 'center',
+                    render: (txn) => (
+                      <StatusBadge
+                        status={txn.is_deposit ? 'deposit' : 'withdrawal'}
+                        label={txn.is_deposit ? 'Depósito' : 'Retiro'}
+                        icon={txn.is_deposit ? '📥' : '📤'}
+                      />
+                    ),
+                  },
+                  {
+                    id: 'status',
+                    header: 'Estado',
+                    align: 'center',
+                    render: (txn) => (
+                      <StatusBadge
+                        status={txn.status === 'pending' ? 'pending' : 'success'}
+                        label={txn.status === 'pending' ? 'Pendiente' : txn.status}
+                        icon={txn.status === 'pending' ? '⏳' : '✓'}
+                      />
+                    ),
+                  },
+                ] as TableColumn[]}
+                data={uploadResult.transactions}
+                keyField={(row) => row.id || row.concept}
+                maxHeight="384px"
+                emptyMessage="No hay transacciones procesadas"
+                hoverable
+              />
             </div>
           )}
 
           {/* Last Day Transactions */}
           {uploadResult.lastDayTransaction.length > 0 && (
             <div>
-              <h3 className="text-lg font-semibold mb-3 text-orange-700">
+              <h3 className="text-lg font-semibold mb-3 text-warning">
                 Transacciones del Último Día ({uploadResult.lastDayTransaction.length})
               </h3>
-              <div className="overflow-x-auto max-h-64 overflow-y-auto border rounded border-orange-300">
-                <table className="min-w-full">
-                  <thead className="bg-orange-100 sticky top-0">
-                    <tr>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-orange-900">Fecha</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-orange-900">Hora</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-orange-900">Concepto</th>
-                      <th className="px-4 py-2 text-right text-xs font-medium text-orange-900">Monto</th>
-                      <th className="px-4 py-2 text-center text-xs font-medium text-orange-900">Tipo</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-orange-200">
-                    {uploadResult.lastDayTransaction.map((txn, idx) => (
-                      <tr key={txn.id || idx} className="hover:bg-orange-50">
-                        <td className="px-4 py-3 text-sm">{useFormatDate(txn.date)}</td>
-                        <td className="px-4 py-3 text-sm">{txn.time}</td>
-                        <td className="px-4 py-3 text-sm">{txn.concept}</td>
-                        <td className="px-4 py-3 text-sm text-right font-semibold">
-                          <span className={txn.is_deposit ? 'text-green-700' : 'text-red-700'}>
-                            {txn.is_deposit ? '+' : '-'}${txn.amount.toFixed(2)} {txn.currency}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-sm text-center">
-                          <StatusBadge
-                            status={txn.is_deposit ? 'deposit' : 'withdrawal'}
-                            label={txn.is_deposit ? 'Depósito' : 'Retiro'}
-                            icon={txn.is_deposit ? '📥' : '📤'}
-                          />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <Table
+                columns={[
+                  {
+                    id: 'date',
+                    header: 'Fecha',
+                    align: 'left',
+                    render: (txn) => useFormatDate(txn.date),
+                  },
+                  {
+                    id: 'time',
+                    header: 'Hora',
+                    align: 'left',
+                    render: (txn) => txn.time,
+                  },
+                  {
+                    id: 'concept',
+                    header: 'Concepto',
+                    align: 'left',
+                    render: (txn) => txn.concept,
+                  },
+                  {
+                    id: 'amount',
+                    header: 'Monto',
+                    align: 'right',
+                    render: (txn) => (
+                      <span className={txn.is_deposit ? 'text-success font-bold' : 'text-error font-bold'}>
+                        {txn.is_deposit ? '+' : '-'}${txn.amount.toFixed(2)} {txn.currency}
+                      </span>
+                    ),
+                  },
+                  {
+                    id: 'type',
+                    header: 'Tipo',
+                    align: 'center',
+                    render: (txn) => (
+                      <StatusBadge
+                        status={txn.is_deposit ? 'deposit' : 'withdrawal'}
+                        label={txn.is_deposit ? 'Depósito' : 'Retiro'}
+                        icon={txn.is_deposit ? '📥' : '📤'}
+                      />
+                    ),
+                  },
+                ] as TableColumn[]}
+                data={uploadResult.lastDayTransaction}
+                keyField={(row) => row.id || row.concept}
+                maxHeight="256px"
+                emptyMessage="No hay transacciones del último día"
+                hoverable
+              />
             </div>
           )}
 

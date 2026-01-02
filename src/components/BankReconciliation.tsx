@@ -9,6 +9,7 @@ import { StatusBadge } from '../ui/StatusBadge';
 import { StatsCard } from '../ui/StatsCard';
 import { Tabs, type TabItem } from '../ui/Tabs';
 import { ReconciliationCard } from '../ui/ReconciliationCard';
+import { Table, type TableColumn } from '../ui/Table';
 import type { StartReconciliationResponse } from '../types/api.types';
 
 export function BankReconciliation() {
@@ -202,121 +203,130 @@ export function BankReconciliation() {
           )}
 
           {activeTab === 'conciliados' && (
-            <div className="overflow-x-auto">
-              <table className="min-w-full">
-                <thead className="bg-green-50">
-                  <tr>
-                    <th className="px-4 py-2 text-center text-sm font-medium text-green-900">Casa</th>
-                    <th className="px-4 py-2 text-right text-sm font-medium text-green-900">Monto</th>
-                    <th className="px-4 py-2 text-center text-sm font-medium text-green-900">Conciliado. Nivel de Confianza </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {reconciliationResult.conciliados.map((item, idx) => (
-                    <tr key={idx} className="hover:bg-gray-600">
-                      <td className="px-4 py-3 text-sm text-center">{item.houseNumber ?? 'N/A'}</td>
-                      <td className="px-4 py-3 text-sm text-right">
-                        ${item.amount ? item.amount.toFixed(2) : '0.00'}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-center">
-                        <StatusBadge
-                          status={
-                            item.confidenceLevel === 'high'
-                              ? 'success'
-                              : item.confidenceLevel === 'medium'
-                                ? 'warning'
-                                : item.confidenceLevel === 'low'
-                                  ? 'warning'
-                                  : 'info'
-                          }
-                          label={
-                            item.confidenceLevel === 'high'
-                              ? 'Alta'
-                              : item.confidenceLevel === 'medium'
-                                ? 'Media'
-                                : item.confidenceLevel === 'low'
-                                  ? 'Baja'
-                                  : 'Manual'
-                          }
-                          icon={
-                            item.confidenceLevel === 'high'
-                              ? '✅'
-                              : item.confidenceLevel === 'medium'
-                                ? '⚖️'
-                                : item.confidenceLevel === 'low'
-                                  ? '⚠️'
-                                  : '🔧'
-                          }
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {reconciliationResult.conciliados.length === 0 && (
-                <p className="text-center text-gray-500 py-8">No hay registros conciliados</p>
-              )}
-            </div>
+            <Table
+              columns={[
+                {
+                  id: 'houseNumber',
+                  header: 'Casa',
+                  align: 'center',
+                  render: (item) => item.houseNumber ?? 'N/A',
+                },
+                {
+                  id: 'amount',
+                  header: 'Monto',
+                  align: 'right',
+                  render: (item) => `$${item.amount ? item.amount.toFixed(2) : '0.00'}`,
+                },
+                {
+                  id: 'confidenceLevel',
+                  header: 'Nivel de Confianza',
+                  align: 'center',
+                  render: (item) => (
+                    <StatusBadge
+                      status={
+                        item.confidenceLevel === 'high'
+                          ? 'success'
+                          : item.confidenceLevel === 'medium'
+                            ? 'warning'
+                            : item.confidenceLevel === 'low'
+                              ? 'warning'
+                              : 'info'
+                      }
+                      label={
+                        item.confidenceLevel === 'high'
+                          ? 'Alta'
+                          : item.confidenceLevel === 'medium'
+                            ? 'Media'
+                            : item.confidenceLevel === 'low'
+                              ? 'Baja'
+                              : 'Manual'
+                      }
+                      icon={
+                        item.confidenceLevel === 'high'
+                          ? '✅'
+                          : item.confidenceLevel === 'medium'
+                            ? '⚖️'
+                            : item.confidenceLevel === 'low'
+                              ? '⚠️'
+                              : '🔧'
+                      }
+                    />
+                  ),
+                },
+              ] as TableColumn[]}
+              data={reconciliationResult.conciliados}
+              emptyMessage="No hay registros conciliados"
+              headerVariant="success"
+              hoverable
+            />
           )}
 
           {activeTab === 'unfundedVouchers' && (
-            <div className="overflow-x-auto">
-              <table className="min-w-full">
-                <thead className="bg-yellow-600">
-                  <tr>
-                    <th className="px-4 py-2 text-center text-sm font-medium text-gray-900">Voucher ID</th>
-                    <th className="px-4 py-2 text-center text-sm font-medium text-gray-900">Fecha</th>
-                    <th className="px-4 py-2 text-center text-sm font-medium text-gray-900">Monto</th>
-                    <th className="px-4 py-2 text-center text-sm font-medium text-gray-900">Razón</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {reconciliationResult.unfundedVouchers.map((item, idx) => (
-                    <tr key={idx} className="hover:bg-gray-">
-                      <td className="px-4 py-3 text-sm">{item.voucherId ?? 'N/A'}</td>
-                      <td className="px-4 py-3 text-sm">{useFormatDate(item.date)}</td>
-                      <td className="px-4 py-3 text-sm text-right">
-                        ${item.amount ? item.amount.toFixed(2) : '0.00'}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{item.reason || 'Sin razón especificada'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {reconciliationResult.unfundedVouchers.length === 0 && (
-                <p className="text-center text-gray-500 py-8">No hay comprobantes NO conciliados</p>
-              )}
-            </div>
+            <Table
+              columns={[
+                {
+                  id: 'voucherId',
+                  header: 'Voucher ID',
+                  align: 'center',
+                  render: (item) => item.voucherId ?? 'N/A',
+                },
+                {
+                  id: 'date',
+                  header: 'Fecha',
+                  align: 'center',
+                  render: (item) => useFormatDate(item.date),
+                },
+                {
+                  id: 'amount',
+                  header: 'Monto',
+                  align: 'right',
+                  render: (item) => `$${item.amount ? item.amount.toFixed(2) : '0.00'}`,
+                },
+                {
+                  id: 'reason',
+                  header: 'Razón',
+                  render: (item) => item.reason || 'Sin razón especificada',
+                },
+              ] as TableColumn[]}
+              data={reconciliationResult.unfundedVouchers}
+              emptyMessage="No hay comprobantes NO conciliados"
+              headerVariant="warning"
+              hoverable
+            />
           )}
 
           {activeTab === 'unclaimedDeposits' && (
-            <div className="overflow-x-auto">
-              <table className="min-w-full">
-                <thead className="bg-orange-400">
-                  <tr>
-                    <th className="px-4 py-2 text-center text-sm font-medium text-orange-50">Transacción ID</th>
-                    <th className="px-4 py-2 text-center text-sm font-medium text-orange-50">Monto</th>
-                    <th className="px-4 py-2 text-center text-sm font-medium text-orange-50">Fecha</th>
-                    <th className="px-4 py-2 text-center text-sm font-medium text-orange-50">Razón</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {reconciliationResult.unclaimedDeposits.map((item, idx) => (
-                    <tr key={idx} className="hover:bg-gray-500">
-                      <td className="px-4 py-3 text-sm">{item.transactionId ?? 'N/A'}</td>
-                      <td className="px-4 py-3 text-sm text-right">
-                        ${item.amount ? item.amount.toFixed(2) : '0.00'}
-                      </td>
-                      <td className="px-4 py-3 text-sm">{useFormatDate(item.date)}</td>
-                      <td className="px-4 py-3 text-sm text-gray-400">{item.reason || 'Sin razón especificada'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {reconciliationResult.unclaimedDeposits.length === 0 && (
-                <p className="text-center text-gray-500 py-8">No hay movimientos bancarios sin asociar/conciliar</p>
-              )}
-            </div>
+            <Table
+              columns={[
+                {
+                  id: 'transactionId',
+                  header: 'Transacción ID',
+                  align: 'center',
+                  render: (item) => item.transactionId ?? 'N/A',
+                },
+                {
+                  id: 'amount',
+                  header: 'Monto',
+                  align: 'right',
+                  render: (item) => `$${item.amount ? item.amount.toFixed(2) : '0.00'}`,
+                },
+                {
+                  id: 'date',
+                  header: 'Fecha',
+                  align: 'center',
+                  render: (item) => useFormatDate(item.date),
+                },
+                {
+                  id: 'reason',
+                  header: 'Razón',
+                  render: (item) => item.reason || 'Sin razón especificada',
+                },
+              ] as TableColumn[]}
+              data={reconciliationResult.unclaimedDeposits}
+              emptyMessage="No hay movimientos bancarios sin asociar/conciliar"
+              headerVariant="warning"
+              hoverable
+            />
           )}
 
           {activeTab === 'manual' && (

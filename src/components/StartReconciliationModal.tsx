@@ -1,5 +1,5 @@
 import { useState } from 'react';
-
+import { Button } from '../ui/Button';
 import type { StartReconciliationResponse } from '../types/api.types';
 
 type StartReconciliationResult = StartReconciliationResponse;
@@ -69,16 +69,18 @@ export function StartReconciliationModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 background-general bg-opacity-50 z-50 flex items-center justify-center">
-      <div className="border-gray-200 border-2 rounded-lg p-6 max-w-md w-full mx-4">
-        <h2 className="text-xl font-bold mb-4">Iniciar Conciliación</h2>
-        <p className="text-sm mb-4">
-          Los campos de fecha son opcionales. Si no especificas fechas, se procesarán todos los registros.
-        </p>
+    <div className="fixed inset-0 background-general bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div className="bg-secondary border-2 border-primary/20 rounded-lg p-6 max-w-md w-full shadow-xl">
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-foreground mb-2">🚀 Iniciar Conciliación</h2>
+          <p className="text-sm text-foreground-secondary">
+            Los campos de fecha son opcionales. Si no especificas fechas, se procesarán todos los registros.
+          </p>
+        </div>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-1">
+            <label className="block text-sm font-semibold text-foreground mb-2">
               Fecha Inicio (opcional)
             </label>
             <input
@@ -86,12 +88,12 @@ export function StartReconciliationModal({
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
               disabled={isProcessing}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full px-4 py-2 bg-base border-2 border-base rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed text-foreground placeholder-foreground-tertiary transition-all duration-200"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-1">
+            <label className="block text-sm font-semibold text-foreground mb-2">
               Fecha Fin (opcional)
             </label>
             <input
@@ -99,26 +101,26 @@ export function StartReconciliationModal({
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
               disabled={isProcessing}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full px-4 py-2 bg-base border-2 border-base rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed text-foreground placeholder-foreground-tertiary transition-all duration-200"
             />
           </div>
 
-
-          <div className="flex gap-3 justify-end pt-4">
-            <button
+          <div className="flex gap-3 justify-end pt-6">
+            <Button
               onClick={handleClose}
               disabled={isProcessing}
-              className="px-4 py-2 bg-red-800 rounded hover:bg-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              variant="error"
             >
               Cancelar
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={handleStart}
               disabled={isProcessing}
-              className="bg-green-600 hover:bg-green-400 text-gray-100 px-4 py-2 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              isLoading={isProcessing}
+              variant="success"
             >
-              {isProcessing ? 'Procesando...' : 'Iniciar'}
-            </button>
+              Iniciar
+            </Button>
           </div>
         </div>
       </div>
