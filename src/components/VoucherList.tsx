@@ -3,6 +3,7 @@ import { useVouchersQuery, useVoucherMutations } from '../hooks/useVouchersQuery
 import { useFormatDate } from '../hooks/useFormatDate';
 import { useSortBy } from '../hooks/useSortBy';
 import { getVoucherById } from '../services/voucherService';
+import { Button } from '../ui/Button';
 
 export function VoucherList() {
   const [expandedId, setExpandedId] = useState<number | null>(null);
@@ -134,14 +135,13 @@ export function VoucherList() {
             </div>
           )}
         </div>
-        <button
+        <Button
           onClick={handleCreateVoucher}
           disabled={mutating}
-          className="bg-gray-700 hover:shadow-lg text-white font-bold py-3 px-6 rounded-lg disabled:opacity-50 transition-all duration-300 hover:scale-105 flex items-center gap-2 cursor-pointer"
-          style={{ opacity: mutating ? 0.5 : 1 }}
+          variant="sameUi"
         >
           ➕ Crear Voucher
-        </button>
+        </Button>
       </div>
 
       <div className="shadow-xl rounded-xl overflow-hidden border border-primary/10">
@@ -262,44 +262,30 @@ export function VoucherList() {
                         </div>
                       </div>
                       <div className="flex flex-wrap gap-3">
-                        <button
+                        <Button
                           onClick={() => handleViewVoucher(voucher.id)}
                           disabled={loadingViewUrl === voucher.id}
-                          className="bg-blue-600/85 text-white font-bold py-3 px-6 rounded-lg disabled:opacity-50 flex items-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer"
-                          style={{ opacity: loadingViewUrl === voucher.id ? 0.7 : 1 }}
+                          isLoading={loadingViewUrl === voucher.id}
+                          variant="primary"
                         >
-                          {loadingViewUrl === voucher.id ? (
-                            <>
-                              <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                              </svg>
-                              Cargando...
-                            </>
-                          ) : (
-                            <>
-                              📄 Ver comprobante
-                            </>
-                          )}
-                        </button>
+                          📄 Ver comprobante
+                        </Button>
                         {!voucher.confirmation_status && (
-                          <button
+                          <Button
                             onClick={() => handleConfirmVoucher(voucher.id)}
                             disabled={mutating}
-                            className="bg-green-700/80 text-white font-bold py-3 px-6 rounded-lg disabled:opacity-50 transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer"
-                            style={{ opacity: mutating ? 0.5 : 1 }}
+                            variant="success"
                           >
                             ✓ Confirmar
-                          </button>
+                          </Button>
                         )}
-                        <button
+                        <Button
                           onClick={() => handleDeleteVoucher(voucher.id)}
                           disabled={mutating}
-                          className="bg-red-600/85 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg disabled:opacity-50 transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer"
-                          style={{ opacity: mutating ? 0.5 : 1 }}
+                          variant="error"
                         >
                           🗑️ Eliminar
-                        </button>
+                        </Button>
                       </div>
                     </td>
                   </tr>
