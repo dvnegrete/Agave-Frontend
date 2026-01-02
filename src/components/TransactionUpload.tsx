@@ -209,7 +209,7 @@ export function TransactionUpload() {
                   </thead>
                   <tbody className="divide-y divide-gray-200">
                     {uploadResult.transactions.map((txn, idx) => (
-                      <tr key={txn.id || idx} className="hover:bg-gray-50">
+                      <tr key={txn.id || idx} className="hover:bg-gray-500">
                         <td className="px-4 py-3 text-sm">{useFormatDate(txn.date)}</td>
                         <td className="px-4 py-3 text-sm">{txn.time}</td>
                         <td className="px-4 py-3 text-sm">{txn.concept}</td>

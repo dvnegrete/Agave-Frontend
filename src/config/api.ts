@@ -3,6 +3,8 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localho
 export const API_ENDPOINTS = {
   vouchers: '/vouchers',
   voucherById: (id: string) => `/vouchers/${id}`,
+  voucherFrontendUpload: '/vouchers/frontend/upload',
+  voucherFrontendConfirm: '/vouchers/frontend/confirm',
   transactionsBankUpload: '/transactions-bank/upload',
   transactionsBank: '/transactions-bank',
   bankReconciliation: '/bank-reconciliation/reconcile',

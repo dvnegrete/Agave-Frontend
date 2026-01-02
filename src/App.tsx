@@ -6,6 +6,7 @@ import Login from './components/Login'
 import Footer from './components/Footer'
 import { HamburgerMenu } from './components/HamburgerMenu'
 import { VoucherList } from './components/VoucherList'
+import { VoucherUpload } from './components/VoucherUpload'
 import { TransactionUpload } from './components/TransactionUpload'
 import { BankReconciliation } from './components/BankReconciliation'
 import { PaymentManagement } from './components/PaymentManagement'
@@ -66,6 +67,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Layout showMenu={true}><Home /></Layout>} />
           <Route path="/login" element={<Layout><Login /></Layout>} />
+          <Route path="/subir-comprobante" element={<Layout showMenu={true}><VoucherUpload /></Layout>} />
           <Route path="/vouchers" element={<Layout showMenu={true}><VoucherList /></Layout>} />
           <Route path="/transactions" element={<Layout showMenu={true}><TransactionUpload /></Layout>} />
           <Route path="/reconciliation" element={<Layout showMenu={true}><BankReconciliation /></Layout>} />

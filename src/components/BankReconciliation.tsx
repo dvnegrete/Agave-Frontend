@@ -237,7 +237,7 @@ export function BankReconciliation() {
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {reconciliationResult.conciliados.map((item, idx) => (
-                    <tr key={idx} className="hover:bg-gray-50">
+                    <tr key={idx} className="hover:bg-gray-600">
                       <td className="px-4 py-3 text-sm text-center">{item.houseNumber ?? 'N/A'}</td>
                       <td className="px-4 py-3 text-sm text-right">
                         ${item.amount ? item.amount.toFixed(2) : '0.00'}
@@ -316,13 +316,13 @@ export function BankReconciliation() {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {reconciliationResult.unclaimedDeposits.map((item, idx) => (
-                    <tr key={idx} className="hover:bg-gray-50">
+                    <tr key={idx} className="hover:bg-gray-500">
                       <td className="px-4 py-3 text-sm">{item.transactionId ?? 'N/A'}</td>
                       <td className="px-4 py-3 text-sm text-right">
                         ${item.amount ? item.amount.toFixed(2) : '0.00'}
                       </td>
                       <td className="px-4 py-3 text-sm">{useFormatDate(item.date)}</td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{item.reason || 'Sin razón especificada'}</td>
+                      <td className="px-4 py-3 text-sm text-gray-400">{item.reason || 'Sin razón especificada'}</td>
                     </tr>
                   ))}
                 </tbody>

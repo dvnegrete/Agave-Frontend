@@ -25,6 +25,12 @@ export default function Home() {
           Iniciar Sesión
         </a>
 
+        <a href="/subir-comprobante" className='w-full px-6 py-3 text-lg text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors font-medium cursor-pointer text-center'>
+          Subir comprobante de mantenimiento
+        </a>
+
+
+
         <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
           Acceso rápido:
         </p>
