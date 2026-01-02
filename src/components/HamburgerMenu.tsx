@@ -12,6 +12,7 @@ const menuItems: MenuItem[] = [
   { path: '/vouchers', label: 'Vouchers', icon: '📝' },
   { path: '/transactions', label: 'Transacciones Bancarias', icon: '💰' },
   { path: '/reconciliation', label: 'Conciliación', icon: '🔄' },
+  { path: '/payment-management', label: 'Gestión de Pagos', icon: '💳' },
 ];
 
 export function HamburgerMenu() {

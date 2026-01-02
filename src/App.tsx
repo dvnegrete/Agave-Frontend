@@ -8,6 +8,7 @@ import { HamburgerMenu } from './components/HamburgerMenu'
 import { VoucherList } from './components/VoucherList'
 import { TransactionUpload } from './components/TransactionUpload'
 import { BankReconciliation } from './components/BankReconciliation'
+import { PaymentManagement } from './components/PaymentManagement'
 import { ApiStatus } from './components/ApiStatus'
 import './App.css'
 
@@ -68,6 +69,7 @@ function App() {
           <Route path="/vouchers" element={<Layout showMenu={true}><VoucherList /></Layout>} />
           <Route path="/transactions" element={<Layout showMenu={true}><TransactionUpload /></Layout>} />
           <Route path="/reconciliation" element={<Layout showMenu={true}><BankReconciliation /></Layout>} />
+          <Route path="/payment-management" element={<Layout showMenu={true}><PaymentManagement /></Layout>} />
         </Routes>
       </BrowserRouter>
       <ReactQueryDevtools initialIsOpen={false} />

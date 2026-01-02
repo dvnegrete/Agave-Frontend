@@ -52,7 +52,7 @@ export function ApiStatus() {
         <span className="font-medium">
           API: {status === 'online' ? 'Conectada' : 'Desconectada'}
         </span>
-        <span className="text-xs opacity-75">({apiUrl})</span>
+        {/* <span className="text-xs opacity-75">({apiUrl})</span> */}
       </div>
     </div>
   );

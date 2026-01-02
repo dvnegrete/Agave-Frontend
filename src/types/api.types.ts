@@ -234,3 +234,92 @@ export interface ApiError {
   errors?: string[];
   statusCode?: number;
 }
+
+// Payment Management Types
+
+// Period Types
+export interface PeriodResponseDto {
+  id: number;
+  year: number;
+  month: number;
+  period_name: string;
+  start_date: string;        // ISO date
+  end_date: string;          // ISO date
+  created_at: string;
+  updated_at: string;
+  [key: string]: any;
+}
+
+export interface CreatePeriodDto {
+  year: number;
+  month: number;
+  period_config_id?: number;  // Optional for create, required for certain operations
+}
+
+// Period Config Types
+export interface PeriodConfigResponseDto {
+  id: number;
+  maintenance_amount: number;
+  water_amount: number;
+  extraordinary_fee: number;
+  due_day: number;           // Día de vencimiento
+  created_at: string;
+  updated_at: string;
+  [key: string]: any;
+}
+
+export interface CreatePeriodConfigDto {
+  maintenance_amount: number;
+  water_amount: number;
+  extraordinary_fee?: number;
+  due_day: number;
+  [key: string]: any;
+}
+
+// Payment Types
+export interface PaymentAssignment {
+  id?: number;
+  concept: string;           // e.g., "Mantenimiento", "Agua", "Cuota Extraordinaria"
+  amount: number;
+  due_date: string;          // ISO date
+  payment_status: 'pending' | 'paid' | 'partially_paid' | 'overdue';
+  paid_amount?: number;
+  payment_date?: string;
+  [key: string]: any;
+}
+
+export interface PaymentHistoryPeriod {
+  period_id: number;
+  period_name: string;
+  year: number;
+  month: number;
+  assignments: PaymentAssignment[];
+  total_amount: number;
+  total_paid: number;
+}
+
+export interface PaymentHistoryResponseDTO {
+  house_id: number;
+  history: PaymentHistoryPeriod[];
+  total_history_amount: number;
+  total_history_paid: number;
+}
+
+// House Balance Types
+export interface HouseBalanceDTO {
+  house_id: number;
+  current_balance: number;   // Saldo actual (positivo = crédito, negativo = deuda)
+  status: 'balanced' | 'credited' | 'in-debt';  // Estado financiero
+  accumulated_cents: number; // Centavos acumulados
+  last_payment_date?: string;
+  [key: string]: any;
+}
+
+// Query Types
+export interface PaymentManagementQuery {
+  year?: number;
+  month?: number;
+  house_id?: number;
+  period_id?: number;
+  [key: string]: any;
+}
