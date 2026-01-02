@@ -1,6 +1,6 @@
 import React from 'react';
 
-type ButtonVariant = 'primary' | 'success' | 'error' | 'info' | 'warning' | 'sameUi';
+type ButtonVariant = 'primary' | 'success' | 'error' | 'info' | 'warning' | 'sameUi' | 'sm';
 
 interface ButtonProps {
   onClick?: () => void;
@@ -12,12 +12,13 @@ interface ButtonProps {
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary: 'bg-blue-600/85 hover:bg-blue-700',
-  success: 'bg-green-700/80 hover:bg-green-800',
-  error: 'bg-red-600/85 hover:bg-red-700',
-  info: 'bg-cyan-600/85 hover:bg-cyan-700',
-  warning: 'bg-yellow-600/80 hover:bg-yellow-700',
-  sameUi: "bg-gray-700",
+  primary: 'bg-blue-600/85 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg',
+  success: 'bg-green-700/80 hover:bg-green-800 text-white font-bold py-3 px-6 rounded-lg',
+  error: 'bg-red-600/85 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg',
+  info: 'bg-cyan-600/85 hover:bg-cyan-700 text-white font-bold py-3 px-6 rounded-lg',
+  warning: 'bg-yellow-600/80 hover:bg-yellow-700 text-white font-bold py-3 px-6 rounded-lg',
+  sameUi: 'bg-gray-700 text-white font-bold py-3 px-6 rounded-lg',
+  sm: 'text-white text-sm py-2 px-3 rounded transition-colors',
 };
 
 export function Button({
@@ -28,7 +29,7 @@ export function Button({
   className = '',
   children,
 }: ButtonProps) {
-  const baseStyles = 'text-white font-bold py-3 px-6 rounded-lg disabled:opacity-50 transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer flex items-center gap-2';
+  const baseStyles = 'disabled:opacity-50 transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer flex items-center gap-2';
   const variantStyle = variantStyles[variant];
   const combinedClassName = `${baseStyles} ${variantStyle} ${className}`;
 

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Modal from './Modal';
+import { Button } from '../ui/Button';
 
 export default function Home() {
   const [showQuienesSomos, setShowQuienesSomos] = useState(false);
@@ -17,42 +18,47 @@ export default function Home() {
         alt="El Agave"
       />
 
-      <div className="flex flex-col gap-3 items-center">
-        <a
-          href="/login"
-          className="bg-primary hover:bg-primary-dark text-white font-medium text-lg py-2 px-4 rounded"
+      <div className="flex flex-col my-6 gap-3 items-center w-full md:w-auto">
+        <Button
+          onClick={() => window.location.href = '/login'}
+          variant="primary"
         >
           Iniciar Sesión
-        </a>
+        </Button>
 
-        <a href="/subir-comprobante" className='w-full px-6 py-3 text-lg text-white bg-primary rounded-md hover:bg-primary-dark transition-colors font-medium cursor-pointer text-center'>
+        <Button
+          onClick={() => window.location.href = '/subir-comprobante'}
+          variant="sameUi"
+          className="w-full md:w-auto"
+        >
           Subir comprobante de mantenimiento
-        </a>
-
-
+        </Button>
 
         <p className="text-sm text-foreground-secondary mt-4">
           Acceso rápido:
         </p>
         <div className="flex flex-wrap gap-2 justify-center">
-          <a
-            href="/vouchers"
-            className="bg-success hover:bg-success-light text-white text-sm py-2 px-3 rounded transition-colors"
+          <Button
+            onClick={() => window.location.href = '/vouchers'}
+            variant="success"
+            className="sm:text-sm sm:py-2 sm:px-3"
           >
             📝 Vouchers
-          </a>
-          <a
-            href="/transactions"
-            className="bg-info hover:bg-info-light text-white text-sm py-2 px-3 rounded transition-colors"
+          </Button>
+          <Button
+            onClick={() => window.location.href = '/transactions'}
+            variant="info"
+            className="sm:text-sm sm:py-2 sm:px-3"
           >
             💰 Transacciones
-          </a>
-          <a
-            href="/reconciliation"
-            className="bg-warning hover:bg-warning-light text-white text-sm py-2 px-3 rounded transition-colors"
+          </Button>
+          <Button
+            onClick={() => window.location.href = '/reconciliation'}
+            variant="warning"
+            className="sm:text-sm sm:py-2 sm:px-3"
           >
             🔄 Conciliación
-          </a>
+          </Button>
         </div>
       </div>
 

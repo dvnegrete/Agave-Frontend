@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <footer className="w-full py-4 mt-4 border-t border-base bg-gray-100 dark:bg-gray-800">
+    <footer className="w-full py-4 mt-4 border-t bg-gray-200 dark:bg-gray-700">
       <div className="max-w-6xl mx-auto px-8">
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
           {/* Dirección */}
