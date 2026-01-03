@@ -214,7 +214,7 @@ export function BankReconciliation() {
                 {
                   id: 'amount',
                   header: 'Monto',
-                  align: 'right',
+                  align: 'center',
                   render: (item) => `$${item.amount ? item.amount.toFixed(2) : '0.00'}`,
                 },
                 {
@@ -279,7 +279,7 @@ export function BankReconciliation() {
                 {
                   id: 'amount',
                   header: 'Monto',
-                  align: 'right',
+                  align: 'center',
                   render: (item) => `$${item.amount ? item.amount.toFixed(2) : '0.00'}`,
                 },
                 {
@@ -307,7 +307,7 @@ export function BankReconciliation() {
                 {
                   id: 'amount',
                   header: 'Monto',
-                  align: 'right',
+                  align: 'center',
                   render: (item) => `$${item.amount ? item.amount.toFixed(2) : '0.00'}`,
                 },
                 {

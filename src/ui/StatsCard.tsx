@@ -9,19 +9,19 @@ interface StatsCardProps {
 }
 
 const variantStyles: Record<CardVariant, string> = {
-  primary: 'bg-blue-50 border-l-4 border-primary',
-  success: 'bg-success/10 border-l-4 border-success',
-  warning: 'bg-warning/10 border-l-4 border-warning',
-  error: 'bg-error/10 border-l-4 border-error',
-  info: 'bg-info/10 border-l-4 border-info',
+  primary: 'bg-blue-600/30 border-l-4 border-blue-500',
+  success: 'bg-green-600/30 border-l-4 border-green-500',
+  warning: 'bg-yellow-400/60 border-l-4 border-yellow-500',
+  error: 'bg-red-700/30 border-l-4 border-red-500',
+  info: 'bg-cyan-600/40 border-l-4 border-cyan-500',
 };
 
 const valueStyles: Record<CardVariant, string> = {
-  primary: 'text-primary',
-  success: 'text-success',
-  warning: 'text-warning',
-  error: 'text-error',
-  info: 'text-info',
+  primary: 'text-blue-700',
+  success: 'text-green-800',
+  warning: 'text-yellow-800',
+  error: 'text-red-800',
+  info: 'text-cyan-800',
 };
 
 export function StatsCard({
