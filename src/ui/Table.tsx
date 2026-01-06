@@ -134,7 +134,7 @@ export function Table<T = any>({
                       key={`${getRowKey(row, idx)}-${column.id}`}
                       className={`
                         ${alignmentClasses[column.align || 'center']}
-                        ${column.className || ''}
+                        ${column.className || 'px-3'}
                       `}
                     >
                       {column.render(row, idx)}

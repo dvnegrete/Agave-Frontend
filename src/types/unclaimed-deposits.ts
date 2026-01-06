@@ -7,6 +7,7 @@ export interface UnclaimedDeposit {
   transactionBankId: string;
   amount: number;
   date: Date | string;
+  time: string; // Formato HH:MM:SS desde la API
   concept: string | null;
   validationStatus: 'conflict' | 'not-found';
   reason: string;

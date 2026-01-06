@@ -10,6 +10,7 @@ import { StatusBadge } from '../ui/StatusBadge';
 import { StatsCard } from '../ui/StatsCard';
 import { Tabs, type TabItem } from '../ui/Tabs';
 import { ReconciliationCard } from '../ui/ReconciliationCard';
+import { DateTimeCell } from '../ui/DateTimeCell';
 import { Table, type TableColumn } from '../ui/Table';
 import type { StartReconciliationResponse } from '../types/api.types';
 
@@ -312,10 +313,10 @@ export function BankReconciliation() {
                   render: (item) => `$${item.amount ? item.amount.toFixed(2) : '0.00'}`,
                 },
                 {
-                  id: 'date',
-                  header: 'Fecha',
+                  id: 'dateTime',
+                  header: 'Fecha y Hora',
                   align: 'center',
-                  render: (item) => useFormatDate(item.date),
+                  render: (item) => <DateTimeCell dateString={item.date} timeString={item.time} variant="compact" showIcon={true} />,
                 },
                 {
                   id: 'reason',

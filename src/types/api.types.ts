@@ -153,6 +153,7 @@ export interface PendingVoucher {
   voucherId: number;
   amount: number;
   date: string;
+  time?: string; // Formato HH:MM:SS desde la API (opcional)
   reason: string;
   [key: string]: any;
 }
@@ -161,6 +162,7 @@ export interface SurplusTransaction {
   transactionId: number;
   amount: number;
   date: string;
+  time: string; // Formato HH:MM:SS desde la API
   reason: string;
   [key: string]: any;
 }
@@ -169,6 +171,7 @@ export interface PossibleMatch {
   transactionId: number;
   amount: number;
   date: string;
+  time?: string; // Formato HH:MM:SS desde la API (opcional)
   matchScore: number;
   [key: string]: any;
 }
@@ -177,6 +180,7 @@ export interface ManualValidationCase {
   voucherId: number;
   amount: number;
   date: string;
+  time?: string; // Formato HH:MM:SS desde la API (opcional)
   reason: string;
   possibleMatches: PossibleMatch[];
   [key: string]: any;

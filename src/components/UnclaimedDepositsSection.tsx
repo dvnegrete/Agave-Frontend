@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Button } from '../ui/Button';
 import { Table, type TableColumn } from '../ui/Table';
-import { StatusBadge } from '../ui/StatusBadge';
+import { DateTimeCell } from '../ui/DateTimeCell';
+import { ModalAssignHouse } from './ModalAssignHouse';
 import { unclaimedDepositsService } from '../services/unclaimedDepositsService';
-import { useFormatDate } from '../hooks/useFormatDate';
 import type { UnclaimedDeposit, UnclaimedDepositsPage, AssignHouseRequest } from '../types/unclaimed-deposits';
 
 interface UnclaimedDepositsSectionProps {
@@ -90,40 +90,22 @@ export function UnclaimedDepositsSection({ onDepositAssigned }: UnclaimedDeposit
 
   const columns: TableColumn<UnclaimedDeposit>[] = [
     {
-      id: 'transactionBankId',
-      header: 'ID Transacción',
-      align: 'left',
-      render: (item) => item.transactionBankId,
-    },
-    {
       id: 'amount',
       header: 'Monto',
       align: 'right',
       render: (item) => `$${item.amount.toFixed(2)}`,
     },
     {
-      id: 'date',
-      header: 'Fecha',
+      id: 'dateTime',
+      header: 'Fecha y Hora',
       align: 'center',
-      render: (item) => useFormatDate(item.date),
+      render: (item) => <DateTimeCell dateString={item.date} timeString={item.time} variant="compact" showIcon={true} />,
     },
     {
       id: 'concept',
       header: 'Concepto',
       align: 'left',
       render: (item) => item.concept || 'N/A',
-    },
-    {
-      id: 'validationStatus',
-      header: 'Estado',
-      align: 'center',
-      render: (item) => (
-        <StatusBadge
-          status={item.validationStatus === 'conflict' ? 'warning' : 'error'}
-          label={item.validationStatus === 'conflict' ? 'Conflicto' : 'No Encontrado'}
-          icon={item.validationStatus === 'conflict' ? '⚠️' : '❌'}
-        />
-      ),
     },
     {
       id: 'suggestedHouseNumber',
@@ -224,98 +206,18 @@ export function UnclaimedDepositsSection({ onDepositAssigned }: UnclaimedDeposit
       )}
 
       {/* Modal para asignar casa */}
-      {showAssignModal && selectedDeposit && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-secondary border-2 border-primary/20 rounded-lg p-6 max-w-md w-full shadow-xl">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-foreground mb-2">🏠 Asignar Casa</h2>
-              <p className="text-sm text-foreground-secondary">
-                Asigna una casa a este depósito no reclamado
-              </p>
-            </div>
-
-            {/* Resumen del depósito */}
-            <div className="bg-base rounded-lg p-4 mb-6 space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-foreground-secondary">ID:</span>
-                <span className="font-mono text-foreground">{selectedDeposit.transactionBankId}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-foreground-secondary">Monto:</span>
-                <span className="font-bold text-foreground">${selectedDeposit.amount.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-foreground-secondary">Fecha:</span>
-                <span className="text-foreground">{useFormatDate(selectedDeposit.date)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-foreground-secondary">Estado:</span>
-                <StatusBadge
-                  status={selectedDeposit.validationStatus === 'conflict' ? 'warning' : 'error'}
-                  label={selectedDeposit.validationStatus === 'conflict' ? 'Conflicto' : 'No Encontrado'}
-                />
-              </div>
-            </div>
-
-            {/* Formulario */}
-            <div className="space-y-4 mb-6">
-              <div>
-                <label className="block text-sm font-semibold text-foreground mb-2">
-                  Número de Casa (1-66) *
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  max="66"
-                  value={houseNumber}
-                  onChange={(e) => setHouseNumber(e.target.value)}
-                  placeholder="Ej: 15"
-                  className="w-full px-4 py-2 bg-base border-2 border-base rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-foreground transition-all duration-200"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-foreground mb-2">
-                  Notas (Opcional)
-                </label>
-                <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Ej: Confirmado con el residente..."
-                  rows={3}
-                  className="w-full px-4 py-2 bg-base border-2 border-base rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-foreground placeholder-foreground-tertiary transition-all duration-200 resize-none"
-                />
-              </div>
-            </div>
-
-            {/* Error del formulario */}
-            {assignError && (
-              <div className="bg-error/10 border-l-4 border-error rounded-lg p-3 mb-4 text-sm text-error">
-                {assignError}
-              </div>
-            )}
-
-            {/* Botones */}
-            <div className="flex gap-3 justify-end">
-              <Button
-                onClick={() => setShowAssignModal(false)}
-                disabled={assignLoading}
-                variant="sameUi"
-              >
-                Cancelar
-              </Button>
-              <Button
-                onClick={handleAssignHouse}
-                disabled={assignLoading || !houseNumber}
-                isLoading={assignLoading}
-                variant="success"
-              >
-                Asignar
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ModalAssignHouse
+        isOpen={showAssignModal}
+        deposit={selectedDeposit}
+        houseNumber={houseNumber}
+        notes={notes}
+        isLoading={assignLoading}
+        error={assignError}
+        onHouseNumberChange={setHouseNumber}
+        onNotesChange={setNotes}
+        onAssign={handleAssignHouse}
+        onClose={() => setShowAssignModal(false)}
+      />
     </div>
   );
 }
