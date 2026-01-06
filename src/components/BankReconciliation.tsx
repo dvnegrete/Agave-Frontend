@@ -4,6 +4,7 @@ import { useTransactionsBankQuery } from '../hooks/useTransactionsBankQuery';
 import { useVouchersQuery } from '../hooks/useVouchersQuery';
 import { useFormatDate } from '../hooks/useFormatDate';
 import { StartReconciliationModal } from './StartReconciliationModal';
+import { UnclaimedDepositsSection } from './UnclaimedDepositsSection';
 import { Button } from '../ui/Button';
 import { StatusBadge } from '../ui/StatusBadge';
 import { StatsCard } from '../ui/StatsCard';
@@ -360,7 +361,7 @@ export function BankReconciliation() {
 
       {/* Manual Reconciliation Section */}
       <div className="shadow-md border-2 rounded-lg p-6">
-        <h2 className="text-lg font-semibold mb-4">Conciliación Manual</h2>
+        <h2 className="text-lg font-semibold mb-4">🔧 Conciliación Manual</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Transactions Column */}
@@ -460,6 +461,16 @@ export function BankReconciliation() {
             Conciliar
           </Button>
         </div>
+      </div>
+
+      {/* Unclaimed Deposits Section */}
+      <div className="bg-secondary shadow-lg rounded-lg border-2 border-primary/10 p-6">
+        <UnclaimedDepositsSection
+          onDepositAssigned={() => {
+            // Opcionalmente refrescar resultados de reconciliación
+            console.log('✅ Depósito asignado exitosamente');
+          }}
+        />
       </div>
     </div>
   );
