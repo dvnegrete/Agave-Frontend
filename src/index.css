@@ -86,6 +86,109 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+@layer components {
+  /* Background color classes */
+  .bg-base {
+    @apply bg-[var(--background)];
+  }
+
+  .bg-secondary {
+    @apply bg-[var(--background-secondary)];
+  }
+
+  .bg-tertiary {
+    @apply bg-[var(--background-tertiary)];
+  }
+
+  /* Text color classes */
+  .text-base {
+    @apply text-[var(--foreground)];
+  }
+
+  .text-foreground {
+    @apply text-[var(--foreground)];
+  }
+
+  .text-foreground-secondary {
+    @apply text-[var(--foreground-secondary)];
+  }
+
+  .text-foreground-tertiary {
+    @apply text-[var(--foreground-tertiary)];
+  }
+
+  /* Border color classes */
+  .border-base {
+    @apply border-[var(--border-color)];
+  }
+
+  .border-light {
+    @apply border-[var(--border-color-light)];
+  }
+
+  /* Semantic color shorthand classes */
+  .bg-success {
+    @apply bg-[var(--color-success)];
+  }
+
+  .bg-error {
+    @apply bg-[var(--color-error)];
+  }
+
+  .bg-warning {
+    @apply bg-[var(--color-warning)];
+  }
+
+  .bg-info {
+    @apply bg-[var(--color-info)];
+  }
+
+  .text-success {
+    @apply text-[var(--color-success)];
+  }
+
+  .text-error {
+    @apply text-[var(--color-error)];
+  }
+
+  .text-warning {
+    @apply text-[var(--color-warning)];
+  }
+
+  .text-info {
+    @apply text-[var(--color-info)];
+  }
+
+  /* Opacity variants for semantic colors */
+  .bg-success\/10 {
+    @apply bg-[color:var(--color-success)] opacity-10;
+  }
+
+  .bg-error\/10 {
+    @apply bg-[color:var(--color-error)] opacity-10;
+  }
+
+  .bg-warning\/10 {
+    @apply bg-[color:var(--color-warning)] opacity-10;
+  }
+
+  .bg-info\/10 {
+    @apply bg-[color:var(--color-info)] opacity-10;
+  }
+
+  .bg-success\/20 {
+    @apply bg-[color:var(--color-success)] opacity-20;
+  }
+
+  .text-success\/80 {
+    @apply text-[var(--color-success)] opacity-80;
+  }
+
+  .text-error\/80 {
+    @apply text-[var(--color-error)] opacity-80;
+  }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
