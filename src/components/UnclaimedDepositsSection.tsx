@@ -99,7 +99,14 @@ export function UnclaimedDepositsSection({ onDepositAssigned }: UnclaimedDeposit
       id: 'dateTime',
       header: 'Fecha y Hora',
       align: 'center',
-      render: (item) => <DateTimeCell dateString={item.date} timeString={item.time} variant="compact" showIcon={true} />,
+      render: (item) => (
+        <DateTimeCell
+          dateString={typeof item.date === 'string' ? item.date : item.date?.toISOString()}
+          timeString={item.time}
+          variant="compact"
+          showIcon={true}
+        />
+      ),
     },
     {
       id: 'concept',

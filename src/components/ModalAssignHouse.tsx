@@ -1,7 +1,7 @@
 import { Button } from '../ui/Button';
 import { StatusBadge } from '../ui/StatusBadge';
 import { DateTimeCell } from '../ui/DateTimeCell';
-import type { UnclaimedDeposit, AssignHouseRequest } from '../types/unclaimed-deposits';
+import type { UnclaimedDeposit } from '../types/unclaimed-deposits';
 
 interface ModalAssignHouseProps {
   isOpen: boolean;
@@ -58,7 +58,12 @@ export function ModalAssignHouse({
           <div className="flex justify-between items-start">
             <span className="text-foreground-secondary">Fecha y Hora:</span>
             <div className="text-right">
-              <DateTimeCell dateString={deposit.date} timeString={deposit.time} variant="compact" showIcon={false} />
+              <DateTimeCell
+                dateString={typeof deposit.date === 'string' ? deposit.date : deposit.date?.toISOString()}
+                timeString={deposit.time}
+                variant="compact"
+                showIcon={false}
+              />
             </div>
           </div>
           <div className="flex justify-between">

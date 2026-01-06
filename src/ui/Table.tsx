@@ -48,7 +48,7 @@ const alignmentClasses: Record<string, string> = {
 export function Table<T = any>({
   columns,
   data,
-  keyField = (row, idx) => idx,
+  keyField = (_row, idx) => idx,
   rowClassName,
   headerClassName = 'sticky top-0',
   maxHeight,

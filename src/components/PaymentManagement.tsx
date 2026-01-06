@@ -57,31 +57,17 @@ export function PaymentManagement() {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'paid':
-        return 'bg-green-100 text-green-800';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'partially_paid':
-        return 'bg-orange-100 text-orange-800';
-      case 'overdue':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getBalanceStatusColor = (status: string) => {
+  // Helper para mapear estados de saldo a variantes de StatusBadge
+  const getBalanceStatusVariant = (status: string) => {
     switch (status) {
       case 'balanced':
-        return 'bg-green-100 text-green-800';
+        return 'success';
       case 'credited':
-        return 'bg-blue-100 text-blue-800';
+        return 'info';
       case 'in-debt':
-        return 'bg-red-100 text-red-800';
+        return 'error';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'warning';
     }
   };
 
@@ -103,17 +89,21 @@ export function PaymentManagement() {
 
       {/* Períodos Tab */}
       {activeTab === 'periods' && (
-        <div className="background-general shadow-lg rounded-lg border-4 p-6">
-          <h2 className="text-2xl font-bold mb-4">📋 Períodos de Facturación</h2>
+        <div className="bg-secondary shadow-lg rounded-lg border-4 border-primary/10 p-6">
+          <h2 className="text-2xl font-bold mb-4 text-foreground">📋 Períodos de Facturación</h2>
 
           {periodsError && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-              Error: {periodsError}
+            <div className="bg-error/10 border-l-4 border-error rounded-lg p-4 mb-4 flex items-start gap-3">
+              <span className="text-error text-xl">❌</span>
+              <div className="flex-1">
+                <p className="text-error font-semibold">Error al cargar</p>
+                <p className="text-error text-sm">{periodsError}</p>
+              </div>
             </div>
           )}
 
           {periodsLoading ? (
-            <div className="text-center py-8">Cargando períodos...</div>
+            <div className="text-center py-8 text-foreground-secondary">Cargando períodos...</div>
           ) : (
             <Table
               columns={[
@@ -164,7 +154,7 @@ export function PaymentManagement() {
 
       {/* Crear Período Tab */}
       {activeTab === 'create-period' && (
-        <div className="background-general shadow-lg rounded-lg border-4 p-6">
+        <div className="bg-secondary shadow-lg rounded-lg border-4 border-primary/10 p-6">
           <h2 className="text-2xl font-bold mb-4">➕ Crear Nuevo Período</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -312,7 +302,7 @@ export function PaymentManagement() {
 
       {/* Pagos por Casa Tab */}
       {activeTab === 'house-payments' && (
-        <div className="background-general shadow-lg rounded-lg border-4 p-6">
+        <div className="bg-secondary shadow-lg rounded-lg border-4 border-primary/10 p-6">
           <h2 className="text-2xl font-bold mb-4">🏠 Historial de Pagos por Casa</h2>
 
           <div className="mb-6">
@@ -338,23 +328,23 @@ export function PaymentManagement() {
             <div className="space-y-4">
               <div className="bg-blue-50 p-4 rounded border border-blue-200">
                 <h3 className="font-semibold text-lg mb-2">
-                  Casa #{paymentHistory.house_id}
+                  Casa #{paymentHistory.house_number}
                 </h3>
                 <p className="text-sm text-gray-700">
-                  Total Facturado: <span className="font-bold">${paymentHistory.total_history_amount.toFixed(2)}</span>
+                  Total Facturado: <span className="font-bold">${paymentHistory.total_expected.toFixed(2)}</span>
                 </p>
                 <p className="text-sm text-gray-700">
-                  Total Pagado: <span className="font-bold">${paymentHistory.total_history_paid.toFixed(2)}</span>
+                  Total Pagado: <span className="font-bold">${paymentHistory.total_paid.toFixed(2)}</span>
                 </p>
                 <p className="text-sm text-gray-700">
                   Saldo Pendiente:{' '}
                   <span className="font-bold text-red-600">
-                    ${(paymentHistory.total_history_amount - paymentHistory.total_history_paid).toFixed(2)}
+                    ${(paymentHistory.total_expected - paymentHistory.total_paid).toFixed(2)}
                   </span>
                 </p>
               </div>
 
-              {paymentHistory.history.map((period: any) => (
+              {(paymentHistory.history || []).map((period: any) => (
                 <div key={period.period_id} className="border rounded p-4">
                   <h4 className="font-semibold text-lg mb-3">
                     {period.period_name} ({period.year}-{String(period.month).padStart(2, '0')})
@@ -445,7 +435,7 @@ export function PaymentManagement() {
 
       {/* Saldo de Casa Tab */}
       {activeTab === 'house-balance' && (
-        <div className="background-general shadow-lg rounded-lg border-4 p-6">
+        <div className="bg-secondary shadow-lg rounded-lg border-4 border-primary/10 p-6">
           <h2 className="text-2xl font-bold mb-4">💵 Saldo de Casa</h2>
 
           <div className="mb-6">
@@ -468,56 +458,68 @@ export function PaymentManagement() {
           )}
 
           {selectedHouseId && balance ? (
-            <div className="space-y-4">
-              <div className={`p-6 rounded border-4 ${getBalanceStatusColor(balance.status)}`}>
-                <h3 className="font-semibold text-lg mb-4">
-                  Casa #{balance.house_id}
-                </h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-white bg-opacity-50 p-4 rounded">
-                    <p className="text-sm font-semibold text-gray-600 mb-2">Saldo Actual</p>
-                    <p
-                      className={`text-2xl font-bold ${
-                        balance.current_balance >= 0 ? 'text-green-600' : 'text-red-600'
-                      }`}
-                    >
-                      ${balance.current_balance.toFixed(2)}
-                    </p>
-                  </div>
-
-                  <div className="bg-white bg-opacity-50 p-4 rounded">
-                    <p className="text-sm font-semibold text-gray-600 mb-2">Estado</p>
-                    <p className="text-lg font-bold">
-                      {balance.status === 'balanced'
-                        ? 'Saldo'
+            <div className="space-y-6">
+              {/* Header con estado y número de casa */}
+              <div className="bg-secondary shadow-lg rounded-lg border-4 border-primary/20 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-2xl font-bold">Casa #{balance.house_number}</h3>
+                  <StatusBadge
+                    status={getBalanceStatusVariant(balance.status)}
+                    label={
+                      balance.status === 'balanced'
+                        ? 'Balanceado'
                         : balance.status === 'credited'
                         ? 'Acreedor'
-                        : 'Deudor'}
-                    </p>
-                  </div>
-
-                  <div className="bg-white bg-opacity-50 p-4 rounded">
-                    <p className="text-sm font-semibold text-gray-600 mb-2">
-                      Centavos Acumulados
-                    </p>
-                    <p className="text-2xl font-bold text-blue-600">
-                      ${balance.accumulated_cents.toFixed(2)}
-                    </p>
-                  </div>
+                        : 'Deudor'
+                    }
+                    icon={
+                      balance.status === 'balanced'
+                        ? '⚖️'
+                        : balance.status === 'credited'
+                        ? '💚'
+                        : '💔'
+                    }
+                  />
                 </div>
+              </div>
 
-                {balance.last_payment_date && (
-                  <div className="mt-4 pt-4 border-t border-gray-300">
-                    <p className="text-sm text-gray-700">
-                      Último Pago: <span className="font-semibold">{useFormatDate(balance.last_payment_date)}</span>
-                    </p>
-                  </div>
-                )}
+              {/* Cards de estadísticas */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <StatsCard
+                  label="Crédito Acumulado"
+                  value={`$${balance.credit_balance.toFixed(2)}`}
+                  variant="success"
+                  icon="💰"
+                />
+                <StatsCard
+                  label="Deuda Acumulada"
+                  value={`$${balance.debit_balance.toFixed(2)}`}
+                  variant="error"
+                  icon="📉"
+                />
+                <StatsCard
+                  label="Saldo Neto"
+                  value={`$${balance.net_balance.toFixed(2)}`}
+                  variant={balance.net_balance >= 0 ? 'success' : 'error'}
+                  icon="⚖️"
+                />
+                <StatsCard
+                  label="Centavos Acumulados"
+                  value={`$${balance.accumulated_cents.toFixed(2)}`}
+                  variant="info"
+                  icon="🪙"
+                />
+              </div>
+
+              {/* Footer con última actualización */}
+              <div className="bg-secondary rounded-lg border border-base p-4 text-center text-sm text-foreground-secondary">
+                <p>
+                  Última Actualización: <span className="font-semibold">{useFormatDate(balance.updated_at)}</span>
+                </p>
               </div>
             </div>
           ) : !selectedHouseId ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-foreground-secondary">
               Selecciona una casa para ver su saldo
             </div>
           ) : null}

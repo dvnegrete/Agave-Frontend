@@ -281,6 +281,21 @@ export interface CreatePeriodConfigDto {
 }
 
 // Payment Types
+export interface PaymentRecord {
+  id: number;
+  record_id: number;
+  house_id: number;
+  concept_type: string;
+  concept_id: number;
+  allocated_amount: number;
+  expected_amount: number;
+  payment_status: 'COMPLETE' | 'PARTIAL' | 'OVERPAID';
+  difference: number;
+  period_year: number;
+  period_month: number;
+  payment_date: string;
+}
+
 export interface PaymentAssignment {
   id?: number;
   concept: string;           // e.g., "Mantenimiento", "Agua", "Cuota Extraordinaria"
@@ -302,19 +317,35 @@ export interface PaymentHistoryPeriod {
   total_paid: number;
 }
 
-export interface PaymentHistoryResponseDTO {
+export interface HousePayments {
   house_id: number;
-  history: PaymentHistoryPeriod[];
-  total_history_amount: number;
-  total_history_paid: number;
+  house_number: number;
+  total_payments: number;
+  total_paid: number;
+  total_expected: number;
+  payments: PaymentRecord[];
+}
+
+// Alias para compatibilidad backwards
+export interface PaymentHistoryResponseDTO extends HousePayments {
+  history?: PaymentHistoryPeriod[]; // Para soporte de datos históricos
 }
 
 // House Balance Types
-export interface HouseBalanceDTO {
+export interface HouseBalance {
   house_id: number;
-  current_balance: number;   // Saldo actual (positivo = crédito, negativo = deuda)
+  house_number: number;
+  accumulated_cents: number;
+  credit_balance: number;    // Crédito acumulado
+  debit_balance: number;     // Deuda acumulada
+  net_balance: number;       // Saldo neto (crédito - deuda)
   status: 'balanced' | 'credited' | 'in-debt';  // Estado financiero
-  accumulated_cents: number; // Centavos acumulados
+  updated_at: string;        // Última actualización
+}
+
+// Alias para compatibilidad backwards
+export interface HouseBalanceDTO extends HouseBalance {
+  current_balance?: number;  // Para compatibilidad con datos antiguos
   last_payment_date?: string;
   [key: string]: any;
 }
