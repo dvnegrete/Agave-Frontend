@@ -158,6 +158,7 @@ Claude debe:
 - Tipar explícitamente **props, estados, hooks y retornos**
 - Usar `interface` o `type` bien definidos
 - Preferir tipos del dominio antes que tipos genéricos
+- Prefirir async/await para toda la lógica asincrónica, en lugar de encadenar promesas que utilicen .then() / .catch() en el código de la aplicación
 
 ❌ Prohibido:
 
