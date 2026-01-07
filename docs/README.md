@@ -17,10 +17,17 @@ This is a React 19 + TypeScript + Vite frontend application for the Agave Bank R
 
 ### Key Features
 
-- **Voucher Management**: Create, view, approve, and delete financial vouchers
-- **Bank Transaction Upload**: Import bank statements in CSV/Excel format
+- **Voucher Management**: Create, view, approve, and delete financial vouchers with expandable details
+- **Payment Management**: View payment history organized by house with combined bank transactions and unreconciled vouchers
+- **Bank Transaction Upload**: Import bank statements in CSV/Excel format with validation
 - **Bank Reconciliation**: Automated and manual matching of vouchers with bank transactions
-- **Advanced UI**: Responsive interface with expandable rows, tabbed sections, and real-time API status
+- **Unclaimed Deposits Management**: Assign surplus transactions to houses with modal workflow
+- **Advanced UI**:
+  - Flexible expandable table component supporting multiple layout modes
+  - Reusable UI components (Button, StatusBadge, StatsCard, Tabs, DateTimeCell)
+  - Responsive interface with tabbed sections
+  - Real-time API status indicator
+  - Statistics cards and summary views
 
 ### Tech Stack
 

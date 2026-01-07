@@ -19,25 +19,40 @@ This is a modern React 19 application using TypeScript, TanStack Query for serve
 
 ```
 src/
-├── components/          # React components (UI)
+├── components/         # React business components
 │   ├── BankReconciliation.tsx      # Main reconciliation interface
-│   ├── VoucherList.tsx             # Voucher display and management
+│   ├── VoucherList.tsx             # Voucher display with expandable table
+│   ├── PaymentManagement.tsx        # Payment history by house
 │   ├── TransactionUpload.tsx        # File upload and results
+│   ├── UnclaimedDeposits.tsx        # Surplus transactions management
+│   ├── ModalAssignHouse.tsx         # Modal for assigning house to transaction
 │   ├── ApiStatus.tsx               # API connectivity indicator
 │   └── StartReconciliationModal.tsx # Modal for starting reconciliation
+│
+├── ui/                 # Reusable UI components
+│   ├── ExpandableTable.tsx         # Flexible expandable table (new)
+│   ├── Table.tsx                   # Standard table component
+│   ├── Button.tsx                  # Reusable button component
+│   ├── StatusBadge.tsx             # Status indicator badges
+│   ├── StatsCard.tsx               # Statistics display card
+│   ├── Tabs.tsx                    # Tab navigation component
+│   ├── ReconciliationCard.tsx       # Reconciliation status card
+│   └── DateTimeCell.tsx            # Formatted date/time cell
 │
 ├── hooks/              # Custom React hooks
 │   ├── useVouchersQuery.ts         # TanStack Query hook for vouchers
 │   ├── useTransactionsBankQuery.ts # TanStack Query for transactions
 │   ├── useBankReconciliationQuery.ts # TanStack Query for reconciliation
+│   ├── usePaymentHistoryQuery.ts   # TanStack Query for payment history
 │   ├── useFormatDate.ts            # Date formatting utility
-│   ├── useTransactionsBank.ts      # Legacy hook (maintained)
-│   └── useBankReconciliation.ts    # Legacy hook (maintained)
+│   ├── useSortBy.ts                # Sorting utility hook
+│   └── other hooks...              # Additional hooks
 │
 ├── services/           # API service layer
 │   ├── voucherService.ts           # Voucher operations
 │   ├── transactionBankService.ts   # Transaction operations
 │   ├── bankReconciliationService.ts # Reconciliation operations
+│   ├── paymentManagementService.ts # Payment management operations
 │   └── index.ts                    # Centralized exports
 │
 ├── types/              # TypeScript type definitions
@@ -49,12 +64,36 @@ src/
 ├── utils/              # Utility functions
 │   └── httpClient.ts               # Axios HTTP client
 │
-└── App.tsx            # Root component
+├── index.css           # Global styles with CSS variables and @layer components
+└── App.tsx             # Root component
 ```
 
 ## Design Patterns
 
-### 1. Service Layer Pattern
+### 1. Flexible Table Component Pattern
+
+The **ExpandableTable** component supports three different expansion modes to handle various UI requirements without duplication:
+
+**Mode 1: Custom Content** (for VoucherList)
+- Use `expandedContent` prop to render completely custom JSX
+- Useful when expanded row needs buttons, cards, or complex layout
+- Example: Voucher details with action buttons
+
+**Mode 2: Table Layout** (for PaymentManagement)
+- Use `expandableColumns` + `expandedRowLayout='table'`
+- Renders additional columns as table cells in expanded row
+- Minimal vertical space, aligned with main columns
+- Example: Payment movement with concept, bank, status columns
+
+**Mode 3: Grid Layout** (default fallback)
+- Use `expandableColumns` + `expandedRowLayout='grid'` (optional)
+- Renders additional columns as card grid in expanded row
+- Great for many expandable columns or responsive design
+- Example: Future use case with 4+ expandable columns
+
+This approach prevents duplication between VoucherList and PaymentManagement while keeping both components simple and focused.
+
+### 2. Service Layer Pattern
 
 All API communication goes through the `services/` folder:
 
@@ -71,7 +110,7 @@ const response = await fetch('/api/vouchers');
 - Easy to mock for testing
 - Consistent error handling
 
-### 2. Custom Hooks Pattern
+### 3. Custom Hooks Pattern
 
 TanStack Query hooks encapsulate data fetching logic:
 
@@ -85,7 +124,7 @@ const { vouchers, isLoading, error } = useVouchersQuery();
 - Automatic caching
 - Simplified component logic
 
-### 3. Type Safety with TypeScript
+### 4. Type Safety with TypeScript
 
 All data is strongly typed:
 

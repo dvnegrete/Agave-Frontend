@@ -298,6 +298,75 @@ result.transactions.forEach(t => {
 
 ---
 
+### Payment Management
+
+#### GET /api/payment-management/houses
+
+Fetch list of houses (for dropdown/selection).
+
+**Response**:
+```typescript
+House[] // Array of houses with id, number, etc.
+```
+
+---
+
+#### GET /api/payment-management/houses/{houseId}/payments
+
+Fetch payment history and transactions for a specific house.
+
+**URL Parameters**:
+- `houseId` (number or string): House ID
+
+**Response**:
+```typescript
+interface HousePayments {
+  house_id: number;
+  house_number: number;
+  total_transactions: number;           // Total payment transactions
+  total_amount: number;                 // Total amount of all transactions
+  confirmed_transactions: number;       // Count of confirmed transactions
+  pending_transactions: number;         // Count of pending transactions
+  transactions: HousePaymentTransaction[];  // Array of bank transactions
+  unreconciled_vouchers?: {
+    total_count: number;
+    vouchers: UnreconciledVoucher[];
+  };
+}
+
+interface HousePaymentTransaction {
+  date: string;              // ISO datetime (e.g., "2025-01-15T14:30:00")
+  time: string;              // HH:MM:SS (e.g., "14:30:00")
+  concept: string;           // Transaction description/concept
+  amount: number;            // Transaction amount
+  currency: string;          // Currency code (e.g., "USD")
+  bank_name: string;         // Name of the bank
+  confirmation_status: boolean;  // Is transaction confirmed
+}
+
+interface UnreconciledVoucher {
+  date: string;              // ISO datetime
+  amount: number;
+  confirmation_status: boolean;
+  created_at: string;        // ISO datetime
+  confirmation_code: string; // Code for identifying voucher
+}
+```
+
+**Example**:
+```typescript
+const response = await httpClient.get('/payment-management/houses/123/payments');
+// response.data contains HousePayments object
+```
+
+**Features**:
+- Combined bank transactions and unreconciled vouchers in single response
+- Transacations sorted by date
+- Vouchers include confirmation codes for reconciliation
+- Optional unreconciled_vouchers (not present if no vouchers)
+
+---
+
 ### Bank Reconciliation
 
 #### POST /api/bank-reconciliation/start

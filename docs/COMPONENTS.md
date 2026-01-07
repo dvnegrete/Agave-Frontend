@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the main React components in the application and their responsibilities.
+This document describes the main React components in the application and their responsibilities. The project is organized into business components (`components/`) and reusable UI components (`ui/`).
 
 ## Component Hierarchy
 
@@ -15,9 +15,12 @@ App
 │   ├── Tab: Conciliados
 │   ├── Tab: Unfunded Vouchers
 │   ├── Tab: Unclaimed Deposits
+│   │   └── ModalAssignHouse (modal popup)
 │   └── Tab: Manual Validation
 ├── VoucherList
-│   └── Expandable Rows with Details
+│   └── ExpandableTable (with custom expandedContent)
+├── PaymentManagement
+│   └── ExpandableTable (with expandedRowLayout='table')
 ├── TransactionUpload
 │   ├── File Input
 │   └── Result Display
@@ -211,6 +214,328 @@ interface StartReconciliationModalProps {
 
 **Key Functions**:
 - `checkApi()` - Pings API endpoint with 5-second timeout
+
+---
+
+### PaymentManagement.tsx
+
+**Location**: `src/components/PaymentManagement.tsx`
+
+**Purpose**: Display payment history and transactions by house with reconciliation status.
+
+**Features**:
+- Tabbed interface (Summary, House Payments)
+- StatsCards showing summary metrics (Total, Confirmadas, Pendientes, Deudas, Vouchers No Reconciliados)
+- House selection with dropdown
+- Combined table of bank transactions and unreconciled vouchers
+- Expandable rows showing detailed information
+- Differentiation between bank transactions and vouchers
+
+**Summary Tab**:
+- 5 StatsCards displaying:
+  - Total amount
+  - Confirmed transactions count
+  - Pending transactions count
+  - Debt balance
+  - Unreconciled vouchers count (conditional - only if exists)
+
+**House Payments Tab**:
+- House selector dropdown
+- Combined movements table with:
+  - Main columns: Tipo (Transaction/Voucher), Fecha y Hora, Monto
+  - Expandable columns: Concepto, Banco, Estatus
+- Data combines:
+  - Bank transactions from `transactions[]`
+  - Unreconciled vouchers from `unreconciled_vouchers.vouchers[]`
+- Sorted by date descending (most recent first)
+
+**Column Rendering Details**:
+- **Tipo**: Shows "🏦 Transacción" or "📋 Voucher" badge
+- **Concepto**:
+  - For transactions: shows concept text
+  - For vouchers: shows confirmation_code with label
+- **Banco**:
+  - For transactions: shows bank_name
+  - For vouchers: empty string
+- **Estatus**: Shows status badge (Confirmada/Pendiente)
+
+**Key State**:
+- `activeTab` - Tracks selected tab (summary or house-payments)
+- `selectedHouseId` - Selected house from dropdown
+
+**Data Flow**:
+- Fetches house payment data via `usePaymentHistoryQuery`
+- Combines transactions and vouchers into single array
+- Transforms voucher data to match transaction format
+- Sorts by date descending
+
+---
+
+### UnclaimedDeposits.tsx
+
+**Location**: `src/components/UnclaimedDeposits.tsx`
+
+**Purpose**: Display and manage unclaimed deposits (surplus transactions) from bank reconciliation.
+
+**Features**:
+- Interactive table of surplus transactions
+- Assign house modal for each transaction
+- StatusBadge display for confirmation status
+- House assignment workflow
+
+**Columns**:
+- Casa (House number)
+- Monto (Amount)
+- Fecha (Date)
+- Concepto (Description)
+- Estatus (Status badge)
+
+**Key Functions**:
+- `handleAssignHouse()` - Opens modal to assign transaction to house
+- Modal submission triggers API call to reconcile transaction
+
+---
+
+### ModalAssignHouse.tsx
+
+**Location**: `src/components/ModalAssignHouse.tsx`
+
+**Purpose**: Modal dialog for assigning a transaction to a house and confirming reconciliation.
+
+**Props**:
+```typescript
+interface ModalAssignHouseProps {
+  isOpen: boolean;
+  transaction: SurplusTransaction;
+  onClose: () => void;
+  onConfirm: (houseNumber: number) => Promise<void>;
+  isLoading?: boolean;
+}
+```
+
+**Features**:
+- House number input field
+- Transaction details display
+- Confirm and Cancel buttons
+- Loading state feedback
+- Form validation
+
+---
+
+## UI Components
+
+UI components are reusable, presentation-focused components located in `src/ui/`. They handle styling, layout, and common interactions.
+
+### ExpandableTable.tsx
+
+**Location**: `src/ui/ExpandableTable.tsx`
+
+**Purpose**: Flexible table component that supports expandable rows with multiple layout modes.
+
+**Props**:
+```typescript
+interface ExpandableTableProps<T = any> {
+  data: T[];                                          // Array of data rows
+  mainColumns: ExpandableTableColumn<T>[];           // Columns always visible
+  expandableColumns?: ExpandableTableColumn<T>[];    // Columns shown when expanded
+  expandedContent?: (row: T, index: number) => React.ReactNode;  // Custom expanded content
+  expandedRowLayout?: 'grid' | 'table';              // How to display expandable columns
+  keyField?: string | ((row: T, index: number) => string | number);
+  rowClassName?: string | ((row: T, index: number) => string);
+  headerClassName?: string;
+  maxHeight?: string;
+  emptyMessage?: string;
+  hoverable?: boolean;
+  striped?: boolean;
+  stickyHeader?: boolean;
+  variant?: 'default' | 'compact' | 'spacious';
+  headerVariant?: 'default' | 'primary' | 'success' | 'warning' | 'error' | 'info';
+  expandButtonLabel?: { expand: string; collapse: string };
+}
+```
+
+**Three Expansion Modes**:
+
+1. **Custom Content Mode** (VoucherList)
+   - Use `expandedContent` prop for completely custom rendering
+   - Shows buttons, cards, and actions in expanded row
+   - Example: VoucherList with "Ver comprobante", "Confirmar", "Eliminar" buttons
+
+2. **Table Layout Mode** (PaymentManagement)
+   - Use `expandableColumns` + `expandedRowLayout='table'`
+   - Shows additional columns as table cells in expanded row
+   - Minimal height, inline with main columns
+   - Example: PaymentManagement with Concepto, Banco, Estatus columns
+
+3. **Grid Layout Mode** (Default)
+   - Use `expandableColumns` + `expandedRowLayout='grid'`
+   - Shows additional columns as cards in grid layout
+   - Great for many expandable columns
+   - Default when no `expandedContent` provided
+
+**Features**:
+- Automatic expand/collapse button
+- Expandable button shows/hides based on content availability
+- Hover effects on expandable rows
+- Sticky header option
+- Striped rows option
+- Multiple style variants (default, compact, spacious)
+- Header style variants (default, primary, success, warning, error, info)
+- Type-safe generic component
+
+**CSS Classes Used**:
+- `bg-tertiary` for header background
+- `bg-base` for grid cards
+- `bg-primary/5` for expanded row highlight
+- `border-l-4 border-primary` for expanded row left border
+
+---
+
+### Table.tsx
+
+**Location**: `src/ui/Table.tsx`
+
+**Purpose**: Standard table component for simple data display without expand functionality.
+
+**Props**:
+```typescript
+interface TableProps<T = any> {
+  columns: TableColumn<T>[];
+  data: T[];
+  keyField?: string | ((row: T, index: number) => string | number);
+  rowClassName?: string | ((row: T, index: number) => string);
+  headerClassName?: string;
+  maxHeight?: string;
+  emptyMessage?: string;
+  hoverable?: boolean;
+  striped?: boolean;
+  stickyHeader?: boolean;
+  variant?: 'default' | 'compact' | 'spacious';
+  headerVariant?: 'default' | 'primary' | 'success' | 'warning' | 'error' | 'info';
+}
+```
+
+**Features**:
+- Simple, focused table rendering
+- Style variants and customization
+- Hover effects
+- Striped rows
+- Sticky header option
+
+---
+
+### Button.tsx
+
+**Location**: `src/ui/Button.tsx`
+
+**Purpose**: Reusable button component with multiple variants and states.
+
+**Variants**: `primary`, `success`, `warning`, `error`, `sameUi`
+
+**Props**:
+- `onClick` - Click handler
+- `disabled` - Disable state
+- `isLoading` - Loading state with spinner
+- `variant` - Button style variant
+- `children` - Button content
+
+---
+
+### StatusBadge.tsx
+
+**Location**: `src/ui/StatusBadge.tsx`
+
+**Purpose**: Display status indicators with icons and color coding.
+
+**Props**:
+- `status` - Status type (success, warning, error, info, pending)
+- `label` - Display text
+- `icon` - Optional icon/emoji
+
+**Example**:
+```typescript
+<StatusBadge
+  status="success"
+  label="Confirmada"
+  icon="✓"
+/>
+```
+
+---
+
+### StatsCard.tsx
+
+**Location**: `src/ui/StatsCard.tsx`
+
+**Purpose**: Display statistics with title, value, and optional icon.
+
+**Props**:
+- `title` - Card title
+- `value` - Main value to display
+- `icon` - Optional emoji or icon
+- `subtitle` - Optional subtitle text
+- `variant` - Style variant (default, primary, success, warning, error)
+
+**Example**:
+```typescript
+<StatsCard
+  title="Transacciones Totales"
+  value={150}
+  icon="📊"
+  variant="primary"
+/>
+```
+
+---
+
+### Tabs.tsx
+
+**Location**: `src/ui/Tabs.tsx`
+
+**Purpose**: Tab navigation component for switching between sections.
+
+**Props**:
+- `tabs` - Array of tab definitions
+- `activeTab` - Currently active tab
+- `onTabChange` - Tab change handler
+
+---
+
+### ReconciliationCard.tsx
+
+**Location**: `src/ui/ReconciliationCard.tsx`
+
+**Purpose**: Card component for displaying reconciliation status and results.
+
+**Features**:
+- Confidence level indicators
+- Amount display
+- Status information
+
+---
+
+### DateTimeCell.tsx
+
+**Location**: `src/ui/DateTimeCell.tsx`
+
+**Purpose**: Display date and time in a formatted table cell.
+
+**Props**:
+- `date` - ISO date string
+- `time` - HH:MM:SS format string (optional)
+
+**Features**:
+- Formats date using `useFormatDate` hook
+- Shows date and time on separate lines
+- Gray secondary text color
+
+**Example**:
+```typescript
+<DateTimeCell
+  date={transaction.date}
+  time={transaction.time}
+/>
+```
 
 ---
 

@@ -260,13 +260,179 @@ function UploadComponent() {
 
 ---
 
+### useVoucherMutations
+
+**Location**: `src/hooks/useVouchersQuery.ts`
+
+**Purpose**: Handle voucher mutations (create, update, delete operations).
+
+**Returns**:
+```typescript
+{
+  create: (data: CreateVoucherRequest) => Promise<Voucher>;
+  update: (id: string, data: UpdateVoucherRequest) => Promise<Voucher>;
+  remove: (id: string) => Promise<void>;
+  isLoading: boolean;  // Any mutation in progress
+  error: string | null;
+}
+```
+
+**Usage**:
+```typescript
+import { useVoucherMutations } from '../hooks/useVouchersQuery';
+
+function VoucherActions() {
+  const { create, update, remove, isLoading } = useVoucherMutations();
+
+  const handleCreate = async () => {
+    try {
+      const newVoucher = await create({
+        authorization_number: 'AUTH-123',
+        date: new Date().toISOString(),
+        confirmation_code: 'CONF-123',
+        amount: 1000,
+        confirmation_status: false,
+        url: ''
+      });
+      console.log('Created:', newVoucher);
+    } catch (err) {
+      console.error('Error creating voucher:', err);
+    }
+  };
+
+  const handleUpdate = async (id: string) => {
+    try {
+      await update(id, { confirmation_status: true });
+    } catch (err) {
+      console.error('Error updating voucher:', err);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await remove(id);
+    } catch (err) {
+      console.error('Error deleting voucher:', err);
+    }
+  };
+
+  return (
+    <div>
+      <button onClick={handleCreate} disabled={isLoading}>Create</button>
+      <button onClick={() => handleUpdate('1')} disabled={isLoading}>Update</button>
+      <button onClick={() => handleDelete('1')} disabled={isLoading}>Delete</button>
+    </div>
+  );
+}
+```
+
+**Features**:
+- ✅ Type-safe mutations
+- ✅ Automatic cache invalidation after success
+- ✅ Unified loading state
+- ✅ Error handling
+
+---
+
+### usePaymentHistoryQuery
+
+**Location**: `src/hooks/usePaymentHistoryQuery.ts` (or similar)
+
+**Purpose**: Fetch payment history and transactions for a specific house.
+
+**Parameters**:
+```typescript
+interface PaymentHistoryQueryParams {
+  houseId?: number;  // House ID to fetch payments for
+  year?: number;
+  month?: number;
+}
+```
+
+**Returns**:
+```typescript
+{
+  paymentHistory: HousePayments | null;
+  isLoading: boolean;
+  isFetching: boolean;
+  error: string | null;
+  refetch: () => void;
+}
+```
+
+**Data Structure**:
+```typescript
+interface HousePayments {
+  house_id: number;
+  house_number: number;
+  total_transactions: number;
+  total_amount: number;
+  confirmed_transactions: number;
+  pending_transactions: number;
+  transactions: HousePaymentTransaction[];        // Bank transactions
+  unreconciled_vouchers?: {                        // Unreconciled vouchers
+    total_count: number;
+    vouchers: UnreconciledVoucher[];
+  };
+}
+
+interface HousePaymentTransaction {
+  date: string;              // ISO datetime
+  time: string;              // HH:MM:SS
+  concept: string;           // Transaction description
+  amount: number;
+  currency: string;          // "USD", etc
+  bank_name: string;
+  confirmation_status: boolean;
+}
+
+interface UnreconciledVoucher {
+  date: string;
+  amount: number;
+  confirmation_status: boolean;
+  created_at: string;
+  confirmation_code: string;  // Code for voucher identification
+}
+```
+
+**Usage**:
+```typescript
+import { usePaymentHistoryQuery } from '../hooks/usePaymentHistoryQuery';
+
+function PaymentDetail() {
+  const { paymentHistory, isLoading, error } = usePaymentHistoryQuery({
+    houseId: 123
+  });
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+
+  return (
+    <div>
+      <h2>Casa {paymentHistory?.house_number}</h2>
+      <p>Total: ${paymentHistory?.total_amount}</p>
+      <p>Transacciones: {paymentHistory?.total_transactions}</p>
+      <p>Confirmadas: {paymentHistory?.confirmed_transactions}</p>
+    </div>
+  );
+}
+```
+
+**Features**:
+- ✅ Combined bank transactions and vouchers data
+- ✅ Separated transaction and voucher arrays
+- ✅ Confirmation codes included for vouchers
+- ✅ Date and time formatting info
+
+---
+
 ## Utility Hooks
 
 ### useFormatDate
 
 **Location**: `src/hooks/useFormatDate.ts`
 
-**Purpose**: Format dates for display.
+**Purpose**: Format dates for display in Spanish locale.
 
 **Usage**:
 ```typescript
@@ -277,6 +443,65 @@ function DateDisplay() {
   return <div>{formatted}</div>; // Output: 15 de Enero de 2025
 }
 ```
+
+---
+
+### useSortBy
+
+**Location**: `src/hooks/useSortBy.ts`
+
+**Purpose**: Sort array data by a field with ascending/descending options.
+
+**Parameters**:
+```typescript
+interface UseSortByOptions {
+  initialField?: string;      // Field to sort by initially
+  initialOrder?: 'asc' | 'desc';  // Initial sort direction
+}
+```
+
+**Returns**:
+```typescript
+{
+  sortedItems: T[];           // Sorted array
+  sortBy: (field: string) => void;  // Change sort field
+  toggleOrder: () => void;    // Toggle asc/desc
+  currentSort: {
+    field: string;
+    order: 'asc' | 'desc';
+  };
+}
+```
+
+**Usage**:
+```typescript
+import { useSortBy } from '../hooks/useSortBy';
+
+function VoucherList({ vouchers }) {
+  const { sortedItems, sortBy, currentSort } = useSortBy(vouchers, {
+    initialField: 'date',
+    initialOrder: 'desc'
+  });
+
+  return (
+    <div>
+      <button onClick={() => sortBy('number_house')}>Sort by House</button>
+      <button onClick={() => sortBy('date')}>Sort by Date</button>
+      <p>Currently sorting by: {currentSort.field} ({currentSort.order})</p>
+
+      {sortedItems.map(item => (
+        <div key={item.id}>{item.date}</div>
+      ))}
+    </div>
+  );
+}
+```
+
+**Features**:
+- ✅ Flexible sorting by any field
+- ✅ Toggle between ascending/descending
+- ✅ Track current sort state
+- ✅ Works with any data type
 
 ---
 
