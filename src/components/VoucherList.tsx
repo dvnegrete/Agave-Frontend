@@ -5,9 +5,9 @@ import { useSortBy } from '../hooks/useSortBy';
 import { getVoucherById } from '../services/voucherService';
 import { Button } from '../ui/Button';
 import { StatusBadge } from '../ui/StatusBadge';
+import { ExpandableTable, type ExpandableTableColumn } from '../ui/ExpandableTable';
 
 export function VoucherList() {
-  const [expandedId, setExpandedId] = useState<number | null>(null);
   const [loadingViewUrl, setLoadingViewUrl] = useState<number | null>(null);
 
   const {
@@ -20,7 +20,7 @@ export function VoucherList() {
     confirmation_status: false
   });
 
-  const { sortedItems: sortedVouchers, sortConfig, setSortField } = useSortBy(
+  const { sortedItems: sortedVouchers } = useSortBy(
     vouchers,
     {
       initialField: 'number_house',
@@ -29,10 +29,6 @@ export function VoucherList() {
   );
 
   const { create, update, remove, isLoading: mutating } = useVoucherMutations();
-
-  const toggleExpand = (id: number) => {
-    setExpandedId(expandedId === id ? null : id);
-  };
 
   const handleViewVoucher = async (id: number) => {
     setLoadingViewUrl(id);
@@ -121,6 +117,81 @@ export function VoucherList() {
     );
   }
 
+  const mainColumns: ExpandableTableColumn[] = [
+    {
+      id: 'number_house',
+      header: 'Casa',
+      align: 'center',
+      render: (voucher: any) => voucher.number_house,
+    },
+    {
+      id: 'date',
+      header: 'Fecha',
+      align: 'center',
+      render: (voucher: any) => useFormatDate(voucher.date),
+    },
+    {
+      id: 'amount',
+      header: 'Monto',
+      align: 'center',
+      render: (voucher: any) => `$${voucher.amount.toFixed(2)}`,
+      className: 'font-bold text-primary-light',
+    },
+    {
+      id: 'confirmation_status',
+      header: 'Estado',
+      align: 'center',
+      render: (voucher: any) => (
+        <StatusBadge
+          status={voucher.confirmation_status ? 'success' : 'warning'}
+          label={voucher.confirmation_status ? 'Confirmado' : 'Pendiente'}
+          icon={voucher.confirmation_status ? '✓' : '⏳'}
+        />
+      ),
+    },
+  ];
+
+  const expandedContentRender = (voucher: any) => (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-background rounded-lg p-4 border border-primary/10">
+          <p className="text-xs font-bold text-primary uppercase tracking-widest mb-2">Número de Autorización</p>
+          <p className="text-lg text-foreground font-semibold font-mono">{voucher.authorization_number}</p>
+        </div>
+        <div className="bg-background rounded-lg p-4 border border-primary/10">
+          <p className="text-xs font-bold text-primary uppercase tracking-widest mb-2">Código de Confirmación</p>
+          <p className="text-lg text-foreground font-semibold font-mono">{voucher.confirmation_code}</p>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-3">
+        <Button
+          onClick={() => handleViewVoucher(voucher.id)}
+          disabled={loadingViewUrl === voucher.id}
+          isLoading={loadingViewUrl === voucher.id}
+          variant="primary"
+        >
+          📄 Ver comprobante
+        </Button>
+        {!voucher.confirmation_status && (
+          <Button
+            onClick={() => handleConfirmVoucher(voucher.id)}
+            disabled={mutating}
+            variant="success"
+          >
+            ✓ Confirmar
+          </Button>
+        )}
+        <Button
+          onClick={() => handleDeleteVoucher(voucher.id)}
+          disabled={mutating}
+          variant="error"
+        >
+          🗑️ Eliminar
+        </Button>
+      </div>
+    </div>
+  );
+
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
@@ -145,158 +216,43 @@ export function VoucherList() {
         </Button>
       </div>
 
-      <div className="shadow-xl rounded-xl overflow-hidden border border-primary/10">
-        <table className="min-w-full">
-          <thead className="bg-gray-700">
-            <tr>
-              <th
-                onClick={() => setSortField('number_house')}
-                className={`px-6 py-4 text-center text-xs font-bold uppercase tracking-widest cursor-pointer select-none transition-all duration-200 ${
-                  sortConfig.field === 'number_house'
-                    ? 'text-white bg-primary/50 shadow-lg'
-                    : 'text-white hover:bg-primary/50'
-                }`}
-              >
-                <div className="flex items-center justify-center gap-2">
-                  Casa
-                  {sortConfig.field === 'number_house' && (
-                    <span className="text-lg">{sortConfig.order === 'asc' ? '▲' : '▼'}</span>
-                  )}
-                </div>
-              </th>
-              <th
-                onClick={() => setSortField('date')}
-                className={`px-6 py-4 text-center text-xs font-bold uppercase tracking-widest cursor-pointer select-none transition-all duration-200 ${
-                  sortConfig.field === 'date'
-                    ? 'text-white bg-primary/50 shadow-lg'
-                    : 'text-white hover:bg-primary/50'
-                }`}
-              >
-                <div className="flex items-center justify-center gap-2">
-                  Fecha
-                  {sortConfig.field === 'date' && (
-                    <span className="text-lg">{sortConfig.order === 'asc' ? '▲' : '▼'}</span>
-                  )}
-                </div>
-              </th>
-              <th
-                onClick={() => setSortField('amount')}
-                className={`px-6 py-4 text-center text-xs font-bold uppercase tracking-widest cursor-pointer select-none transition-all duration-200 ${
-                  sortConfig.field === 'amount'
-                    ? 'text-white bg-primary/50 shadow-lg'
-                    : 'text-white hover:bg-primary/50'
-                }`}
-              >
-                <div className="flex items-center justify-center gap-2">
-                  Monto
-                  {sortConfig.field === 'amount' && (
-                    <span className="text-lg">{sortConfig.order === 'asc' ? '▲' : '▼'}</span>
-                  )}
-                </div>
-              </th>
-              <th
-                onClick={() => setSortField('confirmation_status')}
-                className={`px-6 py-4 text-center text-xs font-bold uppercase tracking-widest cursor-pointer select-none transition-all duration-200 ${
-                  sortConfig.field === 'confirmation_status'
-                    ? 'text-white bg-primary/50 shadow-lg'
-                    : 'text-white hover:bg-primary/50'
-                }`}
-              >
-                <div className="flex items-center justify-center gap-2">
-                  Estado
-                  {sortConfig.field === 'confirmation_status' && (
-                    <span className="text-lg">{sortConfig.order === 'asc' ? '▲' : '▼'}</span>
-                  )}
-                </div>
-              </th>
-              <th className="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-widest">
-                Acciones
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-base divide-y divide-primary/5">
-            {sortedVouchers.map((voucher) => (
-              <>
-                <tr key={voucher.id} className={`transition-all duration-300 ${expandedId === voucher.id ? 'bg-primary/5 border-l-4 border-primary shadow-md' : 'hover:bg-primary/3 hover:shadow-md'}`}>
-                  <td className="px-6 py-5 whitespace-nowrap text-sm text-center text-foreground font-medium">
-                    {voucher.number_house}
-                  </td>
-                  <td className="px-6 py-5 whitespace-nowrap text-sm text-center text-foreground">
-                    {useFormatDate(voucher.date)}
-                  </td>
-                  <td className="px-6 py-5 whitespace-nowrap text-sm text-center font-bold text-primary-light">
-                    ${voucher.amount.toFixed(2)}
-                  </td>
-                  <td className="px-6 py-5 whitespace-nowrap text-center">
-                    <StatusBadge
-                      status={voucher.confirmation_status ? 'success' : 'warning'}
-                      label={voucher.confirmation_status ? 'Confirmado' : 'Pendiente'}
-                      icon={voucher.confirmation_status ? '✓' : '⏳'}
-                    />
-                  </td>
-                  <td className="px-6 py-5 whitespace-nowrap text-sm text-center">
-                    <button
-                      onClick={() => toggleExpand(voucher.id)}
-                      className="text-primary hover:text-white font-bold cursor-pointer transition-all duration-300 hover:scale-110 px-3 py-1 rounded-lg hover:shadow-md"
-                      style={{
-                        backgroundColor: expandedId === voucher.id ? 'var(--color-primary)' : 'rgba(59, 130, 246, 0.1)'
-                      }}
-                    >
-                      {expandedId === voucher.id ? '▼ Ocultar' : '▶ Ver detalles'}
-                    </button>
-                  </td>
-                </tr>
-                {expandedId === voucher.id && (
-                  <tr key={`${voucher.id}-details`} className="bg-gray-500/50">
-                    <td colSpan={5} className="px-6 py-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <div className="bg-background rounded-lg p-4 border border-primary/10">
-                          <p className="text-xs font-bold text-primary uppercase tracking-widest mb-2">Número de Autorización</p>
-                          <p className="text-lg text-foreground font-semibold font-mono">{voucher.authorization_number}</p>
-                        </div>
-                        <div className="bg-background rounded-lg p-4 border border-primary/10">
-                          <p className="text-xs font-bold text-primary uppercase tracking-widest mb-2">Código de Confirmación</p>
-                          <p className="text-lg text-foreground font-semibold font-mono">{voucher.confirmation_code}</p>
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-3">
-                        <Button
-                          onClick={() => handleViewVoucher(voucher.id)}
-                          disabled={loadingViewUrl === voucher.id}
-                          isLoading={loadingViewUrl === voucher.id}
-                          variant="primary"
-                        >
-                          📄 Ver comprobante
-                        </Button>
-                        {!voucher.confirmation_status && (
-                          <Button
-                            onClick={() => handleConfirmVoucher(voucher.id)}
-                            disabled={mutating}
-                            variant="success"
-                          >
-                            ✓ Confirmar
-                          </Button>
-                        )}
-                        <Button
-                          onClick={() => handleDeleteVoucher(voucher.id)}
-                          disabled={mutating}
-                          variant="error"
-                        >
-                          🗑️ Eliminar
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {isLoading && (
+        <div className="flex justify-center items-center p-8">
+          <div className="text-lg text-foreground">Cargando vouchers...</div>
+        </div>
+      )}
 
-      <div className="mt-4 text-sm text-foreground-secondary">
-        Total: {total} vouchers
-      </div>
+      {error && (
+        <div className="bg-error/20 border border-error text-error px-4 py-3 rounded">
+          Error: {error}
+        </div>
+      )}
+
+      {!isLoading && !error && vouchers && Array.isArray(vouchers) && (
+        <>
+          <div className="shadow-xl rounded-xl overflow-hidden border border-primary/10">
+            <ExpandableTable
+              data={sortedVouchers}
+              mainColumns={mainColumns}
+              expandedContent={expandedContentRender}
+              keyField="id"
+              headerVariant="primary"
+              variant="spacious"
+              emptyMessage="No hay vouchers disponibles"
+            />
+          </div>
+
+          <div className="mt-4 text-sm text-foreground-secondary">
+            Total: {total} vouchers
+          </div>
+        </>
+      )}
+
+      {!isLoading && (!vouchers || !Array.isArray(vouchers)) && (
+        <div className="flex justify-center items-center p-8">
+          <div className="text-lg text-foreground-tertiary">No hay vouchers disponibles</div>
+        </div>
+      )}
     </div>
   );
 }

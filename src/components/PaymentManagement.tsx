@@ -6,6 +6,7 @@ import { Tabs, type TabItem } from '../ui/Tabs';
 import { StatusBadge } from '../ui/StatusBadge';
 import { StatsCard } from '../ui/StatsCard';
 import { Table, type TableColumn } from '../ui/Table';
+import { ExpandableTable, type ExpandableTableColumn } from '../ui/ExpandableTable';
 
 type ActiveTab = 'periods' | 'create-period' | 'house-payments' | 'house-balance';
 
@@ -354,10 +355,11 @@ export function PaymentManagement() {
                 />
               </div>
 
-              {/* Tabla de transacciones */}
+              {/* Tabla de transacciones expandible */}
               {paymentHistory.transactions && paymentHistory.transactions.length > 0 ? (
-                <Table
-                  columns={[
+                <ExpandableTable
+                  data={paymentHistory.transactions}
+                  mainColumns={[
                     {
                       id: 'date',
                       header: 'Fecha y Hora',
@@ -370,23 +372,20 @@ export function PaymentManagement() {
                       ),
                     },
                     {
+                      id: 'amount',
+                      header: 'Monto',
+                      align: 'center',
+                      render: (transaction: any) => `$${transaction.amount.toFixed(2)}`,
+                      className: 'font-semibold text-primary-light',
+                    },
+                  ] as ExpandableTableColumn[]}
+                  expandableColumns={[
+                    {
                       id: 'concept',
                       header: 'Concepto',
                       align: 'left',
                       render: (transaction: any) => transaction.concept,
-                    },
-                    {
-                      id: 'amount',
-                      header: 'Monto',
-                      align: 'right',
-                      render: (transaction: any) => `$${transaction.amount.toFixed(2)}`,
-                    },
-                    {
-                      id: 'currency',
-                      header: 'Moneda',
-                      align: 'center',
-                      render: (transaction: any) => transaction.currency,
-                    },
+                    },                   
                     {
                       id: 'bank_name',
                       header: 'Banco',
@@ -395,7 +394,7 @@ export function PaymentManagement() {
                     },
                     {
                       id: 'confirmation_status',
-                      header: 'Estado de Confirmación',
+                      header: 'Estatus',
                       align: 'center',
                       render: (transaction: any) => (
                         <StatusBadge
@@ -405,10 +404,11 @@ export function PaymentManagement() {
                         />
                       ),
                     },
-                  ] as TableColumn[]}
-                  data={paymentHistory.transactions}
+                  ] as ExpandableTableColumn[]}
+                  expandedRowLayout="table"
+                  keyField={(transaction: any) => transaction.date + transaction.amount}
+                  variant="spacious"
                   emptyMessage="No hay transacciones registradas"
-                  hoverable
                 />
               ) : (
                 <div className="text-center py-8 text-foreground-secondary">
