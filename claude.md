@@ -14,6 +14,28 @@ Claude debe **adaptarse al código existente** y no imponer estructuras genéric
 
 ---
 
+
+358
+## Reglas de Git y Seguridad (CRITICAS)
+
+Claude **no debe realizar operaciones de Git**.
+
+❌ Prohibido:
+- Crear commits
+- Modificar commits
+- Rebase
+- Subir ramas
+- Ejecutar comandos de Git que modifiquen el historial
+
+Claude puede:
+- Leer diferencias
+- Analizar cambios
+- Sugerir mensajes de commit (solo texto)
+
+Todas las acciones de Git son **revisadas y ejecutadas manualmente por el desarrollador**.
+
+---
+
 ## Arquitectura (OBLIGATORIO)
 
 La arquitectura actual del proyecto **debe respetarse estrictamente**.
