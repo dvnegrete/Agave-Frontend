@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useUploadTransactions } from '../hooks/useTransactionsBank';
 import { useFormatDate } from '../hooks/useFormatDate';
 import { Button } from '../ui/Button';
@@ -7,6 +8,7 @@ import { StatsCard } from '../ui/StatsCard';
 import { Table, type TableColumn } from '../ui/Table';
 
 export function TransactionUpload() {
+  const navigate = useNavigate();
   const { upload, uploading, uploadResult, uploadError, reset } =
     useUploadTransactions();
 
@@ -321,6 +323,25 @@ export function TransactionUpload() {
           )}
         </div>
       )}
+
+      {/* Historical Records Option */}
+      <div className="mt-8 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 shadow-lg rounded-lg border-4 border-blue-200 dark:border-blue-800 p-6">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex-1">
+            <h3 className="text-lg font-bold text-foreground mb-2">📊 Cargar Registros Históricos</h3>
+            <p className="text-sm text-foreground-secondary">
+              Carga registros históricos de pagos contables desde archivos Excel para gestionar información de años anteriores
+            </p>
+          </div>
+          <Button
+            onClick={() => navigate('/historical-records-upload')}
+            variant="info"
+            className="whitespace-nowrap"
+          >
+            Ir a Registros Históricos
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

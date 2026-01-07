@@ -10,6 +10,7 @@ import { VoucherUpload } from './components/VoucherUpload'
 import { TransactionUpload } from './components/TransactionUpload'
 import { BankReconciliation } from './components/BankReconciliation'
 import { PaymentManagement } from './components/PaymentManagement'
+import { HistoricalRecordsUpload } from './components/HistoricalRecordsUpload'
 import { ApiStatus } from './components/ApiStatus'
 import './App.css'
 
@@ -72,6 +73,7 @@ function App() {
           <Route path="/transactions" element={<Layout showMenu={true}><TransactionUpload /></Layout>} />
           <Route path="/reconciliation" element={<Layout showMenu={true}><BankReconciliation /></Layout>} />
           <Route path="/payment-management" element={<Layout showMenu={true}><PaymentManagement /></Layout>} />
+          <Route path="/historical-records-upload" element={<Layout showMenu={true}><HistoricalRecordsUpload /></Layout>} />
         </Routes>
       </BrowserRouter>
       <ReactQueryDevtools initialIsOpen={false} />
