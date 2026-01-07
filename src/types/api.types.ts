@@ -317,18 +317,41 @@ export interface PaymentHistoryPeriod {
   total_paid: number;
 }
 
+// House Payment Transaction (from /payment-management/houses/{id}/payments)
+export interface HousePaymentTransaction {
+  date: string;              // ISO datetime
+  time: string;              // HH:MM:SS
+  concept: string;           // Concepto de la transacción
+  amount: number;            // Monto de la transacción
+  currency: string;          // Moneda (e.g., "USD")
+  bank_name: string;         // Nombre del banco
+  confirmation_status: boolean;  // Estado de confirmación
+}
+
+// House Payments Response
 export interface HousePayments {
+  house_id: number;
+  house_number: number;
+  total_transactions: number;     // Total de transacciones
+  total_amount: number;           // Monto total
+  confirmed_transactions: number; // Transacciones confirmadas
+  pending_transactions: number;   // Transacciones pendientes
+  transactions: HousePaymentTransaction[];
+}
+
+// Alias para compatibilidad backwards
+export interface PaymentHistoryResponseDTO extends HousePayments {
+  history?: PaymentHistoryPeriod[]; // Para soporte de datos históricos
+}
+
+// Legacy: Registros de pago (estructura antigua)
+export interface HousePaymentsLegacy {
   house_id: number;
   house_number: number;
   total_payments: number;
   total_paid: number;
   total_expected: number;
   payments: PaymentRecord[];
-}
-
-// Alias para compatibilidad backwards
-export interface PaymentHistoryResponseDTO extends HousePayments {
-  history?: PaymentHistoryPeriod[]; // Para soporte de datos históricos
 }
 
 // House Balance Types

@@ -303,7 +303,7 @@ export function PaymentManagement() {
       {/* Pagos por Casa Tab */}
       {activeTab === 'house-payments' && (
         <div className="bg-secondary shadow-lg rounded-lg border-4 border-primary/10 p-6">
-          <h2 className="text-2xl font-bold mb-4">🏠 Historial de Pagos por Casa</h2>
+          <h2 className="text-2xl font-bold mb-4">🏠 Registros de Pagos por Casa</h2>
 
           <div className="mb-6">
             <label className="block text-sm font-semibold text-foreground mb-2">
@@ -321,113 +321,104 @@ export function PaymentManagement() {
           </div>
 
           {historyLoading && (
-            <div className="text-center py-8 text-foreground-secondary">Cargando historial de pagos...</div>
+            <div className="text-center py-8 text-foreground-secondary">Cargando registros de pagos...</div>
           )}
 
           {selectedHouseId && paymentHistory ? (
-            <div className="space-y-4">
-              <div className="bg-blue-50 p-4 rounded border border-blue-200">
-                <h3 className="font-semibold text-lg mb-2">
-                  Casa #{paymentHistory.house_number}
-                </h3>
-                <p className="text-sm text-gray-700">
-                  Total Facturado: <span className="font-bold">${paymentHistory.total_expected.toFixed(2)}</span>
-                </p>
-                <p className="text-sm text-gray-700">
-                  Total Pagado: <span className="font-bold">${paymentHistory.total_paid.toFixed(2)}</span>
-                </p>
-                <p className="text-sm text-gray-700">
-                  Saldo Pendiente:{' '}
-                  <span className="font-bold text-red-600">
-                    ${(paymentHistory.total_expected - paymentHistory.total_paid).toFixed(2)}
-                  </span>
-                </p>
+            <div className="space-y-6">
+              {/* Resumen de la casa - Stats Cards */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <StatsCard
+                  label="Total de Transacciones"
+                  value={paymentHistory.total_transactions.toString()}
+                  variant="info"
+                  icon="📊"
+                />
+                <StatsCard
+                  label="Monto Total"
+                  value={`$${paymentHistory.total_amount.toFixed(2)}`}
+                  variant="success"
+                  icon="💰"
+                />
+                <StatsCard
+                  label="Confirmadas"
+                  value={paymentHistory.confirmed_transactions.toString()}
+                  variant="success"
+                  icon="✓"
+                />
+                <StatsCard
+                  label="Pendientes"
+                  value={paymentHistory.pending_transactions.toString()}
+                  variant="warning"
+                  icon="⏳"
+                />
               </div>
 
-              {(paymentHistory.history || []).map((period: any) => (
-                <div key={period.period_id} className="border rounded p-4">
-                  <h4 className="font-semibold text-lg mb-3">
-                    {period.period_name} ({period.year}-{String(period.month).padStart(2, '0')})
-                  </h4>
-
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full text-sm">
-                      <thead className="bg-gray-100">
-                        <tr>
-                          <th className="px-3 py-2 text-left">Concepto</th>
-                          <th className="px-3 py-2 text-right">Monto</th>
-                          <th className="px-3 py-2 text-left">Vencimiento</th>
-                          <th className="px-3 py-2 text-left">Estado</th>
-                          <th className="px-3 py-2 text-right">Pagado</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-200">
-                        {period.assignments.map((assignment: any, idx: number) => (
-                          <tr key={idx} className="hover:bg-gray-50">
-                            <td className="px-3 py-2">{assignment.concept}</td>
-                            <td className="px-3 py-2 text-right font-semibold">
-                              ${assignment.amount.toFixed(2)}
-                            </td>
-                            <td className="px-3 py-2">{useFormatDate(assignment.due_date)}</td>
-                            <td className="px-3 py-2">
-                              <StatusBadge
-                                status={
-                                  assignment.payment_status === 'paid'
-                                    ? 'success'
-                                    : assignment.payment_status === 'pending'
-                                      ? 'pending'
-                                      : assignment.payment_status === 'partially_paid'
-                                        ? 'warning'
-                                        : 'error'
-                                }
-                                label={
-                                  assignment.payment_status === 'pending'
-                                    ? 'Pendiente'
-                                    : assignment.payment_status === 'paid'
-                                      ? 'Pagado'
-                                      : assignment.payment_status === 'partially_paid'
-                                        ? 'Parcialmente Pagado'
-                                        : 'Vencido'
-                                }
-                                icon={
-                                  assignment.payment_status === 'paid'
-                                    ? '✓'
-                                    : assignment.payment_status === 'pending'
-                                      ? '⏳'
-                                      : assignment.payment_status === 'partially_paid'
-                                        ? '⚠️'
-                                        : '❌'
-                                }
-                              />
-                            </td>
-                            <td className="px-3 py-2 text-right">
-                              ${(assignment.paid_amount || 0).toFixed(2)}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                      <tfoot className="bg-gray-100 font-semibold">
-                        <tr>
-                          <td colSpan={1} className="px-3 py-2">
-                            Total Período
-                          </td>
-                          <td className="px-3 py-2 text-right">
-                            ${period.total_amount.toFixed(2)}
-                          </td>
-                          <td colSpan={2}></td>
-                          <td className="px-3 py-2 text-right">
-                            ${period.total_paid.toFixed(2)}
-                          </td>
-                        </tr>
-                      </tfoot>
-                    </table>
-                  </div>
+              {/* Tabla de transacciones */}
+              {paymentHistory.transactions && paymentHistory.transactions.length > 0 ? (
+                <Table
+                  columns={[
+                    {
+                      id: 'date',
+                      header: 'Fecha y Hora',
+                      align: 'center',
+                      render: (transaction: any) => (
+                        <div className="text-sm font-mono">
+                          <div>{useFormatDate(transaction.date)}</div>
+                          <div className="text-foreground-secondary text-xs">{transaction.time}</div>
+                        </div>
+                      ),
+                    },
+                    {
+                      id: 'concept',
+                      header: 'Concepto',
+                      align: 'left',
+                      render: (transaction: any) => transaction.concept,
+                    },
+                    {
+                      id: 'amount',
+                      header: 'Monto',
+                      align: 'right',
+                      render: (transaction: any) => `$${transaction.amount.toFixed(2)}`,
+                    },
+                    {
+                      id: 'currency',
+                      header: 'Moneda',
+                      align: 'center',
+                      render: (transaction: any) => transaction.currency,
+                    },
+                    {
+                      id: 'bank_name',
+                      header: 'Banco',
+                      align: 'left',
+                      render: (transaction: any) => transaction.bank_name,
+                    },
+                    {
+                      id: 'confirmation_status',
+                      header: 'Estado de Confirmación',
+                      align: 'center',
+                      render: (transaction: any) => (
+                        <StatusBadge
+                          status={transaction.confirmation_status ? 'success' : 'warning'}
+                          label={transaction.confirmation_status ? 'Confirmada' : 'Pendiente'}
+                          icon={transaction.confirmation_status ? '✓' : '⏳'}
+                        />
+                      ),
+                    },
+                  ] as TableColumn[]}
+                  data={paymentHistory.transactions}
+                  emptyMessage="No hay transacciones registradas"
+                  hoverable
+                />
+              ) : (
+                <div className="text-center py-8 text-foreground-secondary">
+                  No hay transacciones disponibles
                 </div>
-              ))}
+              )}
             </div>
           ) : !selectedHouseId ? (
-            <div className="text-center py-8 text-gray-500">
-              Selecciona una casa para ver su historial de pagos
+            <div className="text-center py-8 text-foreground-secondary">
+              Selecciona una casa para ver sus transacciones de pagos
             </div>
           ) : null}
         </div>
