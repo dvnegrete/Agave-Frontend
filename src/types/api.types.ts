@@ -328,6 +328,21 @@ export interface HousePaymentTransaction {
   confirmation_status: boolean;  // Estado de confirmación
 }
 
+// Unreconciled Voucher (from house payments response)
+export interface UnreconciledVoucher {
+  date: string;              // ISO datetime
+  amount: number;            // Monto del voucher
+  confirmation_status: boolean;  // Estado de confirmación
+  created_at: string;        // ISO datetime de creación
+  confirmation_code: string; // Código de confirmación del voucher
+}
+
+// Unreconciled Vouchers Response
+export interface UnreconciledVouchersResponse {
+  total_count: number;       // Total de vouchers no reconciliados
+  vouchers: UnreconciledVoucher[];
+}
+
 // House Payments Response
 export interface HousePayments {
   house_id: number;
@@ -337,6 +352,7 @@ export interface HousePayments {
   confirmed_transactions: number; // Transacciones confirmadas
   pending_transactions: number;   // Transacciones pendientes
   transactions: HousePaymentTransaction[];
+  unreconciled_vouchers?: UnreconciledVouchersResponse; // Vouchers no reconciliados
 }
 
 // Alias para compatibilidad backwards

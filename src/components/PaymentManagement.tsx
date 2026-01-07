@@ -353,72 +353,142 @@ export function PaymentManagement() {
                   variant="warning"
                   icon="⏳"
                 />
+                {paymentHistory.unreconciled_vouchers && (
+                  <StatsCard
+                    label="Comprobantes No Conciliados"
+                    value={paymentHistory.unreconciled_vouchers.total_count.toString()}
+                    variant="warning"
+                    icon="📋"
+                  />
+                )}
               </div>
 
-              {/* Tabla de transacciones expandible */}
-              {paymentHistory.transactions && paymentHistory.transactions.length > 0 ? (
-                <ExpandableTable
-                  data={paymentHistory.transactions}
-                  mainColumns={[
-                    {
-                      id: 'date',
-                      header: 'Fecha y Hora',
-                      align: 'center',
-                      render: (transaction: any) => (
-                        <div className="text-sm font-mono">
-                          <div>{useFormatDate(transaction.date)}</div>
-                          <div className="text-foreground-secondary text-xs">{transaction.time}</div>
-                        </div>
-                      ),
-                    },
-                    {
-                      id: 'amount',
-                      header: 'Monto',
-                      align: 'center',
-                      render: (transaction: any) => `$${transaction.amount.toFixed(2)}`,
-                      className: 'font-semibold text-primary-light',
-                    },
-                  ] as ExpandableTableColumn[]}
-                  expandableColumns={[
-                    {
-                      id: 'concept',
-                      header: 'Concepto',
-                      align: 'left',
-                      render: (transaction: any) => transaction.concept,
-                    },                   
-                    {
-                      id: 'bank_name',
-                      header: 'Banco',
-                      align: 'left',
-                      render: (transaction: any) => transaction.bank_name,
-                    },
-                    {
-                      id: 'confirmation_status',
-                      header: 'Estatus',
-                      align: 'center',
-                      render: (transaction: any) => (
-                        <StatusBadge
-                          status={transaction.confirmation_status ? 'success' : 'warning'}
-                          label={transaction.confirmation_status ? 'Confirmada' : 'Pendiente'}
-                          icon={transaction.confirmation_status ? '✓' : '⏳'}
-                        />
-                      ),
-                    },
-                  ] as ExpandableTableColumn[]}
-                  expandedRowLayout="table"
-                  keyField={(transaction: any) => transaction.date + transaction.amount}
-                  variant="spacious"
-                  emptyMessage="No hay transacciones registradas"
-                />
-              ) : (
-                <div className="text-center py-8 text-foreground-secondary">
-                  No hay transacciones disponibles
-                </div>
-              )}
+              {/* Tabla de transacciones y vouchers expandible */}
+              {(() => {
+                // Combinar transacciones y vouchers no reconciliados
+                const allMovements: any[] = [];
+
+                if (paymentHistory.transactions && paymentHistory.transactions.length > 0) {
+                  paymentHistory.transactions.forEach((transaction) => {
+                    allMovements.push({
+                      ...transaction,
+                      type: 'transaction',
+                      _date: new Date(transaction.date).getTime(),
+                    });
+                  });
+                }
+
+                if (paymentHistory.unreconciled_vouchers?.vouchers && paymentHistory.unreconciled_vouchers.vouchers.length > 0) {
+                  paymentHistory.unreconciled_vouchers.vouchers.forEach((voucher) => {
+                    allMovements.push({
+                      date: voucher.date,
+                      time: new Date(voucher.date).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+                      amount: voucher.amount,
+                      confirmation_status: voucher.confirmation_status,
+                      type: 'voucher',
+                      created_at: voucher.created_at,
+                      confirmation_code: voucher.confirmation_code,
+                      _date: new Date(voucher.date).getTime(),
+                    });
+                  });
+                }
+
+                // Ordenar por fecha descendente
+                allMovements.sort((a, b) => b._date - a._date);
+
+                return allMovements.length > 0 ? (
+                  <ExpandableTable
+                    data={allMovements}
+                    mainColumns={[
+                      {
+                        id: 'type',
+                        header: 'Tipo',
+                        align: 'center',
+                        render: (movement: any) => (
+                          <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${
+                            movement.type === 'transaction'
+                              ? 'bg-info/20 text-info'
+                              : 'bg-warning/20 text-warning'
+                          }`}>
+                            {movement.type === 'transaction' ? '🏦 Transacción Bancaria' : '📋 Comprobante'}
+                          </span>
+                        ),
+                      },
+                      {
+                        id: 'date',
+                        header: 'Fecha y Hora',
+                        align: 'center',
+                        render: (movement: any) => (
+                          <div className="text-sm font-mono">
+                            <div>{useFormatDate(movement.date)}</div>
+                            <div className="text-foreground-secondary text-xs">{movement.time}</div>
+                          </div>
+                        ),
+                      },
+                      {
+                        id: 'amount',
+                        header: 'Monto',
+                        align: 'center',
+                        render: (movement: any) => `$${movement.amount.toFixed(2)}`,
+                        className: 'font-semibold text-primary-light',
+                      },
+                    ] as ExpandableTableColumn[]}
+                    expandableColumns={[
+                      {
+                        id: 'concept',
+                        header: 'Concepto',
+                        align: 'left',
+                        render: (movement: any) => {
+                          if (movement.type === 'voucher') {
+                            return (
+                              <div className="space-y-1">
+                                <p className="text-xs text-foreground-secondary">Código de confirmación:</p>
+                                <p className="font-mono text-sm font-semibold text-primary">{movement.confirmation_code || '-'}</p>
+                              </div>
+                            );
+                          }
+                          return movement.concept || 'N/A';
+                        },
+                      },
+                      {
+                        id: 'bank_or_code',
+                        header: 'Banco',
+                        align: 'left',
+                        render: (movement: any) => {
+                          if (movement.type === 'voucher') {
+                            return '';
+                          }
+                          return <p className="text-sm">{movement.bank_name || '-'}</p>;
+                        },
+                      },
+                      {
+                        id: 'confirmation_status',
+                        header: 'Estatus',
+                        align: 'center',
+                        render: (movement: any) => (
+                          <StatusBadge
+                            status={movement.confirmation_status ? 'success' : 'warning'}
+                            label={movement.confirmation_status ? 'Confirmada' : 'Pendiente'}
+                            icon={movement.confirmation_status ? '✓' : '⏳'}
+                          />
+                        ),
+                      },
+                    ] as ExpandableTableColumn[]}
+                    expandedRowLayout="table"
+                    keyField={(movement: any) => `${movement.type}-${movement.date}-${movement.amount}`}
+                    variant="spacious"
+                    emptyMessage="No hay movimientos registrados"
+                  />
+                ) : (
+                  <div className="text-center py-8 text-foreground-secondary">
+                    No hay movimientos disponibles
+                  </div>
+                );
+              })()}
             </div>
           ) : !selectedHouseId ? (
             <div className="text-center py-8 text-foreground-secondary">
-              Selecciona una casa para ver sus transacciones de pagos
+              Selecciona una casa para ver sus movimientos de pagos
             </div>
           ) : null}
         </div>
