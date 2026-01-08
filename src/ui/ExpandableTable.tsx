@@ -144,6 +144,8 @@ export function ExpandableTable<T = any>({
     ? `max-h-[${maxHeight}] overflow-y-auto`
     : '';
 
+  const classesButtonExpanded = "font-bold cursor-pointer transition-all duration-300 hover:scale-110 px-3 py-1 rounded-lg hover:shadow-md";  
+
   return (
     <div className={containerClasses}>
       <div className={tableWrapperClasses}>
@@ -209,10 +211,9 @@ export function ExpandableTable<T = any>({
                           <td className={`${variantPadding[variant]} text-center`}>
                             <button
                               onClick={() => toggleExpand(rowKey)}
-                              className="text-primary hover:text-white font-bold cursor-pointer transition-all duration-300 hover:scale-110 px-3 py-1 rounded-lg hover:shadow-md"
-                              style={{
-                                backgroundColor: isExpanded ? 'var(--color-primary)' : 'rgba(59, 130, 246, 0.1)',
-                              }}
+                              className={`${classesButtonExpanded} ${ !isExpanded 
+                                    ? ' bg-info' 
+                                    : 'bg-tertiary border border-info text-info'}`}
                             >
                               {isExpanded ? expandButtonLabel.collapse : expandButtonLabel.expand}
                             </button>

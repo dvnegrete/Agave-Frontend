@@ -7,7 +7,7 @@ interface StatusBadgeProps {
 }
 
 const statusStyles: Record<BadgeStatus, string> = {
-  success: 'bg-success text-foreground border border-success/50',
+  success: 'bg-success text-foreground-foreground-tertiary border border-light',
   warning: 'bg-base text-warning border border-warning',
   error: 'bg-base text-error border border-error',
   info: 'bg-info text-foreground border border-info/50',
