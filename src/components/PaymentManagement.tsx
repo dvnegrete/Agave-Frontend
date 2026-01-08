@@ -112,7 +112,7 @@ export function PaymentManagement() {
                   id: 'period_name',
                   header: 'Período',
                   align: 'left',
-                  render: (period) => period.period_name,
+                  render: (period) => period.period_config_id,
                 },
                 {
                   id: 'year',

@@ -36,9 +36,9 @@ export const useFormatDate = (dateString: string | null | undefined): string => 
       return 'Fecha inv�lida';
     }
 
-    const dia = date.getDate().toString().padStart(2, '0');
-    const mes = MESES_ES[date.getMonth()];
-    const anio = date.getFullYear();
+    const dia = date.getUTCDate().toString().padStart(2, '0');
+    const mes = MESES_ES[date.getUTCMonth()];
+    const anio = date.getUTCFullYear();
 
     return `${dia}-${mes}-${anio}`;
   } catch (error) {
@@ -64,9 +64,9 @@ export const useFormatDateShort = (dateString: string | null | undefined): strin
       return 'Fecha inválida';
     }
 
-    const dia = date.getDate().toString().padStart(2, '0');
-    const mes = (date.getMonth() + 1).toString().padStart(2, '0');
-    const anio = date.getFullYear();
+    const dia = date.getUTCDate().toString().padStart(2, '0');
+    const mes = (date.getUTCMonth() + 1).toString().padStart(2, '0');
+    const anio = date.getUTCFullYear();
 
     return `${dia}/${mes}/${anio}`;
   } catch (error) {
@@ -92,9 +92,9 @@ export const useFormatTime = (dateString: string | null | undefined): string => 
       return 'Hora inválida';
     }
 
-    const horas = date.getHours().toString().padStart(2, '0');
-    const minutos = date.getMinutes().toString().padStart(2, '0');
-    const segundos = date.getSeconds().toString().padStart(2, '0');
+    const horas = date.getUTCHours().toString().padStart(2, '0');
+    const minutos = date.getUTCMinutes().toString().padStart(2, '0');
+    const segundos = date.getUTCSeconds().toString().padStart(2, '0');
 
     return `${horas}:${minutos}:${segundos}`;
   } catch (error) {

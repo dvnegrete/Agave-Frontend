@@ -246,7 +246,7 @@ export interface PeriodResponseDto {
   id: number;
   year: number;
   month: number;
-  period_name: string;
+  period_config_id: string;
   start_date: string;        // ISO date
   end_date: string;          // ISO date
   created_at: string;
