@@ -159,6 +159,11 @@ body {
     @apply text-[var(--color-info)];
   }
 
+  /* Primary color class */
+  .text-primary {
+    @apply text-[var(--color-primary)];
+  }
+
   /* Opacity variants for semantic colors */
   .bg-success\/10 {
     @apply bg-[color:var(--color-success)] opacity-10;
@@ -186,6 +191,60 @@ body {
 
   .text-error\/80 {
     @apply text-[var(--color-error)] opacity-80;
+  }
+
+  /* Additional opacity variants for StatsCard */
+  .bg-primary\/30 {
+    @apply bg-[color:var(--color-primary)] opacity-30;
+  }
+
+  .bg-success\/30 {
+    @apply bg-[color:var(--color-success)] opacity-30;
+  }
+
+  .bg-success\/40 {
+    @apply bg-[color:var(--color-success)] opacity-40;
+  }
+
+  .bg-error\/30 {
+    @apply bg-[color:var(--color-error)] opacity-30;
+  }
+
+  .bg-warning\/30 {
+    @apply bg-[color:var(--color-warning)] opacity-30;
+  }
+
+  .bg-warning\/60 {
+    @apply bg-[color:var(--color-warning)] opacity-60;
+  }
+
+  .bg-info\/30 {
+    @apply bg-[color:var(--color-info)] opacity-30;
+  }
+
+  .bg-info\/40 {
+    @apply bg-[color:var(--color-info)] opacity-40;
+  }
+
+  /* Border color classes */
+  .border-primary {
+    @apply border-[var(--color-primary)];
+  }
+
+  .border-success {
+    @apply border-[var(--color-success)];
+  }
+
+  .border-error {
+    @apply border-[var(--color-error)];
+  }
+
+  .border-warning {
+    @apply border-[var(--color-warning)];
+  }
+
+  .border-info {
+    @apply border-[var(--color-info)];
   }
 }
 
