@@ -1,4 +1,12 @@
-# Claude Instructions – Proyecto React
+# claude.md – Proyecto React
+
+## Precedencia
+
+Este archivo **extiende y supera** las reglas definidas en `/CLAUDE.md` (nivel global).
+
+En caso de conflicto, **este archivo prevalece**. Para reglas globales no sobrescritas aquí, consulta `/CLAUDE.md`.
+
+---
 
 ## Contexto del proyecto
 
@@ -14,25 +22,9 @@ Claude debe **adaptarse al código existente** y no imponer estructuras genéric
 
 ---
 
+## Reglas de Git y Seguridad
 
-358
-## Reglas de Git y Seguridad (CRITICAS)
-
-Claude **no debe realizar operaciones de Git**.
-
-❌ Prohibido:
-- Crear commits
-- Modificar commits
-- Rebase
-- Subir ramas
-- Ejecutar comandos de Git que modifiquen el historial
-
-Claude puede:
-- Leer diferencias
-- Analizar cambios
-- Sugerir mensajes de commit (solo texto)
-
-Todas las acciones de Git son **revisadas y ejecutadas manualmente por el desarrollador**.
+Consulta `/CLAUDE.md` para las reglas críticas de Git. **No se realizan operaciones de Git** en este proyecto.
 
 ---
 
@@ -169,33 +161,11 @@ function Button({ children, onClick }) {
 
 ---
 
-## Tipado TypeScript (OBLIGATORIO)
+## Tipado TypeScript
 
-### Principios de tipado
+Consulta `/CLAUDE.md` para reglas de TypeScript estricto. Este proyecto **prohíbe `any` y `unknown`**.
 
-Este proyecto usa **TypeScript con tipado fuerte**.
-
-Claude debe:
-
-- Tipar explícitamente **props, estados, hooks y retornos**
-- Usar `interface` o `type` bien definidos
-- Preferir tipos del dominio antes que tipos genéricos
-- Prefirir async/await para toda la lógica asincrónica, en lugar de encadenar promesas que utilicen .then() / .catch() en el código de la aplicación
-
-❌ Prohibido:
-
-- `any`
-- `unknown`
-- `as any`
-- Tipados implícitos en lógica relevante
-
-Si el tipo no está claro:
-
-- Definirlo explícitamente
-- Inferirlo a partir del dominio o datos existentes
-- Preguntar o proponer el tipo más estricto posible
-
----
+En el contexto de React, además:
 
 ### Props y componentes
 
@@ -223,56 +193,7 @@ function Button({ variant, disabled = false, onClick, children }: ButtonProps) {
 
 ### Hooks
 
-- Los hooks personalizados deben:
-  - Tipar argumentos y retorno
-  - Exponer contratos claros
-
-Ejemplo:
-
-```ts
-interface UseUserResult {
-  user: User | null
-  isLoading: boolean
-  error: UserError | null
-}
-
-function useUser(id: UserId): UseUserResult {
-  // ...
-}
-```
-
----
-
-### Datos y dominio
-
-- Definir tipos de dominio en archivos dedicados cuando aplique
-- Reutilizar tipos existentes antes de crear nuevos
-- Evitar duplicación de shapes
-
-Preferir:
-
-```ts
-type UserId = string
-
-interface User {
-  id: UserId
-  name: string
-  email: string
-}
-```
-
-En lugar de objetos inline sin tipo.
-
----
-
-### Excepciones
-
-Solo se permite usar `unknown`:
-
-- En límites externos (APIs, JSON.parse)
-- Siempre seguido de validación o narrowing
-
-Nunca debe propagarse `unknown` dentro del dominio.
+Los hooks personalizados deben tipar argumentos y retorno con contratos claros. Sigue el patrón global de typings.
 
 ---
 
