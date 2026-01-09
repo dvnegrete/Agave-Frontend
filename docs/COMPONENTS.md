@@ -121,7 +121,7 @@ App
 **Props**: None (uses custom hooks)
 
 **Features**:
-- Bank selection via radio buttons (Santander, BBVA-2026)
+- Bank selection via radio buttons (Santander-2025 or Custom)
 - CSV/Excel file upload
 - Comprehensive result display with statistics
 - Transaction tables with details
@@ -129,7 +129,8 @@ App
 - Last-day transactions view
 
 **Upload Section**:
-- Bank selector (default: Santander)
+- Bank selector (default: Santander-2025)
+- Custom bank name input field
 - File input (accepts .csv, .xlsx, .xls)
 - Upload button with loading state
 
@@ -153,7 +154,7 @@ App
 
 **Key Functions**:
 - `handleFileChange()` - Updates selected file
-- `handleUpload()` - Sends file to API with bank parameter
+- `handleUpload()` - Sends file to API with bankName parameter
 - Result rendering based on API response
 
 **State Management**: Uses `useTransactionBankMutations` hook

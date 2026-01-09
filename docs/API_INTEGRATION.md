@@ -241,8 +241,8 @@ const transactions = Array.isArray(response)
 Upload a bank statement file.
 
 **Query Parameters**:
-- `bank` (string): Bank name (required)
-  - Valid values: "Santander", "BBVA-2026"
+- `bankName` (string): Bank name origin (required)
+  - Example values: "Santander-2025", "BBVA-2028", or any custom bank name
 
 **Request**:
 - Content-Type: `multipart/form-data`
@@ -287,7 +287,7 @@ interface UploadedTransaction {
 import { uploadTransactionsBank } from './services/transactionBankService';
 
 const file = document.getElementById('file').files[0];
-const result = await uploadTransactionsBank(file, 'Santander');
+const result = await uploadTransactionsBank(file, 'Santander-2025');
 
 console.log(`Valid: ${result.validTransactions}`);
 console.log(`Invalid: ${result.invalidTransactions}`);

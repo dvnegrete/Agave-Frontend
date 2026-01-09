@@ -35,17 +35,17 @@ export const getTransactionsBank = async (
 /**
  * Upload bank transactions file (CSV, Excel, etc.)
  * @param file - El archivo a cargar
- * @param bank - Nombre del banco (se envía como query parameter)
+ * @param bankName - Nombre del banco (se envía como query parameter)
  */
 export const uploadTransactionsBank = async (
   file: File,
-  bank: string,
+  bankName: string,
   signal?: AbortSignal
 ): Promise<UploadTransactionsResponse> => {
   const formData = new FormData();
   formData.append('file', file);
 
-  const endpoint = `${API_ENDPOINTS.transactionsBankUpload}?bankName=${encodeURIComponent(bank)}`;
+  const endpoint = `${API_ENDPOINTS.transactionsBankUpload}?bankName=${encodeURIComponent(bankName)}`;
 
   return httpClient.post<UploadTransactionsResponse>(
     endpoint,

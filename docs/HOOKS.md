@@ -210,7 +210,7 @@ This ensures UI always shows latest data without manual refetch calls.
 **Returns**:
 ```typescript
 {
-  upload: (file: File, bank: string) => Promise<UploadTransactionsResponse>;
+  upload: (file: File, bankName: string) => Promise<UploadTransactionsResponse>;
   deleteTransaction: (id: string) => Promise<void>;
   uploading: boolean;
   deleteLoading: boolean;
@@ -227,7 +227,7 @@ function UploadComponent() {
 
   const handleUpload = async (file: File) => {
     try {
-      const result = await upload(file, 'Santander');
+      const result = await upload(file, 'Santander-2025');
       console.log(`Uploaded: ${result.totalTransactions} transactions`);
       // Queries are automatically invalidated
     } catch (err) {
@@ -250,7 +250,7 @@ function UploadComponent() {
 
 **Parameters for upload**:
 - `file: File` - The file to upload
-- `bank: string` - Bank name (sent as query parameter)
+- `bankName: string` - Bank name (sent as query parameter)
 
 **Features**:
 - ✅ FormData handling for file uploads

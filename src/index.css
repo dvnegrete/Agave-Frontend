@@ -127,6 +127,10 @@ body {
   }
 
   /* Semantic color shorthand classes */
+  .bg-primary {
+    @apply bg-[color:var(--color-primary)];
+  }
+
   .bg-success {
     @apply bg-[var(--color-success)];
   }

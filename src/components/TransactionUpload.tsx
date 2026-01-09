@@ -13,7 +13,7 @@ export function TransactionUpload() {
     useUploadTransactions();
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [bankSelection, setBankSelection] = useState<'Santander' | 'BBVA-2026' | 'custom'>('Santander');
+  const [bankSelection, setBankSelection] = useState<'Santander-2025' | 'custom'>('Santander-2025');
   const [customBank, setCustomBank] = useState<string>('');
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,8 +75,8 @@ export function TransactionUpload() {
         <h2 className="text-xl font-bold mb-4">🏦 Cargar Transacciones Bancarias</h2>
 
         {/* Bank Selection */}
-        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-4">
+        <div className="mb-6 p-4 bg-info border border-info rounded-lg">
+          <label className="block text-sm font-semibold text-foreground mb-4">
             🏦 Selecciona el Banco Origen:
           </label>
 
@@ -87,32 +87,16 @@ export function TransactionUpload() {
                 <input
                   type="radio"
                   name="bankSelection"
-                  value="Santander"
-                  checked={bankSelection === 'Santander'}
+                  value="Santander-2025"
+                  checked={bankSelection === 'Santander-2025'}
                   onChange={() => {
-                    setBankSelection('Santander');
+                    setBankSelection('Santander-2025');
                     setCustomBank('');
                   }}
                   disabled={uploading}
                   className="mr-3 w-4 h-4 cursor-pointer"
                 />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Santander</span>
-              </label>
-
-              <label className="flex items-center cursor-pointer">
-                <input
-                  type="radio"
-                  name="bankSelection"
-                  value="BBVA-2026"
-                  checked={bankSelection === 'BBVA-2026'}
-                  onChange={() => {
-                    setBankSelection('BBVA-2026');
-                    setCustomBank('');
-                  }}
-                  disabled={uploading}
-                  className="mr-3 w-4 h-4 cursor-pointer"
-                />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">BBVA-2026</span>
+                <span className="text-sm font-medium text-foreground">Santander-2025</span>
               </label>
 
               <label className="flex items-center cursor-pointer">
@@ -125,27 +109,27 @@ export function TransactionUpload() {
                   disabled={uploading}
                   className="mr-3 w-4 h-4 cursor-pointer"
                 />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Otro Banco</span>
+                <span className="text-sm font-medium text-foreground">Otro Banco</span>
               </label>
             </div>
           </div>
 
           {/* Custom Bank Input */}
           {bankSelection === 'custom' && (
-            <div className="mt-4 p-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md">
-              <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wide">
+            <div className="mt-4 p-3 bg-base border border-light rounded-md">
+              <label className="block text-xs font-semibold text-info mb-2 uppercase tracking-wide">
                 Nombre del Banco
               </label>
               <input
                 type="text"
                 value={customBank}
                 onChange={(e) => setCustomBank(e.target.value)}
-                placeholder="Ej: Scotiabank, Inbursa, HSBC"
+                placeholder="Ej: Scotiabank-2021, BBVA-2028, HSBC, Efectivo"
                 disabled={uploading}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500 dark:placeholder-gray-400"
+                className="w-full px-3 py-2 border border-base rounded-md bg-secondary text-info focus:outline-none focus:ring-2 focus:ring-primary"
               />
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                💡 Ingresa el nombre exacto del banco para identificar la fuente de las transacciones
+              <p className="text-xs text-foreground-secondary mt-2">
+                💡 Ingresa el nombre exacto del banco y el año de la creación de la cuenta para identificar la fuente de las transacciones
               </p>
             </div>
           )}
@@ -153,7 +137,7 @@ export function TransactionUpload() {
 
         {/* File Upload */}
         <div className="mb-4">
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-sm font-semibold text-foreground mb-2">
             Selecciona el archivo:
           </label>
           <input
@@ -162,10 +146,10 @@ export function TransactionUpload() {
             accept=".csv,.xlsx,.xls"
             onChange={handleFileChange}
             disabled={uploading}
-            className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2"
+            className="block w-full text-sm text-foreground border border-base rounded-lg cursor-pointer bg-tertiary focus:outline-none p-2"
           />
           {selectedFile && (
-            <p className="mt-2 text-sm text-gray-600">
+            <p className="mt-2 text-sm text-foreground-secondary">
               Archivo seleccionado: <span className="font-semibold">{selectedFile.name}</span>
             </p>
           )}
@@ -183,7 +167,7 @@ export function TransactionUpload() {
 
         {/* Upload Error */}
         {uploadError && (
-          <div className="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          <div className="mt-4 bg-error/10 border border-error text-error px-4 py-3 rounded">
             Error al subir archivo: {uploadError}
           </div>
         )}
@@ -191,10 +175,10 @@ export function TransactionUpload() {
 
       {/* Upload Result Details */}
       {uploadResult && uploadResult.success && (
-        <div className="background-general shadow-lg rounded-lg border-4 border-green-500 p-6 mb-6 space-y-4">
+        <div className="bg-base shadow-lg rounded-lg border-4 border-success p-6 mb-6 space-y-4">
           <div className="flex items-center gap-2 mb-4">
             <span className="text-2xl">✅</span>
-            <h2 className="text-xl font-bold text-green-700">{uploadResult.message}</h2>
+            <h2 className="text-xl font-bold text-success">{uploadResult.message}</h2>
           </div>
 
           {/* Summary Stats */}
@@ -227,9 +211,9 @@ export function TransactionUpload() {
 
           {/* Date Range */}
           {uploadResult.dateRange && (
-            <div className="bg-gray-50 p-4 rounded">
-              <p className="text-sm font-semibold text-gray-700 mb-2">Rango de Fechas:</p>
-              <p className="text-sm text-gray-900">
+            <div className="bg-tertiary p-4 rounded">
+              <p className="text-sm font-semibold text-foreground mb-2">Rango de Fechas:</p>
+              <p className="text-sm text-foreground">
                 {useFormatDate(uploadResult.dateRange.start)} -{' '}
                 {useFormatDate(uploadResult.dateRange.end)}
               </p>
@@ -367,13 +351,13 @@ export function TransactionUpload() {
           {/* Errors */}
           {uploadResult.errors.length > 0 && (
             <div>
-              <h3 className="text-lg font-semibold mb-3 text-red-700">
+              <h3 className="text-lg font-semibold mb-3 text-error">
                 Errores ({uploadResult.errors.length})
               </h3>
-              <div className="bg-red-50 border border-red-300 rounded p-4 max-h-48 overflow-y-auto">
+              <div className="bg-error/10 border border-error rounded p-4 max-h-48 overflow-y-auto">
                 <ul className="list-disc list-inside space-y-1">
                   {uploadResult.errors.map((error, idx) => (
-                    <li key={idx} className="text-sm text-red-700">
+                    <li key={idx} className="text-sm text-error">
                       {typeof error === 'string' ? error : JSON.stringify(error)}
                     </li>
                   ))}
@@ -385,17 +369,17 @@ export function TransactionUpload() {
       )}
 
       {/* Historical Records Option */}
-      <div className="mt-8 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 shadow-lg rounded-lg border-4 border-blue-200 dark:border-blue-800 p-6">
+      <div className="mt-8 bg-base shadow-lg rounded-lg border-4 border-error p-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex-1">
-            <h3 className="text-lg font-bold text-foreground mb-2">📊 Cargar Registros Históricos</h3>
+            <h3 className="text-lg font-bold text-error/80 mb-2">📊 Cargar Registros Históricos</h3>
             <p className="text-sm text-foreground-secondary">
               Carga registros históricos de pagos contables desde archivos Excel para gestionar información de años anteriores
             </p>
           </div>
           <Button
             onClick={() => navigate('/historical-records-upload')}
-            variant="info"
+            variant="error"
             className="whitespace-nowrap"
           >
             Ir a Registros Históricos

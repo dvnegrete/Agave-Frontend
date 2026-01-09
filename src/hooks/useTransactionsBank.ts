@@ -77,13 +77,13 @@ export const useUploadTransactions = () => {
   const [uploadResult, setUploadResult] =
     useState<UploadTransactionsResponse | null>(null);
 
-  const upload = async (file: File, bank: string = 'Santander') => {
+  const upload = async (file: File, bankName: string = 'Santander-2025') => {
     setUploading(true);
     setUploadError(null);
     setUploadResult(null);
 
     try {
-      const result = await uploadTransactionsBank(file, bank);
+      const result = await uploadTransactionsBank(file, bankName);
       setUploadResult(result);
       return result;
     } catch (err) {
