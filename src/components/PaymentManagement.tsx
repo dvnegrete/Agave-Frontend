@@ -7,8 +7,9 @@ import { StatusBadge } from '../ui/StatusBadge';
 import { StatsCard } from '../ui/StatsCard';
 import { Table, type TableColumn } from '../ui/Table';
 import { ExpandableTable, type ExpandableTableColumn } from '../ui/ExpandableTable';
+import { UnclaimedDepositsSection } from './UnclaimedDepositsSection';
 
-type ActiveTab = 'periods' | 'create-period' | 'house-payments' | 'house-balance';
+type ActiveTab = 'periods' | 'create-period' | 'house-payments' | 'house-balance' | 'unclaimed-deposits';
 
 export function PaymentManagement() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('periods');
@@ -83,6 +84,7 @@ export function PaymentManagement() {
           { id: 'create-period', label: 'Crear Período', icon: '➕', color: 'blue' },
           { id: 'house-payments', label: 'Pagos por Casa', icon: '🏠', color: 'blue' },
           { id: 'house-balance', label: 'Saldo de Casa', icon: '💵', color: 'blue' },
+          { id: 'unclaimed-deposits', label: 'Depósitos No Reclamados', icon: '🏦', color: 'blue' },
         ] as TabItem[]}
         activeTab={activeTab}
         onTabChange={(tabId) => setActiveTab(tabId as ActiveTab)}
@@ -584,6 +586,18 @@ export function PaymentManagement() {
               Selecciona una casa para ver su saldo
             </div>
           ) : null}
+        </div>
+      )}
+
+      {/* Depósitos No Reclamados Tab */}
+      {activeTab === 'unclaimed-deposits' && (
+        <div className="bg-secondary shadow-lg rounded-lg border-4 border-primary/10 p-6">
+          <h2 className="text-2xl font-bold mb-4">🏦 Depósitos No Reclamados</h2>
+          <UnclaimedDepositsSection
+            onDepositAssigned={() => {
+              console.log('✅ Casa asignada exitosamente');
+            }}
+          />
         </div>
       )}
     </div>
