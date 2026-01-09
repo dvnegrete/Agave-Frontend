@@ -5,6 +5,8 @@ import { Tabs, type TabItem } from '../ui/Tabs';
 import { StatusBadge } from '../ui/StatusBadge';
 import { StatsCard } from '../ui/StatsCard';
 import { Table, type TableColumn } from '../ui/Table';
+import { BankSelector } from '../ui/BankSelector';
+import { FileUploadZone } from '../ui/FileUploadZone';
 import type { HistoricalRecordResponseDto, RowErrorDto } from '../types/api.types';
 
 type ActiveTab = 'upload' | 'history';
@@ -12,7 +14,6 @@ type ActiveTab = 'upload' | 'history';
 export function HistoricalRecordsUpload() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('upload');
   const [file, setFile] = useState<File | null>(null);
-  const [dragActive, setDragActive] = useState(false);
   const [validateOnly, setValidateOnly] = useState(false);
   const [description, setDescription] = useState('');
   const [bankSelection, setBankSelection] = useState<'BBVA' | 'Santander' | 'custom'>('BBVA');
@@ -23,39 +24,9 @@ export function HistoricalRecordsUpload() {
   const { upload, isUploading, error: uploadError, reset: resetMutation } = useHistoricalRecordsMutation();
   const { uploadHistory, isLoading: historyLoading } = useUploadHistoryQuery();
 
-  // Drag and drop handlers
-  const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === 'dragenter' || e.type === 'dragover') {
-      setDragActive(true);
-    } else if (e.type === 'dragleave') {
-      setDragActive(false);
-    }
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-
-    const droppedFile = e.dataTransfer.files?.[0];
-    if (droppedFile && droppedFile.name.endsWith('.xlsx')) {
-      setFile(droppedFile);
-      setError('');
-    } else {
-      setError('Por favor selecciona un archivo Excel (.xlsx)');
-    }
-  };
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile && selectedFile.name.endsWith('.xlsx')) {
-      setFile(selectedFile);
-      setError('');
-    } else {
-      setError('Por favor selecciona un archivo Excel (.xlsx)');
-    }
+  const handleFileSelect = (selectedFile: File) => {
+    setFile(selectedFile);
+    setError('');
   };
 
   const handleUpload = async () => {
@@ -124,7 +95,7 @@ export function HistoricalRecordsUpload() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">📊 Registros Históricos</h1>
+      <h1 className="text-3xl font-bold mb-6">📊 Registros Históricos Conciliados</h1>
 
       {/* Tab Navigation */}
       <Tabs
@@ -139,7 +110,7 @@ export function HistoricalRecordsUpload() {
       {/* Upload Tab */}
       {activeTab === 'upload' && (
         <div className="bg-secondary shadow-lg rounded-lg border-4 border-primary/10 p-6">
-          <h2 className="text-2xl font-bold mb-4 text-foreground">📁 Subir Registros Históricos</h2>
+          <h2 className="text-2xl font-bold mb-4 text-foreground">📁 Subir Registros Históricos Conciliados</h2>
 
           {/* Error Message */}
           {(error || uploadError) && (
@@ -152,143 +123,26 @@ export function HistoricalRecordsUpload() {
             </div>
           )}
 
-          {/* Bank Selection */}
-          <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-            <label className="block text-sm font-semibold text-foreground mb-4">
-              🏦 Selecciona el Banco Origen:
-            </label>
+          <BankSelector
+            value={bankSelection}
+            customValue={customBank}
+            onBankChange={setBankSelection}
+            onCustomChange={setCustomBank}
+            predefinedBanks={['Santander-2025']}
+            disabled={isUploading}
+            customPlaceholder="Ej: Scotiabank-2021, BBVA-2028, HSBC, Efectivo"
+            customHint="💡 Ingresa el nombre exacto del banco para identificar la fuente de los registros históricos conciliados"
+          />
 
-            {/* Predefined Banks */}
-            <div className="mb-4">
-              <div className="flex flex-col sm:flex-row gap-4">
-                <label className="flex items-center cursor-pointer">
-                  <input
-                    type="radio"
-                    name="bankSelection"
-                    value="BBVA"
-                    checked={bankSelection === 'BBVA'}
-                    onChange={() => {
-                      setBankSelection('BBVA');
-                      setCustomBank('');
-                    }}
-                    disabled={isUploading}
-                    className="mr-3 w-4 h-4 cursor-pointer"
-                  />
-                  <span className="text-sm font-medium text-foreground">BBVA</span>
-                </label>
-
-                <label className="flex items-center cursor-pointer">
-                  <input
-                    type="radio"
-                    name="bankSelection"
-                    value="Santander"
-                    checked={bankSelection === 'Santander'}
-                    onChange={() => {
-                      setBankSelection('Santander');
-                      setCustomBank('');
-                    }}
-                    disabled={isUploading}
-                    className="mr-3 w-4 h-4 cursor-pointer"
-                  />
-                  <span className="text-sm font-medium text-foreground">Santander</span>
-                </label>
-
-                <label className="flex items-center cursor-pointer">
-                  <input
-                    type="radio"
-                    name="bankSelection"
-                    value="custom"
-                    checked={bankSelection === 'custom'}
-                    onChange={() => setBankSelection('custom')}
-                    disabled={isUploading}
-                    className="mr-3 w-4 h-4 cursor-pointer"
-                  />
-                  <span className="text-sm font-medium text-foreground">Otro Banco</span>
-                </label>
-              </div>
-            </div>
-
-            {/* Custom Bank Input */}
-            {bankSelection === 'custom' && (
-              <div className="mt-4 p-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md">
-                <label className="block text-xs font-semibold text-foreground-secondary mb-2 uppercase tracking-wide">
-                  Nombre del Banco
-                </label>
-                <input
-                  type="text"
-                  value={customBank}
-                  onChange={(e) => setCustomBank(e.target.value)}
-                  placeholder="Ej: Scotiabank, Inbursa, HSBC"
-                  disabled={isUploading}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500 dark:placeholder-gray-400"
-                />
-                <p className="text-xs text-foreground-tertiary mt-2">
-                  💡 Ingresa el nombre exacto del banco para identificar la fuente de los registros históricos
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Drag and Drop Zone */}
-          <div
-            className={`flex flex-col items-center justify-center px-6 py-12 border-2 border-dashed rounded-md transition-all cursor-pointer ${
-              dragActive
-                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                : 'border-gray-300 dark:border-gray-600 hover:border-blue-500'
-            }`}
-            onDragEnter={handleDrag}
-            onDragLeave={handleDrag}
-            onDragOver={handleDrag}
-            onDrop={handleDrop}
-          >
-            <svg
-              className="w-12 h-12 text-gray-400 dark:text-gray-500 mb-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            <p className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">
-              📁 Arrastra tu archivo Excel aquí
-            </p>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">o haz click para seleccionar</p>
-
-            <input
-              type="file"
-              accept=".xlsx"
-              onChange={handleFileSelect}
-              className="hidden"
-              id="file-input"
-              disabled={isUploading}
-            />
-            <label htmlFor="file-input" className="cursor-pointer">
-              <Button
-                onClick={() => document.getElementById('file-input')?.click()}
-                disabled={isUploading}
-                variant="info"
-              >
-                Seleccionar Archivo
-              </Button>
-            </label>
-          </div>
-
-          {/* File name display */}
-          {file && (
-            <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
-              <p className="text-sm text-blue-800 dark:text-blue-200">
-                ✓ Archivo seleccionado: <span className="font-medium">{file.name}</span>
-              </p>
-              <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
-                Tamaño: {(file.size / 1024 / 1024).toFixed(2)} MB
-              </p>
-            </div>
-          )}
+          <FileUploadZone
+            file={file}
+            onFileSelect={handleFileSelect}
+            acceptedFormats={['.xlsx']}
+            disabled={isUploading}
+            dragDropEnabled={true}
+            showFileSize={true}
+            label="Selecciona el archivo Excel:"
+          />
 
           {/* Description field */}
           <div className="mt-6">

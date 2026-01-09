@@ -6,6 +6,8 @@ import { Button } from '../ui/Button';
 import { StatusBadge } from '../ui/StatusBadge';
 import { StatsCard } from '../ui/StatsCard';
 import { Table, type TableColumn } from '../ui/Table';
+import { BankSelector } from '../ui/BankSelector';
+import { FileUploadZone } from '../ui/FileUploadZone';
 
 export function TransactionUpload() {
   const navigate = useNavigate();
@@ -16,12 +18,9 @@ export function TransactionUpload() {
   const [bankSelection, setBankSelection] = useState<'Santander-2025' | 'custom'>('Santander-2025');
   const [customBank, setCustomBank] = useState<string>('');
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-      reset();
-    }
+  const handleFileSelect = (file: File) => {
+    setSelectedFile(file);
+    reset();
   };
 
   const handleUpload = async () => {
@@ -55,10 +54,7 @@ export function TransactionUpload() {
       // Limpiar archivo
       setSelectedFile(null);
       setCustomBank('');
-      const fileInput = document.getElementById('file-upload') as HTMLInputElement;
-      if (fileInput) {
-        fileInput.value = '';
-      }
+      setBankSelection('Santander-2025');
     } catch (err) {
       console.error('❌ [Upload] Error uploading file:', err);
     }
@@ -74,86 +70,25 @@ export function TransactionUpload() {
       <div className="background-general shadow-lg rounded-lg border-4 p-6 mb-6">
         <h2 className="text-xl font-bold mb-4">🏦 Cargar Transacciones Bancarias</h2>
 
-        {/* Bank Selection */}
-        <div className="mb-6 p-4 bg-info border border-info rounded-lg">
-          <label className="block text-sm font-semibold text-foreground mb-4">
-            🏦 Selecciona el Banco Origen:
-          </label>
+        <BankSelector
+          value={bankSelection}
+          customValue={customBank}
+          onBankChange={setBankSelection}
+          onCustomChange={setCustomBank}
+          predefinedBanks={['Santander-2025']}
+          disabled={uploading}
+          customPlaceholder="Ej: Scotiabank-2021, BBVA-2028, HSBC, Efectivo"
+          customHint="💡 Ingresa el nombre exacto del banco y el año de la creación de la cuenta para identificar la fuente de las transacciones"
+        />
 
-          {/* Predefined Banks */}
-          <div className="mb-4">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <label className="flex items-center cursor-pointer">
-                <input
-                  type="radio"
-                  name="bankSelection"
-                  value="Santander-2025"
-                  checked={bankSelection === 'Santander-2025'}
-                  onChange={() => {
-                    setBankSelection('Santander-2025');
-                    setCustomBank('');
-                  }}
-                  disabled={uploading}
-                  className="mr-3 w-4 h-4 cursor-pointer"
-                />
-                <span className="text-sm font-medium text-foreground">Santander-2025</span>
-              </label>
-
-              <label className="flex items-center cursor-pointer">
-                <input
-                  type="radio"
-                  name="bankSelection"
-                  value="custom"
-                  checked={bankSelection === 'custom'}
-                  onChange={() => setBankSelection('custom')}
-                  disabled={uploading}
-                  className="mr-3 w-4 h-4 cursor-pointer"
-                />
-                <span className="text-sm font-medium text-foreground">Otro Banco</span>
-              </label>
-            </div>
-          </div>
-
-          {/* Custom Bank Input */}
-          {bankSelection === 'custom' && (
-            <div className="mt-4 p-3 bg-base border border-light rounded-md">
-              <label className="block text-xs font-semibold text-info mb-2 uppercase tracking-wide">
-                Nombre del Banco
-              </label>
-              <input
-                type="text"
-                value={customBank}
-                onChange={(e) => setCustomBank(e.target.value)}
-                placeholder="Ej: Scotiabank-2021, BBVA-2028, HSBC, Efectivo"
-                disabled={uploading}
-                className="w-full px-3 py-2 border border-base rounded-md bg-secondary text-info focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-              <p className="text-xs text-foreground-secondary mt-2">
-                💡 Ingresa el nombre exacto del banco y el año de la creación de la cuenta para identificar la fuente de las transacciones
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* File Upload */}
-        <div className="mb-4">
-          <label className="block text-sm font-semibold text-foreground mb-2">
-            Selecciona el archivo:
-          </label>
-          <input
-            id="file-upload"
-            type="file"
-            accept=".csv,.xlsx,.xls"
-            onChange={handleFileChange}
-            disabled={uploading}
-            className="block w-full text-sm text-foreground border border-base rounded-lg cursor-pointer bg-tertiary focus:outline-none p-2"
-          />
-          {selectedFile && (
-            <p className="mt-2 text-sm text-foreground-secondary">
-              Archivo seleccionado: <span className="font-semibold">{selectedFile.name}</span>
-            </p>
-          )}
-        </div>
+        <FileUploadZone
+          file={selectedFile}
+          onFileSelect={handleFileSelect}
+          acceptedFormats={['.csv', '.xlsx', '.xls']}
+          disabled={uploading}
+          dragDropEnabled={true}
+          showFileSize={false}
+        />
 
         {/* Upload Button */}
         <Button
@@ -372,9 +307,9 @@ export function TransactionUpload() {
       <div className="mt-8 bg-base shadow-lg rounded-lg border-4 border-error p-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex-1">
-            <h3 className="text-lg font-bold text-error/80 mb-2">📊 Cargar Registros Históricos</h3>
+            <h3 className="text-lg font-bold text-error/80 mb-2">📊 Cargar Registros Históricos Conciliados</h3>
             <p className="text-sm text-foreground-secondary">
-              Carga registros históricos de pagos contables desde archivos Excel para gestionar información de años anteriores
+              Carga registros históricos de pagos contables que hayan sido previamente Conciliados para gestionar información de años anteriores
             </p>
           </div>
           <Button
