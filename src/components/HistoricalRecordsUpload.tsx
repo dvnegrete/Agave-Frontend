@@ -15,6 +15,8 @@ export function HistoricalRecordsUpload() {
   const [dragActive, setDragActive] = useState(false);
   const [validateOnly, setValidateOnly] = useState(false);
   const [description, setDescription] = useState('');
+  const [bankSelection, setBankSelection] = useState<'BBVA' | 'Santander' | 'custom'>('BBVA');
+  const [customBank, setCustomBank] = useState<string>('');
   const [uploadResult, setUploadResult] = useState<HistoricalRecordResponseDto | null>(null);
   const [error, setError] = useState<string>('');
 
@@ -62,11 +64,24 @@ export function HistoricalRecordsUpload() {
       return;
     }
 
+    // Determinar qué banco usar
+    let bankName = '';
+    if (bankSelection === 'custom') {
+      bankName = customBank.trim();
+      if (!bankName) {
+        setError('Por favor ingresa el nombre del banco personalizado');
+        return;
+      }
+    } else {
+      bankName = bankSelection;
+    }
+
     setError('');
     try {
       const result = await upload({
         file,
         options: {
+          bankName: bankName,
           description: description || undefined,
           validateOnly: validateOnly || undefined
         },
@@ -75,6 +90,7 @@ export function HistoricalRecordsUpload() {
       setFile(null);
       setValidateOnly(false);
       setDescription('');
+      setCustomBank('');
     } catch (err) {
       console.error('Upload error:', err);
       setError(err instanceof Error ? err.message : 'Error al subir el archivo');
@@ -85,6 +101,8 @@ export function HistoricalRecordsUpload() {
     setFile(null);
     setValidateOnly(false);
     setDescription('');
+    setBankSelection('BBVA');
+    setCustomBank('');
     setUploadResult(null);
     setError('');
     resetMutation();
@@ -133,6 +151,83 @@ export function HistoricalRecordsUpload() {
               </div>
             </div>
           )}
+
+          {/* Bank Selection */}
+          <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <label className="block text-sm font-semibold text-foreground mb-4">
+              🏦 Selecciona el Banco Origen:
+            </label>
+
+            {/* Predefined Banks */}
+            <div className="mb-4">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="bankSelection"
+                    value="BBVA"
+                    checked={bankSelection === 'BBVA'}
+                    onChange={() => {
+                      setBankSelection('BBVA');
+                      setCustomBank('');
+                    }}
+                    disabled={isUploading}
+                    className="mr-3 w-4 h-4 cursor-pointer"
+                  />
+                  <span className="text-sm font-medium text-foreground">BBVA</span>
+                </label>
+
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="bankSelection"
+                    value="Santander"
+                    checked={bankSelection === 'Santander'}
+                    onChange={() => {
+                      setBankSelection('Santander');
+                      setCustomBank('');
+                    }}
+                    disabled={isUploading}
+                    className="mr-3 w-4 h-4 cursor-pointer"
+                  />
+                  <span className="text-sm font-medium text-foreground">Santander</span>
+                </label>
+
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="bankSelection"
+                    value="custom"
+                    checked={bankSelection === 'custom'}
+                    onChange={() => setBankSelection('custom')}
+                    disabled={isUploading}
+                    className="mr-3 w-4 h-4 cursor-pointer"
+                  />
+                  <span className="text-sm font-medium text-foreground">Otro Banco</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Custom Bank Input */}
+            {bankSelection === 'custom' && (
+              <div className="mt-4 p-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md">
+                <label className="block text-xs font-semibold text-foreground-secondary mb-2 uppercase tracking-wide">
+                  Nombre del Banco
+                </label>
+                <input
+                  type="text"
+                  value={customBank}
+                  onChange={(e) => setCustomBank(e.target.value)}
+                  placeholder="Ej: Scotiabank, Inbursa, HSBC"
+                  disabled={isUploading}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500 dark:placeholder-gray-400"
+                />
+                <p className="text-xs text-foreground-tertiary mt-2">
+                  💡 Ingresa el nombre exacto del banco para identificar la fuente de los registros históricos
+                </p>
+              </div>
+            )}
+          </div>
 
           {/* Drag and Drop Zone */}
           <div

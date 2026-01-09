@@ -10,7 +10,7 @@ const API_BASE = '/historical-records';
 /**
  * Sube archivo Excel con registros históricos
  * @param file - Archivo Excel (.xlsx)
- * @param options - Opciones de upload
+ * @param options - Opciones de upload (incluye bankName requerido)
  * @param signal - AbortSignal para cancelación
  */
 export const uploadHistoricalRecords = async (
@@ -28,6 +28,11 @@ export const uploadHistoricalRecords = async (
   // Construir URL con query parameters
   let endpoint = `${API_BASE}/upload`;
   const params = new URLSearchParams();
+
+  // bankName es requerido por el backend
+  if (options?.bankName) {
+    params.append('bankName', options.bankName);
+  }
 
   if (options?.validateOnly === true) {
     params.append('validateOnly', 'true');

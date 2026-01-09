@@ -13,7 +13,8 @@ export function TransactionUpload() {
     useUploadTransactions();
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [selectedBank, setSelectedBank] = useState<string>('Santander');
+  const [bankSelection, setBankSelection] = useState<'Santander' | 'BBVA-2026' | 'custom'>('Santander');
+  const [customBank, setCustomBank] = useState<string>('');
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -29,18 +30,31 @@ export function TransactionUpload() {
       return;
     }
 
+    // Determinar qué banco usar
+    let bankName = '';
+    if (bankSelection === 'custom') {
+      bankName = customBank.trim();
+      if (!bankName) {
+        alert('Por favor ingresa el nombre del banco personalizado');
+        return;
+      }
+    } else {
+      bankName = bankSelection;
+    }
+
     try {
       console.log('📤 [Upload] Subiendo archivo:', {
         fileName: selectedFile.name,
-        bank: selectedBank,
+        bank: bankName,
       });
 
-      await upload(selectedFile, selectedBank);
+      await upload(selectedFile, bankName);
 
       console.log('✅ [Upload] Upload exitoso');
 
       // Limpiar archivo
       setSelectedFile(null);
+      setCustomBank('');
       const fileInput = document.getElementById('file-upload') as HTMLInputElement;
       if (fileInput) {
         fileInput.value = '';
@@ -61,34 +75,80 @@ export function TransactionUpload() {
         <h2 className="text-xl font-bold mb-4">🏦 Cargar Transacciones Bancarias</h2>
 
         {/* Bank Selection */}
-        <div className="mb-4">
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Selecciona el Banco:
+        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-4">
+            🏦 Selecciona el Banco Origen:
           </label>
-          <div className="flex gap-6">
-            <label className="flex items-center cursor-pointer">
-              <input
-                type="radio"
-                name="bank"
-                value="Santander"
-                checked={selectedBank === 'Santander'}
-                onChange={(e) => setSelectedBank(e.target.value)}
-                className="mr-2 w-4 h-4"
-              />
-              <span className="text-sm font-medium">Santander</span>
-            </label>
-            <label className="flex items-center cursor-pointer">
-              <input
-                type="radio"
-                name="bank"
-                value="BBVA-2026"
-                checked={selectedBank === 'BBVA-2026'}
-                onChange={(e) => setSelectedBank(e.target.value)}
-                className="mr-2 w-4 h-4"
-              />
-              <span className="text-sm font-medium">BBVA-2026</span>
-            </label>
+
+          {/* Predefined Banks */}
+          <div className="mb-4">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <label className="flex items-center cursor-pointer">
+                <input
+                  type="radio"
+                  name="bankSelection"
+                  value="Santander"
+                  checked={bankSelection === 'Santander'}
+                  onChange={() => {
+                    setBankSelection('Santander');
+                    setCustomBank('');
+                  }}
+                  disabled={uploading}
+                  className="mr-3 w-4 h-4 cursor-pointer"
+                />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Santander</span>
+              </label>
+
+              <label className="flex items-center cursor-pointer">
+                <input
+                  type="radio"
+                  name="bankSelection"
+                  value="BBVA-2026"
+                  checked={bankSelection === 'BBVA-2026'}
+                  onChange={() => {
+                    setBankSelection('BBVA-2026');
+                    setCustomBank('');
+                  }}
+                  disabled={uploading}
+                  className="mr-3 w-4 h-4 cursor-pointer"
+                />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">BBVA-2026</span>
+              </label>
+
+              <label className="flex items-center cursor-pointer">
+                <input
+                  type="radio"
+                  name="bankSelection"
+                  value="custom"
+                  checked={bankSelection === 'custom'}
+                  onChange={() => setBankSelection('custom')}
+                  disabled={uploading}
+                  className="mr-3 w-4 h-4 cursor-pointer"
+                />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Otro Banco</span>
+              </label>
+            </div>
           </div>
+
+          {/* Custom Bank Input */}
+          {bankSelection === 'custom' && (
+            <div className="mt-4 p-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md">
+              <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wide">
+                Nombre del Banco
+              </label>
+              <input
+                type="text"
+                value={customBank}
+                onChange={(e) => setCustomBank(e.target.value)}
+                placeholder="Ej: Scotiabank, Inbursa, HSBC"
+                disabled={uploading}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500 dark:placeholder-gray-400"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                💡 Ingresa el nombre exacto del banco para identificar la fuente de las transacciones
+              </p>
+            </div>
+          )}
         </div>
 
         {/* File Upload */}

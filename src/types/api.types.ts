@@ -398,6 +398,13 @@ export interface PaymentManagementQuery {
   [key: string]: any;
 }
 
+// Historical Records Upload Options
+export interface UploadHistoricalRecordsOptions {
+  bankName?: string;          // Nombre del banco origen de los registros
+  description?: string;        // Descripción opcional del archivo
+  validateOnly?: boolean;      // Si es true, solo valida sin insertar en BD
+}
+
 // Voucher Upload Types
 export interface VoucherStructuredData {
   monto: string;
