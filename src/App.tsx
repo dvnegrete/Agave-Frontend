@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { AuthProvider } from './context/AuthContext'
+import { ProtectedRoute } from './components/ProtectedRoute'
 import Home from './components/Home'
 import Login from './components/Login'
 import Footer from './components/Footer'
@@ -12,6 +14,7 @@ import { BankReconciliation } from './components/BankReconciliation'
 import { PaymentManagement } from './components/PaymentManagement'
 import { HistoricalRecordsUpload } from './components/HistoricalRecordsUpload'
 import { ApiStatus } from './components/ApiStatus'
+import AuthCallback from './pages/AuthCallback'
 import './App.css'
 
 // Create a client
@@ -61,20 +64,77 @@ function Layout({ children, showMenu = false }: { children: React.ReactNode; sho
 }
 
 function App() {
+  // Capturar errores globales
+  window.addEventListener('error', (event) => {
+    console.error('🚨 [Global Error]:', event.error);
+  });
+
+  window.addEventListener('unhandledrejection', (event) => {
+    console.error('🚨 [Unhandled Promise Rejection]:', event.reason);
+  });
+
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <ApiStatus />
-        <Routes>
-          <Route path="/" element={<Layout showMenu={true}><Home /></Layout>} />
-          <Route path="/login" element={<Layout><Login /></Layout>} />
-          <Route path="/subir-comprobante" element={<Layout showMenu={true}><VoucherUpload /></Layout>} />
-          <Route path="/vouchers" element={<Layout showMenu={true}><VoucherList /></Layout>} />
-          <Route path="/transactions" element={<Layout showMenu={true}><TransactionUpload /></Layout>} />
-          <Route path="/reconciliation" element={<Layout showMenu={true}><BankReconciliation /></Layout>} />
-          <Route path="/payment-management" element={<Layout showMenu={true}><PaymentManagement /></Layout>} />
-          <Route path="/historical-records-upload" element={<Layout showMenu={true}><HistoricalRecordsUpload /></Layout>} />
-        </Routes>
+        <AuthProvider>
+          <ApiStatus />
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<Layout showMenu={true}><Home /></Layout>} />
+            <Route path="/login" element={<Layout><Login /></Layout>} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
+
+            {/* Protected routes */}
+            <Route
+              path="/subir-comprobante"
+              element={
+                <ProtectedRoute>
+                  <Layout showMenu={true}><VoucherUpload /></Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/vouchers"
+              element={
+                <ProtectedRoute>
+                  <Layout showMenu={true}><VoucherList /></Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/transactions"
+              element={
+                <ProtectedRoute>
+                  <Layout showMenu={true}><TransactionUpload /></Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/reconciliation"
+              element={
+                <ProtectedRoute>
+                  <Layout showMenu={true}><BankReconciliation /></Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/payment-management"
+              element={
+                <ProtectedRoute>
+                  <Layout showMenu={true}><PaymentManagement /></Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/historical-records-upload"
+              element={
+                <ProtectedRoute>
+                  <Layout showMenu={true}><HistoricalRecordsUpload /></Layout>
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

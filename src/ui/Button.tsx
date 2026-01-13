@@ -9,6 +9,7 @@ interface ButtonProps {
   variant?: ButtonVariant;
   className?: string;
   children: React.ReactNode;
+  type?: 'button' | 'submit' | 'reset';
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
@@ -28,6 +29,7 @@ export function Button({
   variant = 'primary',
   className = '',
   children,
+  type = 'button',
 }: ButtonProps) {
   const baseStyles = 'disabled:opacity-50 transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer flex items-center gap-2';
   const variantStyle = variantStyles[variant];
@@ -35,6 +37,7 @@ export function Button({
 
   return (
     <button
+      type={type}
       onClick={onClick}
       disabled={disabled || isLoading}
       className={combinedClassName}

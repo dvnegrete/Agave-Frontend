@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
 interface MenuItem {
   path: string;
@@ -18,6 +19,7 @@ const menuItems: MenuItem[] = [
 export function HamburgerMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { user, logout } = useAuth();
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -98,12 +100,22 @@ export function HamburgerMenu() {
 
           <div className="absolute bottom-6 left-6 right-6">
             <div className="border-t border-base pt-4">
-              {/* <p className="text-xs text-foreground-secondary text-center">
-                Demo
-              </p>
-              <p className="text-xs text-foreground-secondary text-center mt-1">
-                v1.0.0
-              </p> */}
+              {user && (
+                <>
+                  <p className="text-xs text-foreground-secondary text-center mb-2">
+                    {user.email}
+                  </p>
+                  <button
+                    onClick={() => {
+                      logout();
+                      closeMenu();
+                    }}
+                    className="w-full px-4 py-2 text-sm text-center bg-error hover:bg-error/90 text-white rounded-lg transition-colors font-semibold"
+                  >
+                    🚪 Cerrar Sesión
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
