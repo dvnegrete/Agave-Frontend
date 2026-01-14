@@ -19,15 +19,7 @@ class HttpClient {
   }
 
   /**
-   * Get authorization headers with access token
-   */
-  private getAuthHeaders(): HeadersInit {
-    const token = tokenManager.getAccessToken();
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  }
-
-  /**
-   * Main request method with auth header injection and 401 handling
+   * Main request method with cookie auth and 401 handling
    */
   private async request<T>(
     endpoint: string,
@@ -45,16 +37,16 @@ class HttpClient {
     console.log(`🌐 [HTTP] ${method} ${url} (retry: ${currentRetries}/${this.MAX_RETRIES_PER_ENDPOINT})`,
       options?.body ? { body: options.body } : '');
 
-    // Merge auth headers with custom headers
+    // Merge custom headers with default content-type
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
-      ...this.getAuthHeaders(),
       ...options?.headers,
     };
 
     const config: RequestInit = {
       method,
       headers,
+      credentials: 'include', // Send cookies with every request
       signal: options?.signal,
     };
 
@@ -131,6 +123,7 @@ class HttpClient {
   /**
    * Handle token refresh with subscriber pattern
    * Ensures only one refresh happens even if multiple requests fail with 401
+   * Backend automatically sets the new access token in the httpOnly cookie
    */
   private async handleTokenRefresh(): Promise<string | null> {
     console.log('🔐 [HTTP] handleTokenRefresh called, isRefreshing:', this.isRefreshing);
@@ -139,9 +132,9 @@ class HttpClient {
       console.log('🔐 [HTTP] Already refreshing, waiting for result...');
       // Wait for ongoing refresh
       return new Promise((resolve) => {
-        this.refreshSubscribers.push((token: string) => {
-          console.log('🔐 [HTTP] Subscriber received new token');
-          resolve(token);
+        this.refreshSubscribers.push(() => {
+          console.log('🔐 [HTTP] Subscriber notified of refresh completion');
+          resolve('refreshed');
         });
       });
     }
@@ -157,23 +150,31 @@ class HttpClient {
         throw new Error('No refresh token available');
       }
 
-      // Dynamic import to avoid circular dependency with authService
-      console.log('🔐 [HTTP] Importing authService for refresh...');
-      const { refreshToken: refreshTokenFn } = await import('../services/authService');
-      const response = await refreshTokenFn(refreshToken);
+      // Call backend refresh endpoint
+      // Backend will automatically set new access_token cookie
+      console.log('🔐 [HTTP] Calling /auth/refresh endpoint...');
+      const response = await fetch(`${this.baseURL}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Include cookies
+        body: JSON.stringify({ refreshToken }),
+      });
 
-      console.log('🔐 [HTTP] Refresh successful, updating tokens');
-      tokenManager.setAccessToken(response.accessToken);
-      tokenManager.setRefreshToken(response.refreshToken);
+      if (!response.ok) {
+        throw new Error(`Refresh failed with status ${response.status}`);
+      }
+
+      console.log('🔐 [HTTP] Refresh successful');
 
       // Notify all subscribers
+      // Note: We don't return an access token since it's in the httpOnly cookie now
       console.log(`🔐 [HTTP] Notifying ${this.refreshSubscribers.length} subscribers`);
-      this.refreshSubscribers.forEach(cb => cb(response.accessToken));
+      this.refreshSubscribers.forEach(cb => cb());
       this.refreshSubscribers = [];
 
       this.isRefreshing = false;
       console.log('✅ [HTTP] Token refresh completed successfully');
-      return response.accessToken;
+      return 'refreshed'; // Return truthy value to indicate success
     } catch (error) {
       console.error('❌ [HTTP] Token refresh failed:', error);
       this.isRefreshing = false;

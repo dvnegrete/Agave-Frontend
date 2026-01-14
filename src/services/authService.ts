@@ -51,24 +51,24 @@ export const initOAuthFlow = async (
 };
 
 /**
- * Handle OAuth callback with authorization code
+ * Handle OAuth callback with Supabase access token
+ * Sends access token to backend for user creation and JWT generation
+ * Backend sets access_token cookie automatically
  */
 export const handleOAuthCallback = async (
-  code: string,
+  supabaseAccessToken: string,
   signal?: AbortSignal
-): Promise<AuthResponse> => {
-  console.log('🔐 [authService] handleOAuthCallback called with code:', code);
+): Promise<{ refreshToken: string }> => {
+  console.log('🔐 [authService] handleOAuthCallback called with Supabase access token');
   try {
-    const response = await httpClient.get<AuthResponse>(
-      `${API_ENDPOINTS.authOAuthCallback}?code=${code}`,
+    const response = await httpClient.post<{ refreshToken: string }>(
+      API_ENDPOINTS.authOAuthCallback,
+      { accessToken: supabaseAccessToken },
       { signal }
     );
     console.log('🔐 [authService] handleOAuthCallback response:', {
-      hasAccessToken: !!response.accessToken,
       hasRefreshToken: !!response.refreshToken,
-      user: response.user,
     });
-    console.log('🔐 [authService] handleOAuthCallback full response:', response);
     return response;
   } catch (error) {
     console.error('❌ [authService] handleOAuthCallback error:', error);
@@ -78,12 +78,13 @@ export const handleOAuthCallback = async (
 
 /**
  * Refresh access token using refresh token
+ * Backend sets new access_token cookie automatically
  */
 export const refreshToken = async (
   refreshTokenValue: string,
   signal?: AbortSignal
-): Promise<AuthResponse> => {
-  return httpClient.post<AuthResponse>(
+): Promise<{ success: boolean }> => {
+  return httpClient.post<{ success: boolean }>(
     API_ENDPOINTS.authRefresh,
     { refreshToken: refreshTokenValue },
     { signal }

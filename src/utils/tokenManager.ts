@@ -1,31 +1,17 @@
 /**
  * Token Manager Utility
- * Handles access tokens, refresh tokens, and user data persistence in localStorage
+ * Handles refresh tokens and user data persistence in localStorage.
+ * Access tokens are now stored in httpOnly cookies by the backend.
  */
 
 import type { User } from '../types/auth.types';
 
 const STORAGE_KEYS = {
-  ACCESS_TOKEN: 'agave_access_token',
   REFRESH_TOKEN: 'agave_refresh_token',
   USER: 'agave_user',
 } as const;
 
 export const tokenManager = {
-  /**
-   * Get access token from localStorage
-   */
-  getAccessToken: (): string | null => {
-    return localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
-  },
-
-  /**
-   * Set access token in localStorage
-   */
-  setAccessToken: (token: string): void => {
-    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, token);
-  },
-
   /**
    * Get refresh token from localStorage
    */
@@ -59,7 +45,6 @@ export const tokenManager = {
    * Clear all auth-related data from localStorage
    */
   clearAll: (): void => {
-    localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
     localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
     localStorage.removeItem(STORAGE_KEYS.USER);
   },

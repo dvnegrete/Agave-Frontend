@@ -24,18 +24,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   /**
    * Initialize auth state from localStorage on mount
+   * Check for refresh token to determine if user is authenticated
+   * Access token is stored in httpOnly cookie by the backend
    */
   useEffect(() => {
     const initAuth = async () => {
-      const accessToken = tokenManager.getAccessToken();
+      const refreshToken = tokenManager.getRefreshToken();
       const storedUser = tokenManager.getUser();
 
       console.log('🔐 [AuthContext] Initializing auth:', {
-        hasAccessToken: !!accessToken,
+        hasRefreshToken: !!refreshToken,
         hasStoredUser: !!storedUser,
       });
 
-      if (accessToken && storedUser) {
+      if (refreshToken && storedUser) {
         setUser(storedUser);
         console.log('🔐 [AuthContext] User restored from localStorage:', storedUser);
       } else {
@@ -57,34 +59,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       console.log('🔐 [AuthContext] Login successful, response:', {
         user: response.user,
-        hasAccessToken: !!response.accessToken,
         hasRefreshToken: !!response.refreshToken,
       });
 
-      tokenManager.setAccessToken(response.accessToken);
+      // Backend automatically sets access_token in httpOnly cookie
       tokenManager.setRefreshToken(response.refreshToken);
       tokenManager.setUser(response.user);
 
-      console.log('🔐 [AuthContext] Tokens saved to localStorage');
+      console.log('🔐 [AuthContext] Refresh token and user saved to localStorage');
 
       setUser(response.user);
       console.log('🔐 [AuthContext] User state updated, navigating to home');
 
-      // DEBUGGER: Pausa aquí antes de navegar
-      console.log('🔐 [AuthContext] About to navigate to home. Press F5 or Resume to continue');
-      console.log('🔐 [AuthContext] Current state:', {
-        user: response.user,
-        tokens: {
-          accessToken: response.accessToken.substring(0, 20) + '...',
-          refreshToken: response.refreshToken.substring(0, 20) + '...',
-        },
-        localStorage: {
-          accessToken: localStorage.getItem('agave_access_token')?.substring(0, 20) + '...',
-          refreshToken: localStorage.getItem('agave_refresh_token')?.substring(0, 20) + '...',
-          user: localStorage.getItem('agave_user'),
-        }
-      });
-      debugger; // PAUSA AQUÍ - abre DevTools (F12) y verás todos los logs
       navigate('/');
     } catch (error) {
       console.error('❌ [AuthContext] Login error:', error);
@@ -120,7 +106,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       // Redirect to OAuth provider - this takes user away from the app
       console.log('🔐 [AuthContext] About to redirect to:', response.url);
-      debugger; // PAUSA antes de redirigir
       window.location.href = response.url;
     } catch (error) {
       console.error('❌ [AuthContext] OAuth initiation error:', error);

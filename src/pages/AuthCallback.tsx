@@ -20,107 +20,78 @@ export default function AuthCallback() {
     const handleCallback = async () => {
       console.log('🔐 [AuthCallback] useEffect triggered');
       console.log('🔐 [AuthCallback] Current window.location.href:', window.location.href);
-      console.log('🔐 [AuthCallback] Current window.location.search:', window.location.search);
       console.log('🔐 [AuthCallback] Current window.location.hash:', window.location.hash);
 
-      // Check for Authorization Code Flow (query parameters)
-      let code = searchParams.get('code');
-      console.log('🔐 [AuthCallback] Code from query params:', code);
-
-      // Check for Implicit Flow (hash/fragment - Supabase default)
+      // Implicit Flow - Supabase redirects with tokens in hash fragment
       let accessToken = null;
-      let refreshToken = null;
-      let provider = null;
 
       if (window.location.hash) {
-        console.log('🔐 [AuthCallback] Found hash fragment, parsing tokens');
+        console.log('🔐 [AuthCallback] Found hash fragment, parsing Supabase access token');
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
         accessToken = hashParams.get('access_token');
-        refreshToken = hashParams.get('refresh_token');
-        provider = hashParams.get('provider');
 
-        console.log('🔐 [AuthCallback] Tokens from hash fragment:', {
+        console.log('🔐 [AuthCallback] Supabase access token:', {
           hasAccessToken: !!accessToken,
           accessTokenLength: accessToken?.length,
-          hasRefreshToken: !!refreshToken,
-          refreshTokenLength: refreshToken?.length,
-          provider,
         });
       }
 
-      // Determine which flow we're using
-      if (code) {
-        console.log('🔐 [AuthCallback] Using Authorization Code Flow');
-        try {
-          console.log('🔐 [AuthCallback] Calling authService.handleOAuthCallback with code:', code);
-          const response = await authService.handleOAuthCallback(code);
+      if (!accessToken) {
+        console.error('❌ [AuthCallback] No access token found in hash');
+        setError('No access token received from OAuth provider');
+        setTimeout(() => navigate('/login'), 3000);
+        return;
+      }
 
-          console.log('🔐 [AuthCallback] Response received from backend:', {
-            hasAccessToken: !!response.accessToken,
-            accessTokenLength: response.accessToken?.length,
-            hasRefreshToken: !!response.refreshToken,
-            refreshTokenLength: response.refreshToken?.length,
-            user: response.user,
-          });
+      try {
+        console.log('🔐 [AuthCallback] Sending access token to backend...');
+        // Send Supabase access token to backend for exchange
+        const response = await authService.handleOAuthCallback(accessToken);
 
-          if (!response.accessToken || !response.refreshToken) {
-            console.error('❌ [AuthCallback] Response missing tokens:', response);
-            throw new Error('Backend did not return access token or refresh token');
-          }
+        console.log('🔐 [AuthCallback] Response received from backend:', {
+          hasRefreshToken: !!response.refreshToken,
+          refreshTokenLength: response.refreshToken?.length,
+        });
 
-          tokenManager.setAccessToken(response.accessToken);
-          tokenManager.setRefreshToken(response.refreshToken);
-          tokenManager.setUser(response.user);
-
-          updateUser(response.user);
-          console.log('✅ [AuthCallback] OAuth authentication successful');
-          setTimeout(() => navigate('/'), 500);
-        } catch (err) {
-          console.error('❌ [AuthCallback] OAuth callback error:', err);
-          setError(err instanceof Error ? err.message : 'Authentication failed');
-          setTimeout(() => navigate('/login'), 3000);
+        if (!response.refreshToken) {
+          console.error('❌ [AuthCallback] Response missing refresh token:', response);
+          throw new Error('Backend did not return refresh token');
         }
-      } else if (accessToken) {
-        console.log('🔐 [AuthCallback] Using Implicit Flow (tokens from hash)');
+
+        // Backend automatically set access_token cookie
+        // Extract user info from refresh token JWT
         try {
-          // In Implicit Flow, Supabase gives us the tokens directly
-          // We need to extract the user info from the JWT
-          const payload = JSON.parse(atob(accessToken.split('.')[1]));
-          console.log('🔐 [AuthCallback] JWT payload:', payload);
+          const payload = JSON.parse(atob(response.refreshToken.split('.')[1]));
+          console.log('🔐 [AuthCallback] Extracted JWT payload:', payload);
 
           const user = {
             id: payload.sub,
             email: payload.email,
-            firstName: payload.user_metadata?.name?.split(' ')[0],
-            lastName: payload.user_metadata?.name?.split(' ')[1],
+            firstName: payload.firstName,
+            lastName: payload.lastName,
           };
 
-          console.log('🔐 [AuthCallback] Extracted user from JWT:', user);
+          console.log('🔐 [AuthCallback] Extracted user info:', user);
 
-          tokenManager.setAccessToken(accessToken);
-          if (refreshToken) {
-            tokenManager.setRefreshToken(refreshToken);
-          }
+          tokenManager.setRefreshToken(response.refreshToken);
           tokenManager.setUser(user);
-
           updateUser(user);
-          console.log('✅ [AuthCallback] OAuth authentication successful (Implicit Flow)');
+
+          console.log('✅ [AuthCallback] OAuth authentication successful');
           setTimeout(() => navigate('/'), 500);
-        } catch (err) {
-          console.error('❌ [AuthCallback] Error processing OAuth tokens:', err);
-          setError(err instanceof Error ? err.message : 'Authentication failed');
-          setTimeout(() => navigate('/login'), 3000);
+        } catch (parseErr) {
+          console.error('❌ [AuthCallback] Error parsing JWT payload:', parseErr);
+          throw new Error('Failed to parse authentication token');
         }
-      } else {
-        console.error('❌ [AuthCallback] No authorization code or access token found');
-        console.log('🔐 [AuthCallback] Query params:', Object.fromEntries(searchParams));
-        setError('No authorization code or tokens received');
+      } catch (err) {
+        console.error('❌ [AuthCallback] OAuth callback error:', err);
+        setError(err instanceof Error ? err.message : 'Authentication failed');
         setTimeout(() => navigate('/login'), 3000);
       }
     };
 
     handleCallback();
-  }, [searchParams, navigate, updateUser]);
+  }, [navigate, updateUser]);
 
   if (error) {
     return (
