@@ -22,7 +22,7 @@ export function UnclaimedDepositsSection({ onDepositAssigned }: UnclaimedDeposit
   const [notes, setNotes] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const handleLoadDeposits = async () => {
+  const handleLoadDeposits = async (): Promise<void> => {
     setLoading(true);
     setError(null);
     try {
@@ -41,7 +41,7 @@ export function UnclaimedDepositsSection({ onDepositAssigned }: UnclaimedDeposit
     }
   };
 
-  const handleAssignClick = (deposit: UnclaimedDeposit) => {
+  const handleAssignClick = (deposit: UnclaimedDeposit): void => {
     setSelectedDeposit(deposit);
     setHouseNumber(deposit.suggestedHouseNumber?.toString() || '');
     setNotes('');
@@ -49,7 +49,7 @@ export function UnclaimedDepositsSection({ onDepositAssigned }: UnclaimedDeposit
     setShowAssignModal(true);
   };
 
-  const handleAssignHouse = async () => {
+  const handleAssignHouse = async (): Promise<void> => {
     if (!selectedDeposit || !houseNumber) {
       setAssignError('Por favor ingresa un número de casa válido');
       return;

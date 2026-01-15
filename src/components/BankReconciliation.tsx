@@ -46,7 +46,7 @@ export function BankReconciliation() {
   void reconcileBulk;
   void undo;
 
-  const handleManualReconcile = async () => {
+  const handleManualReconcile = async (): Promise<void> => {
     if (!selectedTransaction || !selectedVoucher) {
       alert('Por favor selecciona una transacción y un voucher');
       return;
@@ -67,7 +67,7 @@ export function BankReconciliation() {
     }
   };
 
-  const handleStartReconciliation = async (data: { startDate?: string; endDate?: string }) => {
+  const handleStartReconciliation = async (data: { startDate?: string; endDate?: string }): Promise<StartReconciliationResponse | null> => {
     const result = await start(data);
     if (result) {
       // Save result to state
@@ -81,7 +81,7 @@ export function BankReconciliation() {
     return result;
   };
 
-  const handleManualValidation = async (voucherId: number, transactionId: number) => {
+  const handleManualValidation = async (voucherId: number, transactionId: number): Promise<void> => {
     try {
       console.log('🔧 [Manual Validation] Iniciando conciliación manual:', {
         voucherId,
@@ -111,7 +111,7 @@ export function BankReconciliation() {
     }
   };
 
-  const handleCloseModal = () => {
+  const handleCloseModal = (): void => {
     setShowStartModal(false);
   };
 

@@ -16,18 +16,23 @@ export const startReconciliation = async (
   data?: StartReconciliationRequest,
   signal?: AbortSignal
 ): Promise<StartReconciliationResponse> => {
-  console.log('🚀 [Service] Iniciando conciliación con datos:', data || {});
-  console.log('🌐 [Service] Endpoint:', API_ENDPOINTS.bankReconciliation);
+  try {
+    console.log('🚀 [Service] Iniciando conciliación con datos:', data || {});
+    console.log('🌐 [Service] Endpoint:', API_ENDPOINTS.bankReconciliation);
 
-  const response = await httpClient.post<StartReconciliationResponse>(
-    API_ENDPOINTS.bankReconciliation,
-    data || {},
-    { signal }
-  );
+    const response = await httpClient.post<StartReconciliationResponse>(
+      API_ENDPOINTS.bankReconciliation,
+      data || {},
+      { signal }
+    );
 
-  console.log('📦 [Service] Respuesta recibida de la API:', response);
+    console.log('📦 [Service] Respuesta recibida de la API:', response);
 
-  return response;
+    return response;
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in startReconciliation:', err);
+    throw err;
+  }
 };
 
 /**
@@ -37,11 +42,16 @@ export const reconcileTransaction = async (
   data: ReconcileRequest,
   signal?: AbortSignal
 ): Promise<ReconcileResponse> => {
-  return httpClient.post<ReconcileResponse>(
-    API_ENDPOINTS.bankReconciliation,
-    data,
-    { signal }
-  );
+  try {
+    return httpClient.post<ReconcileResponse>(
+      API_ENDPOINTS.bankReconciliation,
+      data,
+      { signal }
+    );
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in reconcileTransaction:', err);
+    throw err;
+  }
 };
 
 /**
@@ -51,11 +61,16 @@ export const bulkReconcile = async (
   data: BulkReconcileRequest,
   signal?: AbortSignal
 ): Promise<BulkReconcileResponse> => {
-  return httpClient.post<BulkReconcileResponse>(
-    `${API_ENDPOINTS.bankReconciliation}/bulk`,
-    data,
-    { signal }
-  );
+  try {
+    return httpClient.post<BulkReconcileResponse>(
+      `${API_ENDPOINTS.bankReconciliation}/bulk`,
+      data,
+      { signal }
+    );
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in bulkReconcile:', err);
+    throw err;
+  }
 };
 
 /**
@@ -65,9 +80,14 @@ export const undoReconciliation = async (
   transactionId: string,
   signal?: AbortSignal
 ): Promise<ReconcileResponse> => {
-  return httpClient.post<ReconcileResponse>(
-    `${API_ENDPOINTS.bankReconciliation}/undo`,
-    { transactionId },
-    { signal }
-  );
+  try {
+    return httpClient.post<ReconcileResponse>(
+      `${API_ENDPOINTS.bankReconciliation}/undo`,
+      { transactionId },
+      { signal }
+    );
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in undoReconciliation:', err);
+    throw err;
+  }
 };

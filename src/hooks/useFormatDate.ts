@@ -21,7 +21,7 @@ const MESES_ES = [
 /**
  * Formatea una fecha de PostgreSQL al formato: DD-mes-YYYY
  * @param dateString - Fecha en formato ISO string (ej: "2025-09-05T00:00:00.000Z")
- * @returns Fecha formateada (ej: "05-septiembre-2025") o "Fecha inv�lida" si hay error
+ * @returns Fecha formateada (ej: "05-septiembre-2025") o "Fecha inválida" si hay error
  */
 export const useFormatDate = (dateString: string | null | undefined): string => {
   if (!dateString) {
@@ -31,9 +31,9 @@ export const useFormatDate = (dateString: string | null | undefined): string => 
   try {
     const date = new Date(dateString);
 
-    // Verificar si la fecha es v�lida
+    // Verificar si la fecha es válida
     if (isNaN(date.getTime())) {
-      return 'Fecha inv�lida';
+      return 'Fecha inválida';
     }
 
     const dia = date.getUTCDate().toString().padStart(2, '0');
@@ -41,9 +41,9 @@ export const useFormatDate = (dateString: string | null | undefined): string => 
     const anio = date.getUTCFullYear();
 
     return `${dia}-${mes}-${anio}`;
-  } catch (error) {
-    console.error('Error formateando fecha:', error);
-    return 'Fecha inv�lida';
+  } catch (err: unknown) {
+    console.error('Error formateando fecha:', err);
+    return 'Fecha inválida';
   }
 };
 
@@ -69,8 +69,8 @@ export const useFormatDateShort = (dateString: string | null | undefined): strin
     const anio = date.getUTCFullYear();
 
     return `${dia}/${mes}/${anio}`;
-  } catch (error) {
-    console.error('Error formateando fecha:', error);
+  } catch (err: unknown) {
+    console.error('Error formateando fecha:', err);
     return 'Fecha inválida';
   }
 };
@@ -97,18 +97,24 @@ export const useFormatTime = (dateString: string | null | undefined): string => 
     const segundos = date.getUTCSeconds().toString().padStart(2, '0');
 
     return `${horas}:${minutos}:${segundos}`;
-  } catch (error) {
-    console.error('Error formateando hora:', error);
+  } catch (err: unknown) {
+    console.error('Error formateando hora:', err);
     return 'Hora inválida';
   }
 };
+
+interface FormattedDateTime {
+  date: string;
+  dateShort: string;
+  time: string;
+}
 
 /**
  * Devuelve fecha y hora formateadas como objeto
  * @param dateString - Fecha en formato ISO string
  * @returns Objeto con propiedades date, time y dateShort
  */
-export const useFormatDateTime = (dateString: string | null | undefined) => {
+export const useFormatDateTime = (dateString: string | null | undefined): FormattedDateTime => {
   return {
     date: useFormatDate(dateString),
     dateShort: useFormatDateShort(dateString),

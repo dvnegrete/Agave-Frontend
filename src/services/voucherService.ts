@@ -16,20 +16,25 @@ export const getVouchers = async (
   query?: VoucherQuery,
   signal?: AbortSignal
 ): Promise<VouchersResponse> => {
-  const params = new URLSearchParams();
+  try {
+    const params = new URLSearchParams();
 
-  if (query?.confirmation_status !== undefined) {
-    params.append('confirmation_status', query.confirmation_status.toString());
+    if (query?.confirmation_status !== undefined) {
+      params.append('confirmation_status', query.confirmation_status.toString());
+    }
+    if (query?.startDate) params.append('startDate', query.startDate);
+    if (query?.endDate) params.append('endDate', query.endDate);
+
+    const queryString = params.toString();
+    const endpoint = queryString
+      ? `${API_ENDPOINTS.vouchers}?${queryString}`
+      : API_ENDPOINTS.vouchers;
+
+    return httpClient.get<VouchersResponse>(endpoint, { signal });
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in getVouchers:', err);
+    throw err;
   }
-  if (query?.startDate) params.append('startDate', query.startDate);
-  if (query?.endDate) params.append('endDate', query.endDate);
-
-  const queryString = params.toString();
-  const endpoint = queryString
-    ? `${API_ENDPOINTS.vouchers}?${queryString}`
-    : API_ENDPOINTS.vouchers;
-
-  return httpClient.get<VouchersResponse>(endpoint, { signal });
 };
 
 /**
@@ -39,7 +44,12 @@ export const getVoucherById = async (
   id: string,
   signal?: AbortSignal
 ): Promise<Voucher> => {
-  return httpClient.get<Voucher>(API_ENDPOINTS.voucherById(id), { signal });
+  try {
+    return httpClient.get<Voucher>(API_ENDPOINTS.voucherById(id), { signal });
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in getVoucherById:', err);
+    throw err;
+  }
 };
 
 /**
@@ -49,11 +59,16 @@ export const createVoucher = async (
   data: CreateVoucherRequest,
   signal?: AbortSignal
 ): Promise<ApiResponse<Voucher>> => {
-  return httpClient.post<ApiResponse<Voucher>>(
-    API_ENDPOINTS.vouchers,
-    data,
-    { signal }
-  );
+  try {
+    return httpClient.post<ApiResponse<Voucher>>(
+      API_ENDPOINTS.vouchers,
+      data,
+      { signal }
+    );
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in createVoucher:', err);
+    throw err;
+  }
 };
 
 /**
@@ -64,11 +79,16 @@ export const updateVoucher = async (
   data: UpdateVoucherRequest,
   signal?: AbortSignal
 ): Promise<ApiResponse<Voucher>> => {
-  return httpClient.put<ApiResponse<Voucher>>(
-    API_ENDPOINTS.voucherById(id),
-    data,
-    { signal }
-  );
+  try {
+    return httpClient.put<ApiResponse<Voucher>>(
+      API_ENDPOINTS.voucherById(id),
+      data,
+      { signal }
+    );
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in updateVoucher:', err);
+    throw err;
+  }
 };
 
 /**
@@ -78,8 +98,13 @@ export const deleteVoucher = async (
   id: string,
   signal?: AbortSignal
 ): Promise<ApiResponse<void>> => {
-  return httpClient.delete<ApiResponse<void>>(
-    API_ENDPOINTS.voucherById(id),
-    { signal }
-  );
+  try {
+    return httpClient.delete<ApiResponse<void>>(
+      API_ENDPOINTS.voucherById(id),
+      { signal }
+    );
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in deleteVoucher:', err);
+    throw err;
+  }
 };

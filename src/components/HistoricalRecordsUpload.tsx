@@ -24,12 +24,12 @@ export function HistoricalRecordsUpload() {
   const { upload, isUploading, error: uploadError, reset: resetMutation } = useHistoricalRecordsMutation();
   const { uploadHistory, isLoading: historyLoading } = useUploadHistoryQuery();
 
-  const handleFileSelect = (selectedFile: File) => {
+  const handleFileSelect = (selectedFile: File): void => {
     setFile(selectedFile);
     setError('');
   };
 
-  const handleUpload = async () => {
+  const handleUpload = async (): Promise<void> => {
     if (!file) {
       setError('Por favor selecciona un archivo');
       return;
@@ -68,7 +68,7 @@ export function HistoricalRecordsUpload() {
     }
   };
 
-  const resetForm = () => {
+  const resetForm = (): void => {
     setFile(null);
     setValidateOnly(false);
     setDescription('');

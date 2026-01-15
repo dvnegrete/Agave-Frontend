@@ -18,7 +18,7 @@ export function VoucherUpload() {
   const [error, setError] = useState<string>('');
   const [dragActive, setDragActive] = useState(false);
 
-  const processFile = async (selectedFile: File) => {
+  const processFile = async (selectedFile: File): Promise<void> => {
     setFile(selectedFile);
     setLoading(true);
     setError('');
@@ -40,13 +40,13 @@ export function VoucherUpload() {
     }
   };
 
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
-    processFile(selectedFile);
+    await processFile(selectedFile);
   };
 
-  const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrag = (e: React.DragEvent<HTMLDivElement>): void => {
     e.preventDefault();
     e.stopPropagation();
     if (e.type === 'dragenter' || e.type === 'dragover') {
@@ -56,21 +56,21 @@ export function VoucherUpload() {
     }
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>): void => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
 
     const droppedFile = e.dataTransfer.files?.[0];
     if (droppedFile) {
-      processFile(droppedFile);
+      void processFile(droppedFile);
     }
   };
 
   const handleDataChange = (
     field: keyof VoucherStructuredData,
     value: string | number
-  ) => {
+  ): void => {
     setExtractedData((prev) =>
       prev
         ? {
@@ -81,7 +81,7 @@ export function VoucherUpload() {
     );
   };
 
-  const handleConfirm = async () => {
+  const handleConfirm = async (): Promise<void> => {
     if (!extractedData || !gcsFilename) return;
 
     setLoading(true);
@@ -107,7 +107,7 @@ export function VoucherUpload() {
     }
   };
 
-  const resetForm = () => {
+  const resetForm = (): void => {
     setStep('upload');
     setFile(null);
     setExtractedData(null);

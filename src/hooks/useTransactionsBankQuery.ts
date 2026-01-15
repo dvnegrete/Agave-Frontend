@@ -5,6 +5,8 @@ import {
   uploadTransactionsBank,
   deleteTransactionBank,
   type TransactionsBankQuery,
+  type BankTransaction,
+  type UploadTransactionsResponse,
 } from '../services';
 
 // Query Keys
@@ -17,12 +19,32 @@ export const transactionBankKeys = {
   detail: (id: string) => [...transactionBankKeys.details(), id] as const,
 };
 
+interface UseTransactionsBankQueryReturn {
+  transactions: BankTransaction[];
+  total: number;
+  isLoading: boolean;
+  isFetching: boolean;
+  error: string | null;
+  setFilters: (filters: Partial<TransactionsBankQuery>) => void;
+  refetch: () => Promise<void>;
+}
+
+interface UseTransactionBankMutationsReturn {
+  upload: (payload: { file: File; bankName: string }) => Promise<unknown>;
+  remove: (id: string) => Promise<unknown>;
+  isLoading: boolean;
+  uploadError: string | null;
+  deleteError: string | null;
+  uploadResult: UploadTransactionsResponse | null;
+  resetUpload: () => void;
+}
+
 /**
  * Hook para obtener lista de transacciones bancarias con filtros opcionales
  */
 export const useTransactionsBankQuery = (
   initialQuery?: TransactionsBankQuery
-) => {
+): UseTransactionsBankQueryReturn => {
   const [query, setQuery] = useState<TransactionsBankQuery>(
     initialQuery || {}
   );
@@ -60,14 +82,16 @@ export const useTransactionsBankQuery = (
     isFetching,
     error: error?.message || null,
     setFilters,
-    refetch,
+    refetch: async () => {
+      await refetch();
+    },
   };
 };
 
 /**
  * Hook para mutaciones de transacciones bancarias
  */
-export const useTransactionBankMutations = () => {
+export const useTransactionBankMutations = (): UseTransactionBankMutationsReturn => {
   const queryClient = useQueryClient();
 
   const uploadMutation = useMutation({

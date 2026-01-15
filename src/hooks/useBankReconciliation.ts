@@ -12,7 +12,16 @@ import {
   type BulkReconcileResponse,
 } from '../services';
 
-export const useBankReconciliation = () => {
+interface UseBankReconciliationReturn {
+  start: (data?: StartReconciliationRequest) => Promise<StartReconciliationResponse | undefined>;
+  reconcile: (data: ReconcileRequest) => Promise<ReconcileResponse | undefined>;
+  reconcileBulk: (data: BulkReconcileRequest) => Promise<BulkReconcileResponse | undefined>;
+  undo: (transactionId: string) => Promise<ReconcileResponse | undefined>;
+  reconciling: boolean;
+  error: string | null;
+}
+
+export const useBankReconciliation = (): UseBankReconciliationReturn => {
   const [reconciling, setReconciling] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,7 +33,7 @@ export const useBankReconciliation = () => {
     try {
       const response = await startReconciliation(data);
       return response;
-    } catch (err) {
+    } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
         throw err;
@@ -42,7 +51,7 @@ export const useBankReconciliation = () => {
     try {
       const response = await reconcileTransaction(data);
       return response;
-    } catch (err) {
+    } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
         throw err;
@@ -60,7 +69,7 @@ export const useBankReconciliation = () => {
     try {
       const response = await bulkReconcile(data);
       return response;
-    } catch (err) {
+    } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
         throw err;
@@ -78,7 +87,7 @@ export const useBankReconciliation = () => {
     try {
       const response = await undoReconciliation(transactionId);
       return response;
-    } catch (err) {
+    } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
         throw err;

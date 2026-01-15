@@ -1,6 +1,6 @@
 import React from 'react';
 
-export interface TableColumn<T = any> {
+export interface TableColumn<T = unknown> {
   id: string;
   header: string;
   render: (row: T, index: number) => React.ReactNode;
@@ -9,7 +9,7 @@ export interface TableColumn<T = any> {
   align?: 'left' | 'center' | 'right';
 }
 
-export interface TableProps<T = any> {
+export interface TableProps<T = unknown> {
   columns: TableColumn<T>[];
   data: T[];
   keyField?: string | ((row: T, index: number) => string | number);
@@ -45,7 +45,7 @@ const alignmentClasses: Record<string, string> = {
   right: 'text-right',
 };
 
-export function Table<T = any>({
+export function Table<T = unknown>({
   columns,
   data,
   keyField = (_row, idx) => idx,
@@ -58,15 +58,19 @@ export function Table<T = any>({
   stickyHeader = true,
   variant = 'default',
   headerVariant = 'default',
-}: TableProps<T>) {
+}: TableProps<T>): React.ReactNode {
   const getRowKey = (row: T, index: number): string | number => {
     if (typeof keyField === 'function') {
       return keyField(row, index);
     }
-    return (row as any)[keyField] ?? index;
+    if (typeof keyField === 'string') {
+      const value = (row as Record<string, unknown>)[keyField];
+      return (value as string | number | null | undefined) ?? index;
+    }
+    return index;
   };
 
-  const getRowClassName = (row: T, index: number): string => {
+  const getRowClassName = (row: T, index: number): string | undefined => {
     let classes = variantPadding[variant];
 
     if (striped && index % 2 === 1) {

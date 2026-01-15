@@ -22,7 +22,7 @@ export function FileUploadZone({
 }: FileUploadZoneProps) {
   const [dragActive, setDragActive] = useState(false);
 
-  const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrag = (e: React.DragEvent<HTMLDivElement>): void => {
     e.preventDefault();
     e.stopPropagation();
     if (e.type === 'dragenter' || e.type === 'dragover') {
@@ -32,7 +32,7 @@ export function FileUploadZone({
     }
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>): void => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
@@ -43,14 +43,14 @@ export function FileUploadZone({
     }
   };
 
-  const validateAndSetFile = (selectedFile: File) => {
+  const validateAndSetFile = (selectedFile: File): void => {
     const fileExtension = '.' + selectedFile.name.split('.').pop()?.toLowerCase();
     if (acceptedFormats.includes(fileExtension)) {
       onFileSelect(selectedFile);
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
       validateAndSetFile(selectedFile);

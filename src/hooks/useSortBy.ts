@@ -13,6 +13,14 @@ interface UseSortByOptions {
   initialOrder?: SortOrder;
 }
 
+interface UseSortByReturn<T extends Record<string, unknown>> {
+  sortedItems: T[];
+  sortConfig: SortConfig;
+  setSortField: (field: SortField) => void;
+  setSort: (field: SortField, order: SortOrder) => void;
+  resetSort: () => void;
+}
+
 /**
  * Hook para ordenar una lista de elementos
  * Soporta diferentes campos y direcciones de ordenamiento
@@ -21,10 +29,10 @@ interface UseSortByOptions {
  * @param options - Configuración inicial (campo y dirección)
  * @returns Object con items ordenados, configuración actual y funciones de cambio
  */
-export function useSortBy<T extends Record<string, any>>(
+export function useSortBy<T extends Record<string, unknown>>(
   items: T[],
   options?: UseSortByOptions
-) {
+): UseSortByReturn<T> {
   const initialField: SortField = options?.initialField || 'number_house';
   const initialOrder: SortOrder = options?.initialOrder || 'asc';
 

@@ -6,6 +6,7 @@ import { getVoucherById } from '../services/voucherService';
 import { Button } from '../ui/Button';
 import { StatusBadge } from '../ui/StatusBadge';
 import { ExpandableTable, type ExpandableTableColumn } from '../ui/ExpandableTable';
+import type { Voucher } from '../types/api.types';
 
 export function VoucherList() {
   const [loadingViewUrl, setLoadingViewUrl] = useState<number | null>(null);
@@ -30,7 +31,7 @@ export function VoucherList() {
 
   const { create, update, remove, isLoading: mutating } = useVoucherMutations();
 
-  const handleViewVoucher = async (id: number) => {
+  const handleViewVoucher = async (id: number): Promise<void> => {
     setLoadingViewUrl(id);
     try {
       const voucher = await getVoucherById(id.toString());
@@ -50,7 +51,7 @@ export function VoucherList() {
     }
   };
 
-  const handleCreateVoucher = async () => {
+  const handleCreateVoucher = async (): Promise<void> => {
     try {
       await create({
         authorization_number: 'AUTH-' + Date.now(),
@@ -67,7 +68,7 @@ export function VoucherList() {
     }
   };
 
-  const handleConfirmVoucher = async (id: number) => {
+  const handleConfirmVoucher = async (id: number): Promise<void> => {
     try {
       await update({
         id: id.toString(),
@@ -80,7 +81,7 @@ export function VoucherList() {
     }
   };
 
-  const handleDeleteVoucher = async (id: number) => {
+  const handleDeleteVoucher = async (id: number): Promise<void> => {
     if (confirm('¿Estás seguro de eliminar este voucher?')) {
       try {
         await remove(id.toString());
@@ -117,31 +118,31 @@ export function VoucherList() {
     );
   }
 
-  const mainColumns: ExpandableTableColumn[] = [
+  const mainColumns: ExpandableTableColumn<Voucher>[] = [
     {
       id: 'number_house',
       header: 'Casa',
       align: 'center',
-      render: (voucher: any) => voucher.number_house,
+      render: (voucher: Voucher) => voucher.number_house,
     },
     {
       id: 'date',
       header: 'Fecha',
       align: 'center',
-      render: (voucher: any) => useFormatDate(voucher.date),
+      render: (voucher: Voucher) => useFormatDate(voucher.date),
     },
     {
       id: 'amount',
       header: 'Monto',
       align: 'center',
-      render: (voucher: any) => `$${voucher.amount.toFixed(2)}`,
+      render: (voucher: Voucher) => `$${voucher.amount.toFixed(2)}`,
       className: 'font-bold text-primary-light',
     },
     {
       id: 'confirmation_status',
       header: 'Estado',
       align: 'center',
-      render: (voucher: any) => (
+      render: (voucher: Voucher) => (
         <StatusBadge
           status={voucher.confirmation_status ? 'success' : 'warning'}
           label={voucher.confirmation_status ? 'Confirmado' : 'Pendiente'}
@@ -151,7 +152,7 @@ export function VoucherList() {
     },
   ];
 
-  const expandedContentRender = (voucher: any) => (
+  const expandedContentRender = (voucher: Voucher): React.ReactNode => (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-background rounded-lg p-4 border border-primary/10">

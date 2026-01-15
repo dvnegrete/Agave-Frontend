@@ -5,14 +5,26 @@ import {
   bulkReconcile,
   undoReconciliation,
   type StartReconciliationRequest,
+  type StartReconciliationResponse,
   type ReconcileRequest,
+  type ReconcileResponse,
   type BulkReconcileRequest,
+  type BulkReconcileResponse,
 } from '../services';
+
+interface UseBankReconciliationMutationsReturn {
+  start: (data?: StartReconciliationRequest) => Promise<unknown>;
+  reconcile: (data: ReconcileRequest) => Promise<unknown>;
+  reconcileBulk: (data: BulkReconcileRequest) => Promise<unknown>;
+  undo: (transactionId: string) => Promise<unknown>;
+  reconciling: boolean;
+  error: string | null;
+}
 
 /**
  * Hook para mutaciones de conciliación bancaria
  */
-export const useBankReconciliationMutations = () => {
+export const useBankReconciliationMutations = (): UseBankReconciliationMutationsReturn => {
   const queryClient = useQueryClient();
 
   const startMutation = useMutation({

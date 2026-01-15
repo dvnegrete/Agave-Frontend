@@ -20,7 +20,7 @@ export function StartReconciliationModal({
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  const handleStart = async () => {
+  const handleStart = async (): Promise<void> => {
     try {
       const data: { startDate?: string; endDate?: string } = {};
       if (startDate) data.startDate = startDate;
@@ -60,7 +60,7 @@ export function StartReconciliationModal({
     }
   };
 
-  const handleClose = () => {
+  const handleClose = (): void => {
     setStartDate('');
     setEndDate('');
     onClose();

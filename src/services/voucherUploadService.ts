@@ -15,18 +15,23 @@ export const uploadVoucher = async (
   userId?: string | null,
   signal?: AbortSignal
 ): Promise<VoucherUploadResponse> => {
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('language', language);
-  if (userId) {
-    formData.append('userId', userId);
-  }
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('language', language);
+    if (userId) {
+      formData.append('userId', userId);
+    }
 
-  return httpClient.post<VoucherUploadResponse>(
-    API_ENDPOINTS.voucherFrontendUpload,
-    formData,
-    { signal }
-  );
+    return httpClient.post<VoucherUploadResponse>(
+      API_ENDPOINTS.voucherFrontendUpload,
+      formData,
+      { signal }
+    );
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in uploadVoucher:', err);
+    throw err;
+  }
 };
 
 /**
@@ -36,9 +41,14 @@ export const confirmVoucher = async (
   data: VoucherConfirmRequest,
   signal?: AbortSignal
 ): Promise<VoucherConfirmResponse> => {
-  return httpClient.post<VoucherConfirmResponse>(
-    API_ENDPOINTS.voucherFrontendConfirm,
-    data,
-    { signal }
-  );
+  try {
+    return httpClient.post<VoucherConfirmResponse>(
+      API_ENDPOINTS.voucherFrontendConfirm,
+      data,
+      { signal }
+    );
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in confirmVoucher:', err);
+    throw err;
+  }
 };

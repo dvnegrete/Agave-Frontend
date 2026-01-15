@@ -31,7 +31,7 @@ const queryClient = new QueryClient({
 
 const imgAlt = "El Agave logo";
 
-function Layout({ children, showMenu = false }: { children: React.ReactNode; showMenu?: boolean }) {
+function Layout({ children, showMenu = false }: { children: React.ReactNode; showMenu?: boolean }): React.ReactNode {
   return (
     <div className="min-h-screen flex flex-col">
       {showMenu && <HamburgerMenu />}
@@ -64,13 +64,13 @@ function Layout({ children, showMenu = false }: { children: React.ReactNode; sho
   );
 }
 
-function App() {
+function App(): React.ReactNode {
   // Capturar errores globales
-  window.addEventListener('error', (event) => {
+  window.addEventListener('error', (event: ErrorEvent): void => {
     console.error('🚨 [Global Error]:', event.error);
   });
 
-  window.addEventListener('unhandledrejection', (event) => {
+  window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent): void => {
     console.error('🚨 [Unhandled Promise Rejection]:', event.reason);
   });
 

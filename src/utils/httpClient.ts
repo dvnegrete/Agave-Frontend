@@ -3,7 +3,7 @@ import { tokenManager } from './tokenManager';
 
 export interface HttpClientOptions {
   headers?: HeadersInit;
-  body?: any;
+  body?: Record<string, unknown> | FormData;
   signal?: AbortSignal;
 }
 
@@ -52,7 +52,7 @@ class HttpClient {
 
     if (options?.body) {
       if (options.body instanceof FormData) {
-        delete (headers as any)['Content-Type'];
+        delete (headers as Record<string, unknown>)['Content-Type'];
         config.body = options.body;
       } else {
         config.body = JSON.stringify(options.body);
@@ -192,11 +192,11 @@ class HttpClient {
     return this.request<T>(endpoint, 'GET', options);
   }
 
-  async post<T>(endpoint: string, body?: any, options?: HttpClientOptions): Promise<T> {
+  async post<T>(endpoint: string, body?: Record<string, unknown>, options?: HttpClientOptions): Promise<T> {
     return this.request<T>(endpoint, 'POST', { ...options, body });
   }
 
-  async put<T>(endpoint: string, body?: any, options?: HttpClientOptions): Promise<T> {
+  async put<T>(endpoint: string, body?: Record<string, unknown>, options?: HttpClientOptions): Promise<T> {
     return this.request<T>(endpoint, 'PUT', { ...options, body });
   }
 
@@ -204,7 +204,7 @@ class HttpClient {
     return this.request<T>(endpoint, 'DELETE', options);
   }
 
-  async patch<T>(endpoint: string, body?: any, options?: HttpClientOptions): Promise<T> {
+  async patch<T>(endpoint: string, body?: Record<string, unknown>, options?: HttpClientOptions): Promise<T> {
     return this.request<T>(endpoint, 'PATCH', { ...options, body });
   }
 }

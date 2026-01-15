@@ -11,7 +11,7 @@ export interface Voucher {
   number_house: number;
   created_at: string;
   updated_at: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface CreateVoucherRequest {
@@ -21,7 +21,7 @@ export interface CreateVoucherRequest {
   amount: number;
   confirmation_status: boolean;
   url: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface UpdateVoucherRequest {
@@ -31,7 +31,7 @@ export interface UpdateVoucherRequest {
   amount?: number;
   confirmation_status?: boolean;
   url?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface VouchersResponse {
@@ -47,7 +47,7 @@ export interface VoucherQuery {
   confirmation_status?: boolean;
   startDate?: string;
   endDate?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // Transaction Bank Types
@@ -88,7 +88,7 @@ export interface UploadTransactionsResponse {
   invalidTransactions: number;
   previouslyProcessedTransactions: number;
   transactions: UploadedTransaction[];
-  errors: any[];
+  errors: Array<{ [key: string]: unknown }>;
   dateRange: {
     start: string;
     end: string;
@@ -136,7 +136,7 @@ export const ConfidenceLevel = {
 export type ConfidenceLevel = typeof ConfidenceLevel[keyof typeof ConfidenceLevel];
 
 export interface MatchCriteria {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface MatchedReconciliation {
@@ -155,7 +155,7 @@ export interface PendingVoucher {
   date: string;
   time?: string; // Formato HH:MM:SS desde la API (opcional)
   reason: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface SurplusTransaction {
@@ -164,7 +164,7 @@ export interface SurplusTransaction {
   date: string;
   time: string; // Formato HH:MM:SS desde la API
   reason: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface PossibleMatch {
@@ -173,7 +173,7 @@ export interface PossibleMatch {
   date: string;
   time?: string; // Formato HH:MM:SS desde la API (opcional)
   matchScore: number;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface ManualValidationCase {
@@ -183,7 +183,7 @@ export interface ManualValidationCase {
   time?: string; // Formato HH:MM:SS desde la API (opcional)
   reason: string;
   possibleMatches: PossibleMatch[];
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface StartReconciliationResponse {
@@ -251,7 +251,7 @@ export interface PeriodResponseDto {
   end_date: string;          // ISO date
   created_at: string;
   updated_at: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface CreatePeriodDto {
@@ -269,7 +269,7 @@ export interface PeriodConfigResponseDto {
   due_day: number;           // Día de vencimiento
   created_at: string;
   updated_at: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface CreatePeriodConfigDto {
@@ -277,7 +277,7 @@ export interface CreatePeriodConfigDto {
   water_amount: number;
   extraordinary_fee?: number;
   due_day: number;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // Payment Types
@@ -304,7 +304,7 @@ export interface PaymentAssignment {
   payment_status: 'pending' | 'paid' | 'partially_paid' | 'overdue';
   paid_amount?: number;
   payment_date?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface PaymentHistoryPeriod {
@@ -386,7 +386,7 @@ export interface HouseBalance {
 export interface HouseBalanceDTO extends HouseBalance {
   current_balance?: number;  // Para compatibilidad con datos antiguos
   last_payment_date?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // Query Types
@@ -395,7 +395,7 @@ export interface PaymentManagementQuery {
   month?: number;
   house_id?: number;
   period_id?: number;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // Historical Records Upload Options
@@ -467,7 +467,7 @@ export interface RowErrorDto {
   row_number: number;
   error_type: 'validation' | 'database' | 'business_rule';
   message: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
 }
 
 export interface HistoricalRecordResponseDto {
@@ -492,7 +492,7 @@ export interface HistoricalRecord {
   cta_water: number;
   created_at: string;
   updated_at: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface HistoricalRecordsUploadHistory {

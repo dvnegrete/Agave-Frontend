@@ -7,7 +7,27 @@ import {
   type UploadTransactionsResponse,
 } from '../services';
 
-export const useTransactionsBank = (query?: TransactionsBankQuery) => {
+interface UseTransactionsBankReturn {
+  transactions: BankTransaction[];
+  loading: boolean;
+  error: string | null;
+  total: number;
+  page: number;
+  limit: number;
+  setPage: (page: number) => void;
+  setLimit: (limit: number) => void;
+  refetch: () => Promise<void>;
+}
+
+interface UseUploadTransactionsReturn {
+  upload: (file: File, bankName?: string) => Promise<UploadTransactionsResponse | undefined>;
+  uploading: boolean;
+  uploadError: string | null;
+  uploadResult: UploadTransactionsResponse | null;
+  reset: () => void;
+}
+
+export const useTransactionsBank = (query?: TransactionsBankQuery): UseTransactionsBankReturn => {
   const [transactions, setTransactions] = useState<BankTransaction[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +48,7 @@ export const useTransactionsBank = (query?: TransactionsBankQuery) => {
         );
         setTransactions(response.transactions);
         setTotal(response.total);
-      } catch (err) {
+      } catch (err: unknown) {
         if (err instanceof Error && err.name !== 'AbortError') {
           setError(err.message);
         }
@@ -42,14 +62,14 @@ export const useTransactionsBank = (query?: TransactionsBankQuery) => {
     return () => abortController.abort();
   }, [query?.reconciled, query?.startDate, query?.endDate, page, limit]);
 
-  const refetch = async () => {
+  const refetch = async (): Promise<void> => {
     setLoading(true);
     setError(null);
     try {
       const response = await getTransactionsBank({ ...query, page, limit });
       setTransactions(response.transactions);
       setTotal(response.total);
-    } catch (err) {
+    } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
       }
@@ -71,13 +91,13 @@ export const useTransactionsBank = (query?: TransactionsBankQuery) => {
   };
 };
 
-export const useUploadTransactions = () => {
+export const useUploadTransactions = (): UseUploadTransactionsReturn => {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadResult, setUploadResult] =
     useState<UploadTransactionsResponse | null>(null);
 
-  const upload = async (file: File, bankName: string = 'Santander-2025') => {
+  const upload = async (file: File, bankName: string = 'Santander-2025'): Promise<UploadTransactionsResponse | undefined> => {
     setUploading(true);
     setUploadError(null);
     setUploadResult(null);
@@ -86,7 +106,7 @@ export const useUploadTransactions = () => {
       const result = await uploadTransactionsBank(file, bankName);
       setUploadResult(result);
       return result;
-    } catch (err) {
+    } catch (err: unknown) {
       if (err instanceof Error) {
         setUploadError(err.message);
         throw err;
@@ -96,7 +116,7 @@ export const useUploadTransactions = () => {
     }
   };
 
-  const reset = () => {
+  const reset = (): void => {
     setUploadError(null);
     setUploadResult(null);
   };

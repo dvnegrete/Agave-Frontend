@@ -10,20 +10,29 @@ import type {
 
 const API_BASE = '/payment-management';
 
+interface PeriodResponse {
+  data: PeriodResponseDto[];
+}
+
 /**
  * Obtener todos los períodos de facturación registrados
  */
-export const getPeriods = async (signal?: AbortSignal) => {
-  const response = await httpClient.get<{ data: PeriodResponseDto[] } | PeriodResponseDto[]>(
-    `${API_BASE}/periods`,
-    { signal }
-  );
+export const getPeriods = async (signal?: AbortSignal): Promise<PeriodResponseDto[]> => {
+  try {
+    const response = await httpClient.get<PeriodResponse | PeriodResponseDto[]>(
+      `${API_BASE}/periods`,
+      { signal }
+    );
 
-  // Handle both direct array and wrapped response
-  if (Array.isArray(response)) {
-    return response;
+    // Handle both direct array and wrapped response
+    if (Array.isArray(response)) {
+      return response;
+    }
+    return (response as PeriodResponse).data || [];
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in getPeriods:', err);
+    throw err;
   }
-  return (response as any).data || [];
 };
 
 /**
@@ -32,13 +41,18 @@ export const getPeriods = async (signal?: AbortSignal) => {
 export const createPeriod = async (
   data: CreatePeriodDto,
   signal?: AbortSignal
-) => {
-  const response = await httpClient.post<PeriodResponseDto>(
-    `${API_BASE}/periods`,
-    data,
-    { signal }
-  );
-  return response.data;
+): Promise<PeriodResponseDto> => {
+  try {
+    const response = await httpClient.post<PeriodResponseDto>(
+      `${API_BASE}/periods`,
+      data,
+      { signal }
+    );
+    return response.data;
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in createPeriod:', err);
+    throw err;
+  }
 };
 
 /**
@@ -48,13 +62,18 @@ export const createPeriod = async (
 export const ensurePeriod = async (
   data: CreatePeriodDto,
   signal?: AbortSignal
-) => {
-  const response = await httpClient.post<PeriodResponseDto>(
-    `${API_BASE}/periods/ensure`,
-    data,
-    { signal }
-  );
-  return response.data;
+): Promise<PeriodResponseDto> => {
+  try {
+    const response = await httpClient.post<PeriodResponseDto>(
+      `${API_BASE}/periods/ensure`,
+      data,
+      { signal }
+    );
+    return response.data;
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in ensurePeriod:', err);
+    throw err;
+  }
 };
 
 /**
@@ -63,13 +82,18 @@ export const ensurePeriod = async (
 export const createPeriodConfig = async (
   data: CreatePeriodConfigDto,
   signal?: AbortSignal
-) => {
-  const response = await httpClient.post<PeriodConfigResponseDto>(
-    `${API_BASE}/config`,
-    data,
-    { signal }
-  );
-  return response.data;
+): Promise<PeriodConfigResponseDto> => {
+  try {
+    const response = await httpClient.post<PeriodConfigResponseDto>(
+      `${API_BASE}/config`,
+      data,
+      { signal }
+    );
+    return response.data;
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in createPeriodConfig:', err);
+    throw err;
+  }
 };
 
 /**
@@ -79,12 +103,17 @@ export const createPeriodConfig = async (
 export const getPaymentHistory = async (
   houseId: number,
   signal?: AbortSignal
-) => {
-  const response = await httpClient.get<PaymentHistoryResponseDTO>(
-    `${API_BASE}/houses/${houseId}/payments`,
-    { signal }
-  );
-  return response;
+): Promise<PaymentHistoryResponseDTO> => {
+  try {
+    const response = await httpClient.get<PaymentHistoryResponseDTO>(
+      `${API_BASE}/houses/${houseId}/payments`,
+      { signal }
+    );
+    return response;
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in getPaymentHistory:', err);
+    throw err;
+  }
 };
 
 /**
@@ -96,12 +125,17 @@ export const getPaymentsByPeriod = async (
   houseId: number,
   periodId: number,
   signal?: AbortSignal
-) => {
-  const response = await httpClient.get<PaymentHistoryResponseDTO>(
-    `${API_BASE}/houses/${houseId}/payments/${periodId}`,
-    { signal }
-  );
-  return response;
+): Promise<PaymentHistoryResponseDTO> => {
+  try {
+    const response = await httpClient.get<PaymentHistoryResponseDTO>(
+      `${API_BASE}/houses/${houseId}/payments/${periodId}`,
+      { signal }
+    );
+    return response;
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in getPaymentsByPeriod:', err);
+    throw err;
+  }
 };
 
 /**
@@ -111,10 +145,15 @@ export const getPaymentsByPeriod = async (
 export const getHouseBalance = async (
   houseId: number,
   signal?: AbortSignal
-) => {
-  const response = await httpClient.get<HouseBalanceDTO>(
-    `${API_BASE}/houses/${houseId}/balance`,
-    { signal }
-  );
-  return response.data;
+): Promise<HouseBalanceDTO> => {
+  try {
+    const response = await httpClient.get<HouseBalanceDTO>(
+      `${API_BASE}/houses/${houseId}/balance`,
+      { signal }
+    );
+    return response.data;
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in getHouseBalance:', err);
+    throw err;
+  }
 };

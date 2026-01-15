@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export interface ExpandableTableColumn<T = any> {
+export interface ExpandableTableColumn<T = unknown> {
   id: string;
   header: string;
   render: (row: T, index: number) => React.ReactNode;
@@ -9,7 +9,7 @@ export interface ExpandableTableColumn<T = any> {
   align?: 'left' | 'center' | 'right';
 }
 
-export interface ExpandableTableProps<T = any> {
+export interface ExpandableTableProps<T = unknown> {
   data: T[];
   mainColumns: ExpandableTableColumn<T>[]; // Columnas siempre visibles
   expandableColumns?: ExpandableTableColumn<T>[]; // Columnas que aparecen al expandir
@@ -83,7 +83,7 @@ const alignmentClasses: Record<string, string> = {
  *   expandedRowLayout="table"
  * />
  */
-export function ExpandableTable<T = any>({
+export function ExpandableTable<T = unknown>({
   data,
   mainColumns,
   expandableColumns = [],
@@ -100,7 +100,7 @@ export function ExpandableTable<T = any>({
   variant = 'default',
   headerVariant = 'default',
   expandButtonLabel = { expand: '▶ Ver detalles', collapse: '▼ Ocultar' },
-}: ExpandableTableProps<T>) {
+}: ExpandableTableProps<T>): React.ReactNode {
   const [expandedId, setExpandedId] = useState<string | number | null>(null);
 
   const hasExpandableContent = expandableColumns.length > 0 || expandedContent;
@@ -109,14 +109,18 @@ export function ExpandableTable<T = any>({
     if (typeof keyField === 'function') {
       return keyField(row, index);
     }
-    return (row as any)[keyField] ?? index;
+    if (typeof keyField === 'string') {
+      const value = (row as Record<string, unknown>)[keyField];
+      return (value as string | number | null | undefined) ?? index;
+    }
+    return index;
   };
 
-  const toggleExpand = (id: string | number) => {
+  const toggleExpand = (id: string | number): void => {
     setExpandedId(expandedId === id ? null : id);
   };
 
-  const getRowClassName = (row: T, index: number, isExpanded: boolean): string => {
+  const getRowClassName = (row: T, index: number, isExpanded: boolean): string | undefined => {
     let classes = variantPadding[variant];
 
     if (striped && index % 2 === 0) {

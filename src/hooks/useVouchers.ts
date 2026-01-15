@@ -11,7 +11,34 @@ import {
   type UpdateVoucherRequest,
 } from '../services';
 
-export const useVouchers = (query?: VoucherQuery) => {
+interface UseVouchersReturn {
+  vouchers: Voucher[];
+  loading: boolean;
+  error: string | null;
+  total: number;
+  page: number;
+  limit: number;
+  setPage: (page: number) => void;
+  setLimit: (limit: number) => void;
+  refetch: () => Promise<void>;
+}
+
+interface UseVoucherReturn {
+  voucher: Voucher | null;
+  loading: boolean;
+  error: string | null;
+  refetch: () => Promise<void>;
+}
+
+interface UseVoucherMutationsReturn {
+  create: (data: CreateVoucherRequest) => Promise<Voucher | undefined>;
+  update: (id: string, data: UpdateVoucherRequest) => Promise<Voucher | undefined>;
+  remove: (id: string) => Promise<void>;
+  loading: boolean;
+  error: string | null;
+}
+
+export const useVouchers = (query?: VoucherQuery): UseVouchersReturn => {
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,7 +59,7 @@ export const useVouchers = (query?: VoucherQuery) => {
         );
         setVouchers(response.vouchers);
         setTotal(response.total);
-      } catch (err) {
+      } catch (err: unknown) {
         if (err instanceof Error && err.name !== 'AbortError') {
           setError(err.message);
         }
@@ -46,14 +73,14 @@ export const useVouchers = (query?: VoucherQuery) => {
     return () => abortController.abort();
   }, [query?.confirmation_status, query?.startDate, query?.endDate, page, limit]);
 
-  const refetch = async () => {
+  const refetch = async (): Promise<void> => {
     setLoading(true);
     setError(null);
     try {
       const response = await getVouchers({ ...query, page, limit });
       setVouchers(response.vouchers);
       setTotal(response.total);
-    } catch (err) {
+    } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
       }
@@ -75,7 +102,7 @@ export const useVouchers = (query?: VoucherQuery) => {
   };
 };
 
-export const useVoucher = (id: string) => {
+export const useVoucher = (id: string): UseVoucherReturn => {
   const [voucher, setVoucher] = useState<Voucher | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -91,7 +118,7 @@ export const useVoucher = (id: string) => {
       try {
         const data = await getVoucherById(id, abortController.signal);
         setVoucher(data);
-      } catch (err) {
+      } catch (err: unknown) {
         if (err instanceof Error && err.name !== 'AbortError') {
           setError(err.message);
         }
@@ -105,7 +132,7 @@ export const useVoucher = (id: string) => {
     return () => abortController.abort();
   }, [id]);
 
-  const refetch = async () => {
+  const refetch = async (): Promise<void> => {
     if (!id) return;
 
     setLoading(true);
@@ -113,7 +140,7 @@ export const useVoucher = (id: string) => {
     try {
       const data = await getVoucherById(id);
       setVoucher(data);
-    } catch (err) {
+    } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
       }
@@ -125,17 +152,17 @@ export const useVoucher = (id: string) => {
   return { voucher, loading, error, refetch };
 };
 
-export const useVoucherMutations = () => {
+export const useVoucherMutations = (): UseVoucherMutationsReturn => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const create = async (data: CreateVoucherRequest) => {
+  const create = async (data: CreateVoucherRequest): Promise<Voucher | undefined> => {
     setLoading(true);
     setError(null);
     try {
       const response = await createVoucher(data);
       return response.data;
-    } catch (err) {
+    } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
         throw err;
@@ -145,13 +172,13 @@ export const useVoucherMutations = () => {
     }
   };
 
-  const update = async (id: string, data: UpdateVoucherRequest) => {
+  const update = async (id: string, data: UpdateVoucherRequest): Promise<Voucher | undefined> => {
     setLoading(true);
     setError(null);
     try {
       const response = await updateVoucher(id, data);
       return response.data;
-    } catch (err) {
+    } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
         throw err;
@@ -161,12 +188,12 @@ export const useVoucherMutations = () => {
     }
   };
 
-  const remove = async (id: string) => {
+  const remove = async (id: string): Promise<void> => {
     setLoading(true);
     setError(null);
     try {
       await deleteVoucher(id);
-    } catch (err) {
+    } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
         throw err;

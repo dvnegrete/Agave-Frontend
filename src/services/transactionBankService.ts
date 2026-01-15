@@ -15,21 +15,26 @@ export const getTransactionsBank = async (
   query?: TransactionsBankQuery,
   signal?: AbortSignal
 ): Promise<TransactionsBankResponse> => {
-  const params = new URLSearchParams();
+  try {
+    const params = new URLSearchParams();
 
-  if (query?.page) params.append('page', query.page.toString());
-  if (query?.limit) params.append('limit', query.limit.toString());
-  if (query?.reconciled !== undefined)
-    params.append('reconciled', query.reconciled.toString());
-  if (query?.startDate) params.append('startDate', query.startDate);
-  if (query?.endDate) params.append('endDate', query.endDate);
+    if (query?.page) params.append('page', query.page.toString());
+    if (query?.limit) params.append('limit', query.limit.toString());
+    if (query?.reconciled !== undefined)
+      params.append('reconciled', query.reconciled.toString());
+    if (query?.startDate) params.append('startDate', query.startDate);
+    if (query?.endDate) params.append('endDate', query.endDate);
 
-  const queryString = params.toString();
-  const endpoint = queryString
-    ? `${API_ENDPOINTS.transactionsBank}?${queryString}`
-    : API_ENDPOINTS.transactionsBank;
+    const queryString = params.toString();
+    const endpoint = queryString
+      ? `${API_ENDPOINTS.transactionsBank}?${queryString}`
+      : API_ENDPOINTS.transactionsBank;
 
-  return httpClient.get<TransactionsBankResponse>(endpoint, { signal });
+    return httpClient.get<TransactionsBankResponse>(endpoint, { signal });
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in getTransactionsBank:', err);
+    throw err;
+  }
 };
 
 /**
@@ -42,16 +47,21 @@ export const uploadTransactionsBank = async (
   bankName: string,
   signal?: AbortSignal
 ): Promise<UploadTransactionsResponse> => {
-  const formData = new FormData();
-  formData.append('file', file);
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
 
-  const endpoint = `${API_ENDPOINTS.transactionsBankUpload}?bankName=${encodeURIComponent(bankName)}`;
+    const endpoint = `${API_ENDPOINTS.transactionsBankUpload}?bankName=${encodeURIComponent(bankName)}`;
 
-  return httpClient.post<UploadTransactionsResponse>(
-    endpoint,
-    formData,
-    { signal }
-  );
+    return httpClient.post<UploadTransactionsResponse>(
+      endpoint,
+      formData,
+      { signal }
+    );
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in uploadTransactionsBank:', err);
+    throw err;
+  }
 };
 
 /**
@@ -61,10 +71,15 @@ export const getTransactionBankById = async (
   id: string,
   signal?: AbortSignal
 ): Promise<BankTransaction> => {
-  return httpClient.get<BankTransaction>(
-    `${API_ENDPOINTS.transactionsBank}/${id}`,
-    { signal }
-  );
+  try {
+    return httpClient.get<BankTransaction>(
+      `${API_ENDPOINTS.transactionsBank}/${id}`,
+      { signal }
+    );
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in getTransactionBankById:', err);
+    throw err;
+  }
 };
 
 /**
@@ -74,8 +89,13 @@ export const deleteTransactionBank = async (
   id: string,
   signal?: AbortSignal
 ): Promise<ApiResponse<void>> => {
-  return httpClient.delete<ApiResponse<void>>(
-    `${API_ENDPOINTS.transactionsBank}/${id}`,
-    { signal }
-  );
+  try {
+    return httpClient.delete<ApiResponse<void>>(
+      `${API_ENDPOINTS.transactionsBank}/${id}`,
+      { signal }
+    );
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in deleteTransactionBank:', err);
+    throw err;
+  }
 };

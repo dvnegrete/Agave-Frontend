@@ -9,6 +9,8 @@ import {
   type VoucherQuery,
   type CreateVoucherRequest,
   type UpdateVoucherRequest,
+  type Voucher,
+  type VouchersResponse,
 } from '../services';
 
 // Query Keys
@@ -20,10 +22,37 @@ export const voucherKeys = {
   detail: (id: string) => [...voucherKeys.details(), id] as const,
 };
 
+interface UseVouchersQueryReturn {
+  vouchers: Voucher[];
+  total: number;
+  isLoading: boolean;
+  isFetching: boolean;
+  error: string | null;
+  setFilters: (filters: Partial<VoucherQuery>) => void;
+  refetch: () => Promise<void>;
+}
+
+interface UseVoucherQueryReturn {
+  data?: Voucher;
+  isLoading: boolean;
+  error: Error | null;
+  refetch: () => Promise<void>;
+}
+
+interface UseVoucherMutationsQueryReturn {
+  create: (data: CreateVoucherRequest) => Promise<unknown>;
+  update: (payload: { id: string; data: UpdateVoucherRequest }) => Promise<unknown>;
+  remove: (id: string) => Promise<unknown>;
+  isLoading: boolean;
+  createError: string | null;
+  updateError: string | null;
+  deleteError: string | null;
+}
+
 /**
  * Hook para obtener lista de vouchers con filtros opcionales
  */
-export const useVouchersQuery = (initialQuery?: VoucherQuery) => {
+export const useVouchersQuery = (initialQuery?: VoucherQuery): UseVouchersQueryReturn => {
   const [query, setQuery] = useState<VoucherQuery>(initialQuery || {});
 
   const {
@@ -66,8 +95,8 @@ export const useVouchersQuery = (initialQuery?: VoucherQuery) => {
 /**
  * Hook para obtener un voucher por ID
  */
-export const useVoucherQuery = (id: string) => {
-  return useQuery({
+export const useVoucherQuery = (id: string): UseVoucherQueryReturn => {
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: voucherKeys.detail(id),
     queryFn: async ({ signal }) => {
       if (!id) throw new Error('ID is required');
@@ -75,12 +104,21 @@ export const useVoucherQuery = (id: string) => {
     },
     enabled: !!id,
   });
+
+  return {
+    data,
+    isLoading,
+    error: error as Error | null,
+    refetch: async () => {
+      await refetch();
+    },
+  };
 };
 
 /**
  * Hook para mutaciones de vouchers (create, update, delete)
  */
-export const useVoucherMutations = () => {
+export const useVoucherMutations = (): UseVoucherMutationsQueryReturn => {
   const queryClient = useQueryClient();
 
   const createMutation = useMutation({

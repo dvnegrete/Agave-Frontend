@@ -11,6 +11,9 @@ import {
 import type {
   CreatePeriodDto,
   CreatePeriodConfigDto,
+  PeriodResponseDto,
+  PaymentHistoryResponseDTO,
+  HouseBalanceDTO,
 } from '../types/api.types';
 
 // Query Keys
@@ -30,10 +33,55 @@ export const paymentManagementKeys = {
     [...paymentManagementKeys.balances(), houseId] as const,
 };
 
+interface UsePeriodsQueryReturn {
+  periods: PeriodResponseDto[];
+  isLoading: boolean;
+  isFetching: boolean;
+  error: string | null;
+  refetch: () => Promise<void>;
+}
+
+interface UsePeriodMutationsReturn {
+  createPeriod: (data: CreatePeriodDto) => Promise<unknown>;
+  ensurePeriod: (data: CreatePeriodDto) => Promise<unknown>;
+  isLoading: boolean;
+  error: string | null;
+}
+
+interface UsePeriodConfigMutationsReturn {
+  createConfig: (data: CreatePeriodConfigDto) => Promise<unknown>;
+  isLoading: boolean;
+  error: string | null;
+}
+
+interface UsePaymentHistoryQueryReturn {
+  history: PaymentHistoryResponseDTO | null;
+  isLoading: boolean;
+  isFetching: boolean;
+  error: string | null;
+  refetch: () => Promise<void>;
+}
+
+interface UsePaymentsByPeriodQueryReturn {
+  payments: PaymentHistoryResponseDTO | null;
+  isLoading: boolean;
+  isFetching: boolean;
+  error: string | null;
+  refetch: () => Promise<void>;
+}
+
+interface UseHouseBalanceQueryReturn {
+  balance: HouseBalanceDTO | null;
+  isLoading: boolean;
+  isFetching: boolean;
+  error: string | null;
+  refetch: () => Promise<void>;
+}
+
 /**
  * Hook para obtener todos los períodos de facturación
  */
-export const usePeriodsQuery = () => {
+export const usePeriodsQuery = (): UsePeriodsQueryReturn => {
   const { data, isLoading, error, refetch, isFetching } = useQuery({
     queryKey: paymentManagementKeys.periods(),
     queryFn: async ({ signal }) => {
@@ -50,14 +98,16 @@ export const usePeriodsQuery = () => {
     isLoading,
     isFetching,
     error: error?.message || null,
-    refetch,
+    refetch: async () => {
+      await refetch();
+    },
   };
 };
 
 /**
  * Hook para mutations de período (crear, ensure)
  */
-export const usePeriodMutations = () => {
+export const usePeriodMutations = (): UsePeriodMutationsReturn => {
   const queryClient = useQueryClient();
 
   const createPeriodMutation = useMutation({
@@ -92,7 +142,7 @@ export const usePeriodMutations = () => {
 /**
  * Hook para mutations de configuración de período
  */
-export const usePeriodConfigMutations = () => {
+export const usePeriodConfigMutations = (): UsePeriodConfigMutationsReturn => {
   const queryClient = useQueryClient();
 
   const createConfigMutation = useMutation({
@@ -114,7 +164,7 @@ export const usePeriodConfigMutations = () => {
 /**
  * Hook para obtener historial de pagos de una casa
  */
-export const usePaymentHistoryQuery = (houseId: number | null) => {
+export const usePaymentHistoryQuery = (houseId: number | null): UsePaymentHistoryQueryReturn => {
   const { data, isLoading, error, refetch, isFetching } = useQuery({
     queryKey: houseId
       ? paymentManagementKeys.paymentHistory(houseId)
@@ -132,7 +182,9 @@ export const usePaymentHistoryQuery = (houseId: number | null) => {
     isLoading,
     isFetching,
     error: error?.message || null,
-    refetch,
+    refetch: async () => {
+      await refetch();
+    },
   };
 };
 
@@ -142,7 +194,7 @@ export const usePaymentHistoryQuery = (houseId: number | null) => {
 export const usePaymentsByPeriodQuery = (
   houseId: number | null,
   periodId: number | null
-) => {
+): UsePaymentsByPeriodQueryReturn => {
   const { data, isLoading, error, refetch, isFetching } = useQuery({
     queryKey:
       houseId && periodId
@@ -161,14 +213,16 @@ export const usePaymentsByPeriodQuery = (
     isLoading,
     isFetching,
     error: error?.message || null,
-    refetch,
+    refetch: async () => {
+      await refetch();
+    },
   };
 };
 
 /**
  * Hook para obtener saldo de una casa
  */
-export const useHouseBalanceQuery = (houseId: number | null) => {
+export const useHouseBalanceQuery = (houseId: number | null): UseHouseBalanceQueryReturn => {
   const { data, isLoading, error, refetch, isFetching } = useQuery({
     queryKey: houseId
       ? paymentManagementKeys.houseBalance(houseId)
@@ -186,6 +240,8 @@ export const useHouseBalanceQuery = (houseId: number | null) => {
     isLoading,
     isFetching,
     error: error?.message || null,
-    refetch,
+    refetch: async () => {
+      await refetch();
+    },
   };
 };

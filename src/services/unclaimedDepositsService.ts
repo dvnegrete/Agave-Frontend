@@ -92,7 +92,7 @@ class UnclaimedDepositsService {
       });
 
       return response;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('❌ [UnclaimedDeposits ERROR] Error en getUnclaimedDeposits:', error);
 
       if (error instanceof Error) {
@@ -123,7 +123,7 @@ class UnclaimedDepositsService {
       );
 
       return response;
-    } catch (error) {
+    } catch (error: unknown) {
       throw this.handleError(error);
     }
   }

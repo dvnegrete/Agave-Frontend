@@ -3,7 +3,10 @@ import {
   uploadHistoricalRecords,
   getUploadHistory,
 } from '../services/historicalRecordsService';
-import type { UploadHistoricalRecordsOptions } from '../types/api.types';
+import type {
+  UploadHistoricalRecordsOptions,
+  HistoricalRecordsUploadHistory,
+} from '../types/api.types';
 
 // Query Keys (patrón de factory)
 export const historicalRecordsKeys = {
@@ -12,10 +15,25 @@ export const historicalRecordsKeys = {
   uploadHistory: () => [...historicalRecordsKeys.uploads(), 'history'] as const,
 };
 
+interface UseUploadHistoryQueryReturn {
+  uploadHistory: HistoricalRecordsUploadHistory[];
+  isLoading: boolean;
+  isFetching: boolean;
+  error: string | null;
+  refetch: () => Promise<void>;
+}
+
+interface UseHistoricalRecordsMutationReturn {
+  upload: (payload: { file: File; options?: UploadHistoricalRecordsOptions }) => Promise<unknown>;
+  isUploading: boolean;
+  error: string | null;
+  reset: () => void;
+}
+
 /**
  * Hook para obtener historial de uploads
  */
-export const useUploadHistoryQuery = () => {
+export const useUploadHistoryQuery = (): UseUploadHistoryQueryReturn => {
   const { data, isLoading, error, refetch, isFetching } = useQuery({
     queryKey: historicalRecordsKeys.uploadHistory(),
     queryFn: async ({ signal }) => await getUploadHistory(signal),
@@ -27,14 +45,16 @@ export const useUploadHistoryQuery = () => {
     isLoading,
     isFetching,
     error: error?.message || null,
-    refetch,
+    refetch: async () => {
+      await refetch();
+    },
   };
 };
 
 /**
  * Hook para upload mutation
  */
-export const useHistoricalRecordsMutation = () => {
+export const useHistoricalRecordsMutation = (): UseHistoricalRecordsMutationReturn => {
   const queryClient = useQueryClient();
 
   const uploadMutation = useMutation({

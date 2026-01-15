@@ -18,12 +18,12 @@ export function TransactionUpload() {
   const [bankSelection, setBankSelection] = useState<'Santander-2025' | 'custom'>('Santander-2025');
   const [customBank, setCustomBank] = useState<string>('');
 
-  const handleFileSelect = (file: File) => {
+  const handleFileSelect = (file: File): void => {
     setSelectedFile(file);
     reset();
   };
 
-  const handleUpload = async () => {
+  const handleUpload = async (): Promise<void> => {
     if (!selectedFile) {
       alert('Por favor selecciona un archivo');
       return;
