@@ -426,6 +426,313 @@ function PaymentDetail() {
 
 ---
 
+## Authentication Hooks
+
+### useAuth
+
+**Location**: `src/hooks/useAuth.ts`
+
+**Purpose**: Access authentication state and methods globally.
+
+**Returns**:
+```typescript
+{
+  user: AuthUser | null;              // Current authenticated user
+  isAuthenticated: boolean;           // Is user logged in
+  isLoading: boolean;                 // Auth check in progress
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;        // Sign out user
+  signInWithOAuth: (provider: 'google' | 'facebook') => void;  // OAuth login
+  refreshToken: () => Promise<void>;  // Refresh access token
+  error: string | null;               // Last auth error
+}
+```
+
+**Data Structure**:
+```typescript
+interface AuthUser {
+  id: string;
+  email: string;
+  name: string;
+  role: 'admin' | 'user' | 'guest';
+  houses?: number[];        // Assigned house numbers
+  avatar?: string;          // User avatar URL
+  createdAt: string;        // Account creation date
+}
+```
+
+**Usage**:
+```typescript
+import { useAuth } from '../hooks/useAuth';
+
+function Header() {
+  const { user, isAuthenticated, logout } = useAuth();
+
+  if (!isAuthenticated) {
+    return <div>Not logged in</div>;
+  }
+
+  return (
+    <div>
+      <span>Welcome, {user?.name}</span>
+      <button onClick={logout}>Logout</button>
+    </div>
+  );
+}
+```
+
+**Features**:
+- ✅ OAuth 2.0 integration (Google, Facebook)
+- ✅ Email/password authentication
+- ✅ Automatic token refresh
+- ✅ Role-based access control
+- ✅ Persistent login across sessions
+- ✅ Error handling
+
+**Token Management**:
+- Access token: Stored in httpOnly cookie (secure)
+- Refresh token: Stored in localStorage
+- Automatic refresh when token expires
+- Logout clears all tokens
+
+---
+
+## User Management Hooks
+
+### useUserManagement
+
+**Location**: `src/hooks/useUserManagement.ts`
+
+**Purpose**: Handle user creation, updating, and deletion operations.
+
+**Returns**:
+```typescript
+{
+  users: User[];                      // List of all users
+  isLoading: boolean;                 // Data loading state
+  isCreating: boolean;                // Create operation in progress
+  isUpdating: boolean;                // Update operation in progress
+  isDeleting: boolean;                // Delete operation in progress
+  error: string | null;               // Last error message
+
+  createUser: (data: CreateUserRequest) => Promise<User>;
+  updateUser: (id: string, data: UpdateUserRequest) => Promise<User>;
+  deleteUser: (id: string) => Promise<void>;
+  fetchUsers: () => Promise<void>;    // Manual refetch
+}
+```
+
+**Data Structures**:
+```typescript
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: 'admin' | 'user' | 'guest';
+  houses: number[];                   // Assigned house IDs
+  status: 'active' | 'inactive';
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface CreateUserRequest {
+  email: string;
+  name: string;
+  password: string;
+  role: 'admin' | 'user' | 'guest';
+  houseIds?: number[];
+}
+
+interface UpdateUserRequest {
+  name?: string;
+  email?: string;
+  role?: 'admin' | 'user' | 'guest';
+  houseIds?: number[];
+  status?: 'active' | 'inactive';
+}
+```
+
+**Usage**:
+```typescript
+import { useUserManagement } from '../hooks/useUserManagement';
+
+function UserManagement() {
+  const {
+    users,
+    isLoading,
+    createUser,
+    updateUser,
+    deleteUser,
+    error
+  } = useUserManagement();
+
+  const handleCreate = async () => {
+    try {
+      await createUser({
+        email: 'user@example.com',
+        name: 'John Doe',
+        password: 'secure-password',
+        role: 'user',
+        houseIds: [1, 2, 3]
+      });
+      console.log('User created');
+    } catch (err) {
+      console.error('Error:', err);
+    }
+  };
+
+  const handleUpdate = async (userId: string) => {
+    try {
+      await updateUser(userId, {
+        role: 'admin',
+        houseIds: [1, 2, 3, 4]
+      });
+    } catch (err) {
+      console.error('Update failed:', err);
+    }
+  };
+
+  const handleDelete = async (userId: string) => {
+    if (window.confirm('Delete user?')) {
+      try {
+        await deleteUser(userId);
+      } catch (err) {
+        console.error('Delete failed:', err);
+      }
+    }
+  };
+
+  if (isLoading) return <div>Loading users...</div>;
+  if (error) return <div className="text-red-600">{error}</div>;
+
+  return (
+    <div>
+      <button onClick={handleCreate}>Add User</button>
+      <table>
+        <tbody>
+          {users.map(u => (
+            <tr key={u.id}>
+              <td>{u.name}</td>
+              <td>{u.email}</td>
+              <td>{u.role}</td>
+              <td>
+                <button onClick={() => handleUpdate(u.id)}>Edit</button>
+                <button onClick={() => handleDelete(u.id)}>Delete</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+```
+
+**Features**:
+- ✅ CRUD operations for users
+- ✅ Role assignment
+- ✅ House assignment (multi-select)
+- ✅ Status management
+- ✅ Separate loading states
+- ✅ Error handling with messages
+- ✅ Automatic cache invalidation after mutations
+
+---
+
+## Historical Records Hooks
+
+### useHistoricalRecords
+
+**Location**: `src/hooks/useHistoricalRecords.ts`
+
+**Purpose**: Handle historical record uploads and management.
+
+**Returns**:
+```typescript
+{
+  isLoading: boolean;
+  isUploading: boolean;
+  error: string | null;
+
+  uploadHistoricalRecords: (file: File) => Promise<UploadHistoricalResponse>;
+  getUploadHistory: () => Promise<HistoricalUpload[]>;
+}
+```
+
+**Data Structures**:
+```typescript
+interface UploadHistoricalResponse {
+  success: boolean;
+  message: string;
+  totalRecords: number;
+  importedRecords: number;
+  failedRecords: number;
+  errors: {
+    rowNumber: number;
+    error: string;
+  }[];
+  dateRange: {
+    start: string;
+    end: string;
+  };
+}
+
+interface HistoricalUpload {
+  id: string;
+  fileName: string;
+  uploadedAt: string;
+  totalRecords: number;
+  successCount: number;
+  failureCount: number;
+  uploadedBy: string;  // User ID
+}
+```
+
+**Usage**:
+```typescript
+import { useHistoricalRecords } from '../hooks/useHistoricalRecords';
+
+function HistoricalUpload() {
+  const { uploadHistoricalRecords, isUploading, error } = useHistoricalRecords();
+
+  const handleUpload = async (file: File) => {
+    try {
+      const result = await uploadHistoricalRecords(file);
+      console.log(`Imported ${result.importedRecords} records`);
+      if (result.failedRecords > 0) {
+        console.warn(`${result.failedRecords} records failed`);
+        result.errors.forEach(e => {
+          console.error(`Row ${e.rowNumber}: ${e.error}`);
+        });
+      }
+    } catch (err) {
+      console.error('Upload failed:', err);
+    }
+  };
+
+  return (
+    <div>
+      <input
+        type="file"
+        onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])}
+        disabled={isUploading}
+      />
+      {error && <div className="text-red-600">{error}</div>}
+      {isUploading && <div>Uploading...</div>}
+    </div>
+  );
+}
+```
+
+**Features**:
+- ✅ File upload with validation
+- ✅ Batch processing
+- ✅ Error reporting per record
+- ✅ Upload history tracking
+- ✅ Progress feedback
+
+---
+
 ## Utility Hooks
 
 ### useFormatDate

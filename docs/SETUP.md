@@ -2,9 +2,10 @@
 
 ## Prerequisites
 
-- Node.js (v18 or higher)
+- Node.js (v18 or higher recommended)
 - npm (v9 or higher)
 - Backend API running on `http://localhost:3000`
+- Modern web browser (Chrome, Firefox, Safari, Edge)
 
 ## Installation
 
@@ -109,7 +110,11 @@ agave-front/
 |---------|---------|
 | `npm run dev` | Start development server |
 | `npm run build` | Build for production |
-| `npm run type-check` | Check TypeScript types |
+| `npm run lint` | Run ESLint |
+| `npm run preview` | Preview production build |
+| `npm run test` | Run tests |
+| `npm run test:ui` | Run tests with UI |
+| `npm run test:coverage` | Run tests with coverage report |
 | `npm install` | Install dependencies |
 
 ## Troubleshooting

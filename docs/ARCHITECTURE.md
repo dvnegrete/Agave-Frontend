@@ -8,64 +8,129 @@ This is a modern React 19 application using TypeScript, TanStack Query for serve
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| React | 19.1.1 | UI framework |
-| TypeScript | 5.5.3 | Type safety and developer experience |
-| Vite | 5.4.0 | Build tool and dev server |
-| TanStack Query | v5 | Server state management |
-| Axios | 1.7.2 | HTTP client |
-| Tailwind CSS | 3.4.1 | Utility-first CSS framework |
+| React | 19.1.1 | UI framework with latest features |
+| TypeScript | 5.9.3 | Type safety with strict mode |
+| Vite | 7.1.7 | Build tool and dev server |
+| TanStack Query | v5.90.8 | Server state management and caching |
+| React Router | 7.9.4 | Client-side routing |
+| Tailwind CSS | 4.1.14 | Utility-first CSS framework |
+| Vitest | 2.1.9 | Unit and integration testing |
+| MSW | 2.12.7 | API mocking for tests |
+| Testing Library | 16.3.1 | Component testing utilities |
 
 ## Folder Structure
 
 ```
 src/
-├── components/         # React business components
-│   ├── BankReconciliation.tsx      # Main reconciliation interface
-│   ├── VoucherList.tsx             # Voucher display with expandable table
+├── components/          # Business logic components
+│   ├── Login.tsx                    # Authentication page
+│   ├── Home.tsx                     # Landing page
+│   ├── VoucherList.tsx              # Voucher display with expandable table
+│   ├── VoucherUpload.tsx            # Upload vouchers with files
+│   ├── TransactionUpload.tsx        # Bank statement upload
+│   ├── BankReconciliation.tsx       # Main reconciliation interface
 │   ├── PaymentManagement.tsx        # Payment history by house
-│   ├── TransactionUpload.tsx        # File upload and results
-│   ├── UnclaimedDeposits.tsx        # Surplus transactions management
-│   ├── ModalAssignHouse.tsx         # Modal for assigning house to transaction
-│   ├── ApiStatus.tsx               # API connectivity indicator
-│   └── StartReconciliationModal.tsx # Modal for starting reconciliation
+│   ├── UnclaimedDepositsSection.tsx # Surplus transactions management
+│   ├── UserManagement.tsx           # User administration (Admin only)
+│   ├── HistoricalRecordsUpload.tsx  # Historical data import
+│   ├── ProtectedRoute.tsx           # Route guard component
+│   ├── ApiStatus.tsx                # API connectivity indicator
+│   ├── HamburgerMenu.tsx            # Mobile navigation menu
+│   ├── Footer.tsx                   # Page footer
+│   ├── Modal components:
+│   │   ├── Modal.tsx                # Generic modal wrapper
+│   │   ├── StartReconciliationModal.tsx
+│   │   ├── ModalAssignHouse.tsx
+│   │   ├── ModalEditUserRole.tsx
+│   │   ├── ModalEditUserStatus.tsx
+│   │   └── ModalRemoveHouse.tsx
+│   └── index.ts                     # Component exports
 │
-├── ui/                 # Reusable UI components
-│   ├── ExpandableTable.tsx         # Flexible expandable table (new)
-│   ├── Table.tsx                   # Standard table component
-│   ├── Button.tsx                  # Reusable button component
-│   ├── StatusBadge.tsx             # Status indicator badges
-│   ├── StatsCard.tsx               # Statistics display card
-│   ├── Tabs.tsx                    # Tab navigation component
-│   ├── ReconciliationCard.tsx       # Reconciliation status card
-│   └── DateTimeCell.tsx            # Formatted date/time cell
+├── shared/              # Shared resources across the app
+│   ├── types/          # TypeScript type definitions
+│   │   ├── auth.types.ts
+│   │   ├── vouchers.types.ts
+│   │   ├── bank-transactions.types.ts
+│   │   ├── bank-reconciliation.types.ts
+│   │   ├── payment-management.types.ts
+│   │   ├── user-management.types.ts
+│   │   ├── unclaimed-deposits.types.ts
+│   │   ├── voucher-upload.types.ts
+│   │   ├── historical-records.types.ts
+│   │   ├── common.types.ts
+│   │   └── index.ts
+│   │
+│   ├── ui/             # Reusable UI components
+│   │   ├── ExpandableTable.tsx      # Flexible expandable table
+│   │   ├── Table.tsx                # Standard table component
+│   │   ├── Button.tsx               # Reusable button component
+│   │   ├── StatusBadge.tsx          # Status indicator badges
+│   │   ├── RoleBadge.tsx            # User role badges
+│   │   ├── StatsCard.tsx            # Statistics display card
+│   │   ├── Tabs.tsx                 # Tab navigation component
+│   │   ├── ReconciliationCard.tsx   # Reconciliation status card
+│   │   ├── DateTimeCell.tsx         # Formatted date/time cell
+│   │   ├── FileUploadZone.tsx       # Drag-and-drop file upload
+│   │   ├── BankSelector.tsx         # Bank selection component
+│   │   └── index.ts
+│   │
+│   └── constants/      # Application constants
+│       ├── routes.ts   # Route path constants
+│       ├── labels.ts   # UI label constants
+│       ├── icons.ts    # Icon/emoji constants
+│       └── index.ts
 │
 ├── hooks/              # Custom React hooks
-│   ├── useVouchersQuery.ts         # TanStack Query hook for vouchers
-│   ├── useTransactionsBankQuery.ts # TanStack Query for transactions
+│   ├── useAuth.ts                   # Authentication hook
+│   ├── useVouchersQuery.ts          # TanStack Query hook for vouchers
+│   ├── useVouchers.ts               # Voucher operations hook
+│   ├── useTransactionsBankQuery.ts  # TanStack Query for transactions
+│   ├── useTransactionsBank.ts       # Transaction operations hook
 │   ├── useBankReconciliationQuery.ts # TanStack Query for reconciliation
-│   ├── usePaymentHistoryQuery.ts   # TanStack Query for payment history
-│   ├── useFormatDate.ts            # Date formatting utility
-│   ├── useSortBy.ts                # Sorting utility hook
-│   └── other hooks...              # Additional hooks
+│   ├── useBankReconciliation.ts     # Reconciliation operations hook
+│   ├── usePaymentManagement.ts      # Payment management hook
+│   ├── useUserManagement.ts         # User management hook
+│   ├── useHistoricalRecords.ts      # Historical records hook
+│   ├── useFormatDate.ts             # Date formatting utility
+│   └── useSortBy.ts                 # Sorting utility hook
 │
 ├── services/           # API service layer
-│   ├── voucherService.ts           # Voucher operations
-│   ├── transactionBankService.ts   # Transaction operations
+│   ├── authService.ts               # Authentication operations
+│   ├── voucherService.ts            # Voucher operations
+│   ├── voucherUploadService.ts      # Voucher upload operations
+│   ├── transactionBankService.ts    # Transaction operations
 │   ├── bankReconciliationService.ts # Reconciliation operations
-│   ├── paymentManagementService.ts # Payment management operations
-│   └── index.ts                    # Centralized exports
+│   ├── paymentManagementService.ts  # Payment management operations
+│   ├── unclaimedDepositsService.ts  # Unclaimed deposits operations
+│   ├── userManagementService.ts     # User management operations
+│   ├── historicalRecordsService.ts  # Historical records operations
+│   └── index.ts                     # Centralized exports
 │
-├── types/              # TypeScript type definitions
-│   └── api.types.ts                # All API request/response types
+├── context/            # React Context providers
+│   ├── AuthContext.tsx              # Auth state provider
+│   └── AuthContextStore.ts          # Auth context store
 │
-├── config/             # Configuration
-│   └── api.ts                      # API endpoints
+├── router/             # Routing configuration
+│   └── AppRoute.tsx                 # Route definitions
+│
+├── layouts/            # Layout components
+│   └── BaseLayout.tsx               # Main layout wrapper
+│
+├── pages/              # Page-level components
+│   └── AuthCallback.tsx             # OAuth callback handler
+│
+├── config/             # Configuration files
+│   └── api.ts                       # API base URL and config
 │
 ├── utils/              # Utility functions
-│   └── httpClient.ts               # Axios HTTP client
+│   ├── httpClient.ts                # Fetch-based HTTP client
+│   └── tokenManager.ts              # Token storage manager
 │
-├── index.css           # Global styles with CSS variables and @layer components
-└── App.tsx             # Root component
+├── assets/             # Static assets
+├── index.css           # Global styles with Tailwind
+├── App.css             # App-specific styles
+├── App.tsx             # Root component
+└── main.tsx            # Application entry point
 ```
 
 ## Design Patterns
@@ -266,6 +331,65 @@ export function BankReconciliation() {
   );
 }
 ```
+
+## HTTP Client
+
+The application uses a custom **fetch-based HTTP client** with automatic token refresh, cookie authentication, and error handling.
+
+**Location**: `src/utils/httpClient.ts`
+
+**Key Features**:
+- httpOnly cookie authentication (access tokens never exposed to JavaScript)
+- Automatic token refresh on 401 errors
+- Request retry with max limit to prevent infinite loops
+- Subscriber pattern to prevent duplicate refresh requests
+- CORS support with credentials
+- TypeScript type safety
+
+**Methods**:
+```typescript
+httpClient.get<T>(endpoint: string, options?: HttpClientOptions): Promise<T>
+httpClient.post<T>(endpoint: string, body?: Record<string, unknown> | FormData, options?: HttpClientOptions): Promise<T>
+httpClient.put<T>(endpoint: string, body?: Record<string, unknown> | FormData, options?: HttpClientOptions): Promise<T>
+httpClient.patch<T>(endpoint: string, body?: Record<string, unknown> | FormData, options?: HttpClientOptions): Promise<T>
+httpClient.delete<T>(endpoint: string, options?: HttpClientOptions): Promise<T>
+```
+
+**Usage**:
+```typescript
+// GET request
+const vouchers = await httpClient.get<Voucher[]>('/vouchers');
+
+// POST request with JSON body
+const newVoucher = await httpClient.post<Voucher>('/vouchers', {
+  authorization_number: 'AUTH-123',
+  amount: 1500
+});
+
+// POST request with FormData (file upload)
+const formData = new FormData();
+formData.append('file', file);
+const result = await httpClient.post<UploadResult>('/transactions-bank/upload?bank=Santander', formData);
+
+// Request with abort signal
+const controller = new AbortController();
+const data = await httpClient.get('/vouchers', { signal: controller.signal });
+```
+
+**Token Refresh Flow**:
+1. Request receives 401 Unauthorized
+2. httpClient checks retry count (max 3)
+3. If not auth endpoint, triggers token refresh
+4. Calls `/auth/refresh` with refreshToken from localStorage
+5. Backend validates refreshToken and sets new access_token cookie
+6. Original request is retried automatically
+7. If refresh fails, clears tokens and redirects to /login
+
+**Security**:
+- Access tokens stored in httpOnly cookies (XSS protection)
+- Refresh tokens stored in localStorage (acceptable for UX)
+- CSRF protection via state parameter in OAuth
+- Automatic logout on token refresh failure
 
 ## API Integration Details
 

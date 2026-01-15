@@ -541,6 +541,415 @@ console.log(`Reconciled: ${result.reconciled}`);
 
 ---
 
+### Bank Reconciliation Undo
+
+#### DELETE /api/bank-reconciliation/{reconciliationId}
+
+Undo a reconciliation transaction (reverse a match).
+
+**URL Parameters**:
+- `reconciliationId` (string): Reconciliation record ID to undo
+
+**Response**:
+```typescript
+{
+  success: boolean;
+  message: string;
+  transaction: BankTransaction;  // Updated transaction (no longer reconciled)
+  voucher: Voucher;              // Updated voucher (no longer matched)
+}
+```
+
+---
+
+## Authentication Endpoints
+
+### POST /api/auth/login
+
+Authenticate with email and password.
+
+**Request Body**:
+```typescript
+interface LoginRequest {
+  email: string;
+  password: string;
+  rememberMe?: boolean;  // Keep session longer
+}
+```
+
+**Response**:
+```typescript
+interface LoginResponse {
+  success: boolean;
+  message: string;
+  user: AuthUser;
+  accessToken?: string;  // May be in httpOnly cookie
+  refreshToken?: string; // May be in localStorage
+}
+
+interface AuthUser {
+  id: string;
+  email: string;
+  name: string;
+  role: 'admin' | 'user' | 'guest';
+  houses?: number[];
+  avatar?: string;
+  createdAt: string;
+}
+```
+
+**Example**:
+```typescript
+const response = await httpClient.post('/auth/login', {
+  email: 'user@example.com',
+  password: 'password123'
+});
+```
+
+---
+
+### POST /api/auth/logout
+
+Sign out and invalidate tokens.
+
+**Response**:
+```typescript
+{
+  success: boolean;
+  message: string;
+}
+```
+
+---
+
+### POST /api/auth/refresh
+
+Refresh the access token using refresh token.
+
+**Request Body**:
+```typescript
+{
+  refreshToken?: string;  // If not in localStorage
+}
+```
+
+**Response**:
+```typescript
+{
+  success: boolean;
+  accessToken: string;
+  refreshToken?: string;  // May return new refresh token
+}
+```
+
+---
+
+### GET /api/auth/me
+
+Get current authenticated user profile.
+
+**Response**:
+```typescript
+AuthUser  // Current user details
+```
+
+---
+
+### POST /api/auth/oauth-callback
+
+Handle OAuth callback after successful provider authentication.
+
+**Query Parameters**:
+- `code` (string): Authorization code from provider
+- `state` (string): State parameter for CSRF protection
+- `provider` (string): 'google' or 'facebook'
+
+**Response**:
+```typescript
+{
+  success: boolean;
+  user: AuthUser;
+  accessToken: string;
+  redirectUrl: string;  // URL to redirect to after login
+}
+```
+
+---
+
+## User Management Endpoints
+
+### GET /api/users
+
+Fetch all users (admin only).
+
+**Query Parameters** (optional):
+- `role` (string): Filter by role (admin, user, guest)
+- `status` (string): Filter by status (active, inactive)
+- `search` (string): Search by name or email
+
+**Response**:
+```typescript
+User[]
+
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: 'admin' | 'user' | 'guest';
+  houses: number[];
+  status: 'active' | 'inactive';
+  createdAt: string;
+  updatedAt: string;
+  avatar?: string;
+}
+```
+
+**Example**:
+```typescript
+const users = await httpClient.get('/users?role=admin');
+```
+
+---
+
+### GET /api/users/{userId}
+
+Get specific user details.
+
+**URL Parameters**:
+- `userId` (string): User ID
+
+**Response**: `User`
+
+---
+
+### POST /api/users
+
+Create a new user (admin only).
+
+**Request Body**:
+```typescript
+interface CreateUserRequest {
+  email: string;
+  name: string;
+  password: string;
+  role: 'admin' | 'user' | 'guest';
+  houseIds?: number[];
+  status?: 'active' | 'inactive';
+}
+```
+
+**Response**: Created `User`
+
+**Example**:
+```typescript
+const newUser = await httpClient.post('/users', {
+  email: 'newuser@example.com',
+  name: 'John Doe',
+  password: 'secure-password',
+  role: 'user',
+  houseIds: [1, 2, 3]
+});
+```
+
+---
+
+### PUT /api/users/{userId}
+
+Update user details (admin only).
+
+**URL Parameters**:
+- `userId` (string): User ID
+
+**Request Body**:
+```typescript
+interface UpdateUserRequest {
+  name?: string;
+  email?: string;
+  password?: string;  // Only if changing password
+  role?: 'admin' | 'user' | 'guest';
+  houseIds?: number[];
+  status?: 'active' | 'inactive';
+  avatar?: string;    // Avatar URL
+}
+```
+
+**Response**: Updated `User`
+
+---
+
+### DELETE /api/users/{userId}
+
+Delete a user (admin only).
+
+**URL Parameters**:
+- `userId` (string): User ID
+
+**Response**:
+```typescript
+{
+  success: boolean;
+  message: string;
+}
+```
+
+---
+
+### PUT /api/users/{userId}/assign-houses
+
+Assign houses to a user.
+
+**URL Parameters**:
+- `userId` (string): User ID
+
+**Request Body**:
+```typescript
+interface AssignHousesRequest {
+  houseIds: number[];  // Array of house IDs
+}
+```
+
+**Response**:
+```typescript
+{
+  success: boolean;
+  user: User;
+}
+```
+
+---
+
+## Historical Records Endpoints
+
+### POST /api/historical-records/upload
+
+Upload historical transaction or voucher data.
+
+**Query Parameters**:
+- `type` (string): 'transactions' or 'vouchers'
+
+**Request**:
+- Content-Type: `multipart/form-data`
+- Body: File as form data
+
+**Response**:
+```typescript
+interface UploadHistoricalResponse {
+  success: boolean;
+  message: string;
+  totalRecords: number;
+  importedRecords: number;
+  failedRecords: number;
+  errors: {
+    rowNumber: number;
+    error: string;
+  }[];
+  dateRange: {
+    start: string;
+    end: string;
+  };
+}
+```
+
+**Example**:
+```typescript
+const formData = new FormData();
+formData.append('file', file);
+
+const result = await httpClient.post(
+  '/historical-records/upload?type=transactions',
+  formData,
+  {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }
+);
+```
+
+---
+
+### GET /api/historical-records/uploads
+
+Get history of uploaded records.
+
+**Query Parameters** (optional):
+- `type` (string): 'transactions' or 'vouchers'
+- `limit` (number): Records per page
+- `offset` (number): Pagination offset
+
+**Response**:
+```typescript
+interface HistoricalUpload {
+  id: string;
+  fileName: string;
+  type: 'transactions' | 'vouchers';
+  uploadedAt: string;
+  totalRecords: number;
+  successCount: number;
+  failureCount: number;
+  uploadedBy: string;  // User ID
+  dateRange: {
+    start: string;
+    end: string;
+  };
+}
+
+HistoricalUpload[]
+```
+
+---
+
+### GET /api/historical-records/uploads/{uploadId}/errors
+
+Get detailed error log for a specific upload.
+
+**URL Parameters**:
+- `uploadId` (string): Upload ID
+
+**Response**:
+```typescript
+{
+  uploadId: string;
+  fileName: string;
+  errors: {
+    rowNumber: number;
+    data: object;      // The row data that failed
+    error: string;     // Error message
+  }[];
+}
+```
+
+---
+
+## Voucher Upload Endpoint
+
+### POST /api/vouchers/upload
+
+Upload voucher records from file.
+
+**Query Parameters**:
+- `source` (string, optional): Origin of vouchers (e.g., 'manual', 'import')
+
+**Request**:
+- Content-Type: `multipart/form-data`
+- Body: File as form data
+
+**Response**:
+```typescript
+interface VoucherUploadResponse {
+  success: boolean;
+  message: string;
+  totalVouchers: number;
+  uploadedVouchers: number;
+  failedVouchers: number;
+  errors: {
+    rowNumber: number;
+    error: string;
+  }[];
+  vouchers: Voucher[];  // Successfully created vouchers
+}
+```
+
+---
+
 ## Data Types
 
 ### Property Name Convention

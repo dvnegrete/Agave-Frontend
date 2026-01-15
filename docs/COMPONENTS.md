@@ -7,24 +7,42 @@ This document describes the main React components in the application and their r
 ## Component Hierarchy
 
 ```
-App
-├── Navigation/Menu
-├── BankReconciliation
-│   ├── StartReconciliationModal
-│   ├── Tab: Summary
-│   ├── Tab: Conciliados
-│   ├── Tab: Unfunded Vouchers
-│   ├── Tab: Unclaimed Deposits
-│   │   └── ModalAssignHouse (modal popup)
-│   └── Tab: Manual Validation
-├── VoucherList
-│   └── ExpandableTable (with custom expandedContent)
-├── PaymentManagement
-│   └── ExpandableTable (with expandedRowLayout='table')
-├── TransactionUpload
-│   ├── File Input
-│   └── Result Display
-└── ApiStatus
+App (Router)
+├── Login
+│   ├── OAuth buttons (Google, Facebook)
+│   └── Manual login form
+├── BaseLayout (for authenticated routes)
+│   ├── Header
+│   ├── HamburgerMenu/Navigation
+│   ├── Page content:
+│   │   ├── Home
+│   │   ├── BankReconciliation
+│   │   │   ├── StartReconciliationModal
+│   │   │   ├── Tab: Summary
+│   │   │   ├── Tab: Conciliados
+│   │   │   ├── Tab: Unfunded Vouchers
+│   │   │   ├── Tab: Unclaimed Deposits
+│   │   │   │   └── ModalAssignHouse
+│   │   │   └── Tab: Manual Validation
+│   │   ├── VoucherList
+│   │   │   └── ExpandableTable (custom expandedContent)
+│   │   ├── VoucherUpload
+│   │   │   ├── File upload zone
+│   │   │   └── Result display
+│   │   ├── PaymentManagement
+│   │   │   └── ExpandableTable (expandedRowLayout='table')
+│   │   ├── TransactionUpload
+│   │   │   ├── Bank selector
+│   │   │   └── File upload & result
+│   │   ├── UserManagement
+│   │   │   ├── User table
+│   │   │   ├── Add/Edit modals
+│   │   │   └── Role/House assignment
+│   │   └── HistoricalRecordsUpload
+│   │       └── File upload for historical data
+│   ├── Footer
+│   └── ApiStatus (bottom-right)
+└── ProtectedRoute (authentication wrapper)
 ```
 
 ## Main Components
@@ -320,6 +338,256 @@ interface ModalAssignHouseProps {
 - Confirm and Cancel buttons
 - Loading state feedback
 - Form validation
+
+---
+
+### Login.tsx
+
+**Location**: `src/components/Login.tsx`
+
+**Purpose**: Authentication entry point with OAuth and manual login options.
+
+**Features**:
+- OAuth 2.0 sign-in buttons (Google, Facebook)
+- Email/password manual login form
+- Remember me checkbox option
+- Loading states and error messages
+- Redirect to dashboard on successful login
+- Responsive design
+
+**OAuth Flow**:
+- User clicks OAuth button
+- Redirected to OAuth provider
+- Returns to callback URL with auth code
+- Token exchange handled by backend
+- Automatic redirect to dashboard
+
+**Manual Login**:
+- Email and password fields
+- Form validation
+- Error handling
+- Token storage in localStorage/cookies
+
+---
+
+### Home.tsx
+
+**Location**: `src/components/Home.tsx`
+
+**Purpose**: Dashboard/home page displayed after login.
+
+**Features**:
+- Welcome message with user name
+- Quick access links to main features
+- Summary statistics cards
+- Recent activity feed (if applicable)
+- Navigation to key pages
+
+---
+
+### VoucherUpload.tsx
+
+**Location**: `src/components/VoucherUpload.tsx`
+
+**Purpose**: Component for uploading vouchers from files.
+
+**Props**: None (uses custom hooks)
+
+**Features**:
+- File upload zone (drag & drop)
+- File validation
+- Upload progress tracking
+- Success/error messages
+- Confirmation of uploaded data
+
+**Upload Process**:
+1. User selects or drags file
+2. File validation (format, size)
+3. Send to backend API
+4. Display results with summary
+5. Show any errors or warnings
+
+---
+
+### UserManagement.tsx
+
+**Location**: `src/components/UserManagement.tsx`
+
+**Purpose**: Admin interface for managing application users.
+
+**Props**: None (uses custom hooks)
+
+**Features**:
+- User list with table display
+- Add new user functionality
+- Edit user details (modal)
+- Delete user action
+- Assign roles (Admin, User, Guest)
+- Assign houses to users
+- Search/filter users
+
+**User Table Columns**:
+- Name
+- Email
+- Role
+- Assigned Houses
+- Actions (Edit, Delete)
+
+**Modals**:
+- **Add User Modal**: Form to create new user
+  - Name field
+  - Email field
+  - Password field
+  - Role selector
+  - House selector (multi-select)
+
+- **Edit User Modal**: Modify user details
+  - Update name, email
+  - Change role
+  - Update house assignments
+  - Confirm/Cancel buttons
+
+**Key Functions**:
+- `handleAddUser()` - Opens add modal
+- `handleEditUser(userId)` - Opens edit modal with user data
+- `handleDeleteUser(userId)` - Delete with confirmation
+- `handleSaveUser(data)` - Submit form data to API
+- `handleAssignHouses(userId, houseIds)` - Update house assignments
+
+---
+
+### HistoricalRecordsUpload.tsx
+
+**Location**: `src/components/HistoricalRecordsUpload.tsx`
+
+**Purpose**: Upload historical transaction or voucher data.
+
+**Props**: None (uses custom hooks)
+
+**Features**:
+- File upload interface
+- Support for CSV/Excel formats
+- Validation of historical data
+- Processing status display
+- Summary of imported records
+- Error logging for failed records
+
+**Upload Process**:
+1. File selection
+2. Format validation
+3. Data parsing
+4. Batch processing
+5. Results summary
+
+---
+
+### ProtectedRoute.tsx
+
+**Location**: `src/components/ProtectedRoute.tsx`
+
+**Purpose**: Wrapper component that ensures only authenticated users can access routes.
+
+**Props**:
+```typescript
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  requiredRole?: 'admin' | 'user' | 'guest';  // Optional role check
+}
+```
+
+**Features**:
+- Checks authentication status via `useAuth` hook
+- Redirects to login if not authenticated
+- Optional role-based access control
+- Loading state while checking auth
+
+**Usage**:
+```typescript
+<ProtectedRoute>
+  <BankReconciliation />
+</ProtectedRoute>
+
+// With role requirement
+<ProtectedRoute requiredRole="admin">
+  <UserManagement />
+</ProtectedRoute>
+```
+
+---
+
+### BaseLayout.tsx
+
+**Location**: `src/layouts/BaseLayout.tsx`
+
+**Purpose**: Main layout wrapper for authenticated pages.
+
+**Props**:
+```typescript
+interface BaseLayoutProps {
+  children: React.ReactNode;
+}
+```
+
+**Features**:
+- Header component (logo, user menu)
+- Navigation sidebar/hamburger menu
+- Main content area
+- Footer
+- Responsive design
+- Theme support
+
+**Structure**:
+```
+┌─────────────────────────┐
+│ Header (logo, user menu)│
+├──────┬──────────────────┤
+│      │                  │
+│ Menu │  Main Content    │
+│      │  (children)      │
+│      │                  │
+├──────┴──────────────────┤
+│ Footer                  │
+└─────────────────────────┘
+```
+
+---
+
+### HamburgerMenu.tsx
+
+**Location**: `src/components/HamburgerMenu.tsx`
+
+**Purpose**: Mobile-friendly navigation menu.
+
+**Features**:
+- Toggle menu visibility
+- Links to all main pages
+- User logout option
+- Active page indicator
+- Responsive collapse
+
+**Menu Items**:
+- Home
+- Comprobantes (Vouchers)
+- Conciliación Bancaria (Bank Reconciliation)
+- Administración de Pagos (Payment Management)
+- Carga de Transacciones (Transaction Upload)
+- Administración de Usuarios (User Management - if admin)
+- Carga de Registros Históricos (Historical Records - if admin)
+
+---
+
+### Footer.tsx
+
+**Location**: `src/components/Footer.tsx`
+
+**Purpose**: Application footer displayed on all pages.
+
+**Features**:
+- Company/app information
+- Links to documentation
+- Version info
+- Copyright notice
+- Optional social links
 
 ---
 
