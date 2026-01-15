@@ -9,7 +9,28 @@ export * from './historicalRecordsService';
 export * from './voucherUploadService';
 export * from './userManagementService';
 
-// Export types
-export * from '../types/api.types';
-export * from '../types/auth.types';
-export * from '../types/user-management.types';
+// Export types from shared/types (domain types)
+export * from '../shared/types';
+
+// Export auth types (User from auth.types is the authenticated user)
+export type {
+  User as AuthUser,
+  AuthResponse,
+  LoginRequest,
+  OAuthCallbackRequest,
+  RefreshTokenRequest,
+  AuthContextType,
+} from '../types/auth.types';
+
+// Export user management types (User from user-management.types is for admin management)
+export type {
+  User as ManagedUser,
+  Role,
+  Status,
+  UpdateUserRoleRequest,
+  UpdateUserStatusRequest,
+  AssignHouseRequest,
+  RemoveHouseResponse,
+  AssignHouseResponse,
+  UsersResponse,
+} from '../types/user-management.types';

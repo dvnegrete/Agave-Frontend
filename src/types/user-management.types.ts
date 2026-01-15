@@ -15,14 +15,17 @@ export interface User {
 
 export interface UpdateUserRoleRequest {
   role: Role;
+  [key: string]: unknown;
 }
 
 export interface UpdateUserStatusRequest {
   status: Status;
+  [key: string]: unknown;
 }
 
 export interface AssignHouseRequest {
   house_number: number;
+  [key: string]: unknown;
 }
 
 export interface RemoveHouseResponse {
