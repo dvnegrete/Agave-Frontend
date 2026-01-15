@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@hooks/useAuth';
 import type { MenuItem } from '@/shared';
 import { ICONS, LABELS, ROUTES } from '@/shared';
@@ -45,6 +45,7 @@ export function HamburgerMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const toggleMenu = (): void => {
     setIsOpen(!isOpen);
@@ -163,6 +164,18 @@ export function HamburgerMenu() {
                   >
                     {ICONS.LOGOUT} {LABELS.LOGOUT}
                   </button>
+                </>
+              )}
+              {!user && (
+                <>
+                  <button
+                  className='cursor-pointer'
+                    onClick={()=> {
+                      navigate(ROUTES.LOGIN)
+                      closeMenu()
+                    }}>
+                    {ICONS.LOGIN} {LABELS.LOGIN}
+                    </button>
                 </>
               )}
             </div>
