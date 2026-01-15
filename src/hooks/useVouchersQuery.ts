@@ -66,7 +66,6 @@ export const useVouchersQuery = (initialQuery?: VoucherQuery): UseVouchersQueryR
     queryKey: voucherKeys.list(query),
     queryFn: async ({ signal }) => {
       const response = await getVouchers(query, signal);
-      console.log('📊 [useVouchersQuery] Raw API Response:', response);
       return response;
     },
     staleTime: 5 * 60 * 1000, // 5 minutos
@@ -79,8 +78,6 @@ export const useVouchersQuery = (initialQuery?: VoucherQuery): UseVouchersQueryR
   // Manejar tanto array directo como objeto con vouchers
   const vouchers = Array.isArray(data) ? data : (data?.vouchers || []);
   const total = Array.isArray(data) ? data.length : (data?.total || 0);
-
-  console.log('📋 [useVouchersQuery] Processed vouchers:', { vouchers, total, isArray: Array.isArray(data) });
 
   return {
     vouchers,

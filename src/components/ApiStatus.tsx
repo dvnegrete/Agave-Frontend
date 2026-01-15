@@ -12,7 +12,6 @@ export function ApiStatus() {
           method: 'GET',
           signal: AbortSignal.timeout(5000),
         });
-        console.log('API status response:', response);
         if (response.ok) {
           setStatus('online');
         } else {

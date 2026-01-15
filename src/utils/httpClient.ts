@@ -34,9 +34,6 @@ class HttpClient {
     const currentRetries = this.requestCount.get(requestKey) || 0;
     this.requestCount.set(requestKey, currentRetries + 1);
 
-    console.log(`🌐 [HTTP] ${method} ${url} (retry: ${currentRetries}/${this.MAX_RETRIES_PER_ENDPOINT})`,
-      options?.body ? { body: options.body } : '');
-
     // Merge custom headers with default content-type
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
@@ -62,29 +59,25 @@ class HttpClient {
     try {
       const response = await fetch(url, config);
 
-      console.log(`📡 [HTTP] Response Status: ${response.status} ${response.statusText}`);
-
       // Handle 401 Unauthorized - try to refresh token
       if (response.status === 401 && endpoint !== '/auth/refresh' && endpoint !== '/auth/signin' && endpoint !== '/auth/oauth/signin' && endpoint !== '/auth/oauth/callback') {
 
         // Prevent infinite 401 loops
         if (currentRetries >= this.MAX_RETRIES_PER_ENDPOINT) {
-          console.error(`❌ [HTTP] Max retries (${this.MAX_RETRIES_PER_ENDPOINT}) exceeded for ${requestKey}, giving up`);
+          console.error(`Max retries (${this.MAX_RETRIES_PER_ENDPOINT}) exceeded, session expired`);
           this.requestCount.delete(requestKey);
           tokenManager.clearAll();
           window.location.href = '/login';
           throw new Error('Session expired. Please login again.');
         }
 
-        console.log('🔐 [HTTP] Received 401, attempting token refresh...');
         const newToken = await this.handleTokenRefresh();
         if (newToken) {
           // Clear retry count on successful refresh and retry
           this.requestCount.delete(requestKey);
-          console.log('✅ [HTTP] Token refreshed, retrying request...');
           return this.request<T>(endpoint, method, options, retryCount + 1);
         } else {
-          console.error('❌ [HTTP] Token refresh failed');
+          console.error('Token refresh failed, session expired');
           throw new Error('Session expired. Please login again.');
         }
       }
@@ -96,7 +89,7 @@ class HttpClient {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error('❌ [HTTP] Error Response:', errorData);
+        console.error('HTTP Error:', response.status, response.statusText);
         throw new Error(
           errorData.message || `HTTP Error: ${response.status} ${response.statusText}`
         );
@@ -105,13 +98,12 @@ class HttpClient {
       const contentType = response.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
         const jsonData = await response.json();
-        console.log('✅ [HTTP] Response Data:', jsonData);
         return jsonData;
       }
 
       return {} as T;
     } catch (error) {
-      console.error('🚨 [HTTP] Request Failed:', error);
+      console.error('Request failed:', error);
       this.requestCount.delete(requestKey);
       if (error instanceof Error) {
         throw error;
@@ -126,25 +118,19 @@ class HttpClient {
    * Backend automatically sets the new access token in the httpOnly cookie
    */
   private async handleTokenRefresh(): Promise<string | null> {
-    console.log('🔐 [HTTP] handleTokenRefresh called, isRefreshing:', this.isRefreshing);
-
     if (this.isRefreshing) {
-      console.log('🔐 [HTTP] Already refreshing, waiting for result...');
       // Wait for ongoing refresh
       return new Promise((resolve) => {
         this.refreshSubscribers.push(() => {
-          console.log('🔐 [HTTP] Subscriber notified of refresh completion');
           resolve('refreshed');
         });
       });
     }
 
     this.isRefreshing = true;
-    console.log('🔐 [HTTP] Starting token refresh');
 
     try {
       const refreshToken = tokenManager.getRefreshToken();
-      console.log('🔐 [HTTP] Refresh token exists:', !!refreshToken);
 
       if (!refreshToken) {
         throw new Error('No refresh token available');
@@ -152,7 +138,6 @@ class HttpClient {
 
       // Call backend refresh endpoint
       // Backend will automatically set new access_token cookie
-      console.log('🔐 [HTTP] Calling /auth/refresh endpoint...');
       const response = await fetch(`${this.baseURL}/auth/refresh`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -164,24 +149,19 @@ class HttpClient {
         throw new Error(`Refresh failed with status ${response.status}`);
       }
 
-      console.log('🔐 [HTTP] Refresh successful');
-
       // Notify all subscribers
       // Note: We don't return an access token since it's in the httpOnly cookie now
-      console.log(`🔐 [HTTP] Notifying ${this.refreshSubscribers.length} subscribers`);
       this.refreshSubscribers.forEach(cb => cb());
       this.refreshSubscribers = [];
 
       this.isRefreshing = false;
-      console.log('✅ [HTTP] Token refresh completed successfully');
       return 'refreshed'; // Return truthy value to indicate success
     } catch (error) {
-      console.error('❌ [HTTP] Token refresh failed:', error);
+      console.error('Token refresh failed:', error);
       this.isRefreshing = false;
       this.refreshSubscribers = [];
 
       // Clear tokens and redirect to login
-      console.log('❌ [HTTP] Clearing tokens and redirecting to login');
       tokenManager.clearAll();
       window.location.href = '/login';
       return null;

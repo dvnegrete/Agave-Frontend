@@ -28,43 +28,27 @@ export default function AuthCallback() {
 
   useEffect(() => {
     const handleCallback = async (): Promise<void> => {
-      console.log('🔐 [AuthCallback] useEffect triggered');
-      console.log('🔐 [AuthCallback] Current window.location.href:', window.location.href);
-      console.log('🔐 [AuthCallback] Current window.location.hash:', window.location.hash);
-
       // Implicit Flow - Supabase redirects with tokens in hash fragment
       let accessToken = null;
 
       if (window.location.hash) {
-        console.log('🔐 [AuthCallback] Found hash fragment, parsing Supabase access token');
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
         accessToken = hashParams.get('access_token');
-
-        console.log('🔐 [AuthCallback] Supabase access token:', {
-          hasAccessToken: !!accessToken,
-          accessTokenLength: accessToken?.length,
-        });
       }
 
       if (!accessToken) {
-        console.error('❌ [AuthCallback] No access token found in hash');
+        console.error('No access token received from OAuth provider');
         setError('No access token received from OAuth provider');
         setTimeout(() => navigate(ROUTES.HOME), 3000);
         return;
       }
 
       try {
-        console.log('🔐 [AuthCallback] Sending access token to backend...');
         // Send Supabase access token to backend for exchange
         const response = await authService.handleOAuthCallback(accessToken);
 
-        console.log('🔐 [AuthCallback] Response received from backend:', {
-          hasRefreshToken: !!response.refreshToken,
-          refreshTokenLength: response.refreshToken?.length,
-        });
-
         if (!response.refreshToken) {
-          console.error('❌ [AuthCallback] Response missing refresh token:', response);
+          console.error('Backend did not return refresh token');
           throw new Error('Backend did not return refresh token');
         }
 
@@ -91,7 +75,6 @@ export default function AuthCallback() {
           }
 
           const validatedPayload = payload as JWTPayload;
-          console.log('🔐 [AuthCallback] Extracted JWT payload:', validatedPayload);
 
           const user = {
             id: validatedPayload.sub,
@@ -101,20 +84,17 @@ export default function AuthCallback() {
             role: validatedPayload.role,
           };
 
-          console.log('🔐 [AuthCallback] Extracted user info:', user);
-
           tokenManager.setRefreshToken(response.refreshToken);
           tokenManager.setUser(user);
           updateUser(user);
 
-          console.log('✅ [AuthCallback] OAuth authentication successful');
           setTimeout(() => navigate(ROUTES.HOME), 500);
         } catch (parseErr: unknown) {
-          console.error('❌ [AuthCallback] Error parsing JWT payload:', parseErr);
+          console.error('Error parsing JWT payload:', parseErr);
           throw new Error('Failed to parse authentication token');
         }
       } catch (err: unknown) {
-        console.error('❌ [AuthCallback] OAuth callback error:', err);
+        console.error('OAuth callback failed:', err);
         setError(err instanceof Error ? err.message : 'Authentication failed');
         setTimeout(() => navigate(ROUTES.LOGIN), 3000);
       }
@@ -127,9 +107,9 @@ export default function AuthCallback() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-base">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-error mb-4">Authentication Error</h1>
+          <h1 className="text-2xl font-bold text-error mb-4">Error al Autenticar usuario</h1>
           <p className="text-foreground-secondary">{error}</p>
-          <p className="text-sm text-foreground-tertiary mt-2">Redirecting to login...</p>
+          <p className="text-sm text-foreground-tertiary mt-2">Redireccionado a Iniciar sesión...</p>
         </div>
       </div>
     );
@@ -139,7 +119,7 @@ export default function AuthCallback() {
     <div className="flex min-h-screen items-center justify-center bg-base">
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-        <p className="text-foreground">Completing authentication...</p>
+        <p className="text-foreground">Autenticación completada...</p>
       </div>
     </div>
   );

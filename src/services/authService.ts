@@ -25,7 +25,7 @@ export const signIn = async (
       { signal }
     );
   } catch (err: unknown) {
-    console.error('❌ [Service] Error in signIn:', err);
+    console.error('Sign in failed:', err);
     throw err;
   }
 };
@@ -38,19 +38,15 @@ export const initOAuthFlow = async (
   provider: 'google' | 'facebook',
   signal?: AbortSignal
 ): Promise<{ url: string }> => {
-  console.log('🔐 [authService] initOAuthFlow called with provider:', provider);
-  console.log('🔐 [authService] About to POST to:', API_ENDPOINTS.authOAuthSignIn, 'with data:', { provider });
-
   try {
     const response = await httpClient.post<{ url: string }>(
       API_ENDPOINTS.authOAuthSignIn,
       { provider },
       { signal }
     );
-    console.log('🔐 [authService] initOAuthFlow response:', response);
     return response;
   } catch (err: unknown) {
-    console.error('❌ [authService] initOAuthFlow error:', err);
+    console.error('OAuth initiation failed:', err);
     throw err;
   }
 };
@@ -64,19 +60,15 @@ export const handleOAuthCallback = async (
   supabaseAccessToken: string,
   signal?: AbortSignal
 ): Promise<{ refreshToken: string }> => {
-  console.log('🔐 [authService] handleOAuthCallback called with Supabase access token');
   try {
     const response = await httpClient.post<{ refreshToken: string }>(
       API_ENDPOINTS.authOAuthCallback,
       { accessToken: supabaseAccessToken },
       { signal }
     );
-    console.log('🔐 [authService] handleOAuthCallback response:', {
-      hasRefreshToken: !!response.refreshToken,
-    });
     return response;
   } catch (err: unknown) {
-    console.error('❌ [authService] handleOAuthCallback error:', err);
+    console.error('OAuth callback failed:', err);
     throw err;
   }
 };
@@ -96,7 +88,7 @@ export const refreshToken = async (
       { signal }
     );
   } catch (err: unknown) {
-    console.error('❌ [Service] Error in refreshToken:', err);
+    console.error('Token refresh failed:', err);
     throw err;
   }
 };
@@ -113,7 +105,7 @@ export const getCurrentUser = async (
       { signal }
     );
   } catch (err: unknown) {
-    console.error('❌ [Service] Error in getCurrentUser:', err);
+    console.error('Failed to get current user:', err);
     throw err;
   }
 };
@@ -131,7 +123,7 @@ export const signOut = async (
       { signal }
     );
   } catch (err: unknown) {
-    console.error('❌ [Service] Error in signOut:', err);
+    console.error('Sign out failed:', err);
     throw err;
   }
 };

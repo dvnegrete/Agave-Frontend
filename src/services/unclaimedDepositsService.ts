@@ -32,12 +32,6 @@ class UnclaimedDepositsService {
       const page = Math.max(1, Number(filters.page) || 1);
       const limit = Math.min(100, Math.max(1, Number(filters.limit) || 20));
 
-      console.log('🔍 [UnclaimedDeposits DEBUG] Input filters:', filters);
-      console.log('🔍 [UnclaimedDeposits DEBUG] Parsed values:', {
-        page: { value: page, type: typeof page },
-        limit: { value: limit, type: typeof limit },
-      });
-
       // Construir query string manualmente para mayor control
       const params: Record<string, string | number> = {
         page,
@@ -67,39 +61,17 @@ class UnclaimedDepositsService {
 
       const endpoint = `/bank-reconciliation/unclaimed-deposits?${queryString}`;
 
-      console.log('🔍 [UnclaimedDeposits DEBUG] Final endpoint:', endpoint);
-      console.log('🔍 [UnclaimedDeposits DEBUG] Params object:', params);
-      console.log('🔍 [UnclaimedDeposits DEBUG] Query string:', queryString);
-
       const options: HttpClientOptions = {
         headers: this.getAuthHeaders(),
       };
-
-      console.log('📤 [UnclaimedDeposits] Enviando petición GET...');
-      console.log('   Endpoint:', endpoint);
-      console.log('   Headers:', this.getAuthHeaders());
 
       const response = await httpClient.get<UnclaimedDepositsPage>(
         endpoint,
         options
       );
 
-      console.log('✅ [UnclaimedDeposits] Respuesta exitosa:', {
-        totalCount: response.totalCount,
-        page: response.page,
-        totalPages: response.totalPages,
-        itemsCount: response.items.length,
-      });
-
       return response;
     } catch (error: unknown) {
-      console.error('❌ [UnclaimedDeposits ERROR] Error en getUnclaimedDeposits:', error);
-
-      if (error instanceof Error) {
-        console.error('   Mensaje:', error.message);
-        console.error('   Stack:', error.stack);
-      }
-
       throw this.handleError(error);
     }
   }
@@ -133,13 +105,10 @@ class UnclaimedDepositsService {
    */
   private handleError(error: unknown): Error {
     if (error instanceof Error) {
-      console.error('❌ Error en UnclaimedDepositsService:', error.message);
       return error;
     }
 
-    const unknownError = new Error('Error desconocido en la solicitud');
-    console.error('❌ Error en UnclaimedDepositsService:', unknownError.message);
-    return unknownError;
+    return new Error('Error desconocido en la solicitud');
   }
 }
 

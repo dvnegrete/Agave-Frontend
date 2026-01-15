@@ -36,15 +36,13 @@ export function VoucherList() {
     try {
       const voucher = await getVoucherById(id.toString());
 
-      console.log('📄 [View Voucher] Respuesta de la API:', voucher);
-
       if (voucher.viewUrl) {
         window.open(voucher.viewUrl, '_blank');
       } else {
         alert('No hay URL de visualización disponible para este comprobante');
       }
     } catch (err) {
-      console.error('❌ [View Voucher] Error al obtener el comprobante:', err);
+      console.error('Error al obtener el comprobante:', err);
       alert('Error al obtener el comprobante');
     } finally {
       setLoadingViewUrl(null);

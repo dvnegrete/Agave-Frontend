@@ -43,21 +43,14 @@ export function TransactionUpload() {
     }
 
     try {
-      console.log('📤 [Upload] Subiendo archivo:', {
-        fileName: selectedFile.name,
-        bank: bankName,
-      });
-
       await upload(selectedFile, bankName);
-
-      console.log('✅ [Upload] Upload exitoso');
 
       // Limpiar archivo
       setSelectedFile(null);
       setCustomBank('');
       setBankSelection('Santander-2025');
     } catch (err) {
-      console.error('❌ [Upload] Error uploading file:', err);
+      console.error('Error uploading file:', err);
     }
   };
 

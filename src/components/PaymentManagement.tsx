@@ -51,7 +51,6 @@ export function PaymentManagement() {
       setActiveTab('periods');
     } catch (err) {
       console.error('Error creating period:', err);
-      alert('Error al crear el período');
     }
   };
 
@@ -67,7 +66,6 @@ export function PaymentManagement() {
       alert('Configuración creada exitosamente');
     } catch (err) {
       console.error('Error creating config:', err);
-      alert('Error al crear la configuración');
     }
   };
 
@@ -623,7 +621,7 @@ export function PaymentManagement() {
           <h2 className="text-2xl font-bold mb-4">🏦 Depósitos No Reclamados</h2>
           <UnclaimedDepositsSection
             onDepositAssigned={() => {
-              console.log('✅ Casa asignada exitosamente');
+              // Callback when deposit is assigned
             }}
           />
         </div>

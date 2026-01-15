@@ -34,7 +34,7 @@ export function UnclaimedDepositsSection({ onDepositAssigned }: UnclaimedDeposit
       setIsExpanded(true);
     } catch (err) {
       setError((err as Error).message || 'Error al cargar depósitos');
-      console.error('❌ Error cargando depósitos no reclamados:', err);
+      console.error('Error cargando depósitos no reclamados:', err);
     } finally {
       setLoading(false);
     }
@@ -81,7 +81,7 @@ export function UnclaimedDepositsSection({ onDepositAssigned }: UnclaimedDeposit
       onDepositAssigned?.();
     } catch (err) {
       setAssignError((err as Error).message || 'Error al asignar casa');
-      console.error('❌ Error asignando casa:', err);
+      console.error('Error asignando casa:', err);
     } finally {
       setAssignLoading(false);
     }

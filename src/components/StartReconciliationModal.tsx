@@ -26,35 +26,14 @@ export function StartReconciliationModal({
       if (startDate) data.startDate = startDate;
       if (endDate) data.endDate = endDate;
 
-      console.log('📤 Enviando petición de inicio de conciliación:', data);
-
       const response = await onStart(data);
 
-      console.log('📥 Respuesta de la API:', response);
-
       if (response) {
-        // Log detallado del resultado
-        console.log('✅ Resultado del proceso:', {
-          summary: response.summary,
-          conciliados: response.conciliados.length,
-          unfundedVouchers: response.unfundedVouchers.length,
-          unclaimedDeposits: response.unclaimedDeposits.length,
-          manualValidation: response.manualValidationRequired.length,
-        });
-
-        // Log detallado de cada sección
-        console.group('📋 Detalles de Conciliación');
-        console.log('Conciliados:', response.conciliados);
-        console.log('Comprobantes NO conciliados:', response.unfundedVouchers);
-        console.log('Movimientos bancarios No asociados ni conciliados:', response.unclaimedDeposits);
-        console.log('Validación Manual:', response.manualValidationRequired);
-        console.groupEnd();
-
         // Cerrar modal inmediatamente después de éxito
         handleClose();
       }
     } catch (err) {
-      console.error('❌ Error al iniciar conciliación:', err);
+      console.error('Error al iniciar conciliación:', err);
       // En caso de error, no hay resultado que mostrar
       // El error ya se muestra en el error global del componente padre
     }

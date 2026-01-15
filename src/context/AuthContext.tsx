@@ -32,16 +32,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const refreshToken = tokenManager.getRefreshToken();
       const storedUser = tokenManager.getUser();
 
-      console.log('🔐 [AuthContext] Initializing auth:', {
-        hasRefreshToken: !!refreshToken,
-        hasStoredUser: !!storedUser,
-      });
-
       if (refreshToken && storedUser) {
         setUser(storedUser);
-        console.log('🔐 [AuthContext] User restored from localStorage:', storedUser);
-      } else {
-        console.log('🔐 [AuthContext] No valid tokens or user in localStorage');
       }
       setIsLoading(false);
     };
@@ -54,26 +46,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    */
   const login = useCallback(async (email: string, password: string) => {
     try {
-      console.log('🔐 [AuthContext] Starting login for:', email);
       const response = await authService.signIn({ email, password });
-
-      console.log('🔐 [AuthContext] Login successful, response:', {
-        user: response.user,
-        hasRefreshToken: !!response.refreshToken,
-      });
 
       // Backend automatically sets access_token in httpOnly cookie
       tokenManager.setRefreshToken(response.refreshToken);
       tokenManager.setUser(response.user);
 
-      console.log('🔐 [AuthContext] Refresh token and user saved to localStorage');
-
       setUser(response.user);
-      console.log('🔐 [AuthContext] User state updated, navigating to home');
-
       navigate(ROUTES.HOME);
     } catch (error) {
-      console.error('❌ [AuthContext] Login error:', error);
+      console.error('Login failed:', error);
       throw error;
     }
   }, [navigate]);
@@ -83,32 +65,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    */
   const loginWithOAuth = useCallback(async (provider: 'google' | 'facebook') => {
     try {
-      console.log('🔐 [AuthContext] loginWithOAuth called with provider:', provider);
       const response = await authService.initOAuthFlow(provider);
-      console.log('🔐 [AuthContext] OAuth flow initiated, response URL:', response.url);
-
-      // Parse and log the redirect URL components
-      try {
-        const url = new URL(response.url);
-        console.log('🔐 [AuthContext] OAuth redirect URL components:', {
-          protocol: url.protocol,
-          host: url.host,
-          pathname: url.pathname,
-          searchParams: {
-            redirect_to: url.searchParams.get('redirect_to'),
-            client_id: url.searchParams.get('client_id'),
-            provider: url.searchParams.get('provider'),
-          },
-        });
-      } catch (urlError) {
-        console.warn('⚠️ [AuthContext] Could not parse OAuth URL:', urlError);
-      }
-
       // Redirect to OAuth provider - this takes user away from the app
-      console.log('🔐 [AuthContext] About to redirect to:', response.url);
       window.location.href = response.url;
     } catch (error) {
-      console.error('❌ [AuthContext] OAuth initiation error:', error);
+      console.error('OAuth login failed:', error);
       throw error;
     }
   }, []);

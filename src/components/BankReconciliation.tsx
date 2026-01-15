@@ -83,17 +83,10 @@ export function BankReconciliation() {
 
   const handleManualValidation = async (voucherId: number, transactionId: number): Promise<void> => {
     try {
-      console.log('🔧 [Manual Validation] Iniciando conciliación manual:', {
-        voucherId,
-        transactionId,
-      });
-
       await reconcile({
         transactionId: transactionId.toString(),
         voucherId: voucherId.toString(),
       });
-
-      console.log('✅ [Manual Validation] Conciliación manual exitosa');
 
       // Re-run reconciliation to get updated results
       const updatedResult = await start({});
@@ -106,7 +99,7 @@ export function BankReconciliation() {
       refetchTransactions();
       refetchVouchers();
     } catch (err) {
-      console.error('❌ [Manual Validation] Error en conciliación manual:', err);
+      console.error('Error en conciliación manual:', err);
       alert('Error al realizar la conciliación manual. Por favor intenta de nuevo.');
     }
   };
@@ -469,7 +462,6 @@ export function BankReconciliation() {
         <UnclaimedDepositsSection
           onDepositAssigned={() => {
             // Opcionalmente refrescar resultados de reconciliación
-            console.log('✅ Depósito asignado exitosamente');
           }}
         />
       </div>

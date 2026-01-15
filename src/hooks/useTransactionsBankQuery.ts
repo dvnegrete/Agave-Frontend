@@ -55,7 +55,6 @@ export const useTransactionsBankQuery = (
     queryKey: transactionBankKeys.list(query),
     queryFn: async ({ signal }) => {
       const response = await getTransactionsBank(query, signal);
-      console.log('📊 [useTransactionsBankQuery] Raw API Response:', response);
       return response;
     },
     staleTime: 5 * 60 * 1000, // 5 minutos
@@ -70,12 +69,6 @@ export const useTransactionsBankQuery = (
     ? data
     : data?.transactions || [];
   const total = Array.isArray(data) ? data.length : data?.total || 0;
-
-  console.log('📋 [useTransactionsBankQuery] Processed transactions:', {
-    transactions,
-    total,
-    isArray: Array.isArray(data),
-  });
 
   return {
     transactions,

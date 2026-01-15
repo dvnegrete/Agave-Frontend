@@ -17,20 +17,15 @@ export const startReconciliation = async (
   signal?: AbortSignal
 ): Promise<StartReconciliationResponse> => {
   try {
-    console.log('🚀 [Service] Iniciando conciliación con datos:', data || {});
-    console.log('🌐 [Service] Endpoint:', API_ENDPOINTS.bankReconciliation);
-
     const response = await httpClient.post<StartReconciliationResponse>(
       API_ENDPOINTS.bankReconciliation,
       data || {},
       { signal }
     );
 
-    console.log('📦 [Service] Respuesta recibida de la API:', response);
-
     return response;
   } catch (err: unknown) {
-    console.error('❌ [Service] Error in startReconciliation:', err);
+    console.error('Error in startReconciliation:', err);
     throw err;
   }
 };
@@ -49,7 +44,7 @@ export const reconcileTransaction = async (
       { signal }
     );
   } catch (err: unknown) {
-    console.error('❌ [Service] Error in reconcileTransaction:', err);
+    console.error('Error in reconcileTransaction:', err);
     throw err;
   }
 };
@@ -68,7 +63,7 @@ export const bulkReconcile = async (
       { signal }
     );
   } catch (err: unknown) {
-    console.error('❌ [Service] Error in bulkReconcile:', err);
+    console.error('Error in bulkReconcile:', err);
     throw err;
   }
 };
@@ -87,7 +82,7 @@ export const undoReconciliation = async (
       { signal }
     );
   } catch (err: unknown) {
-    console.error('❌ [Service] Error in undoReconciliation:', err);
+    console.error('Error in undoReconciliation:', err);
     throw err;
   }
 };

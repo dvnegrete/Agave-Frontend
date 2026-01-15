@@ -2,30 +2,23 @@ import { useState } from 'react';
 import { useAuth } from '@hooks/useAuth';
 
 export function Login() {
-  console.log('📝 [Login] Component rendering');
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  console.log('📝 [Login] About to call useAuth hook');
   const { login, loginWithOAuth } = useAuth();
-  console.log('✅ [Login] useAuth hook initialized, login function available:', !!login);
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
-    console.log('📝 [Login] handleSubmit called');
     e.preventDefault();
     setError(null);
     setIsLoading(true);
 
     try {
-      console.log('📝 [Login] Calling login() with email:', email);
       await login(email, password);
-      console.log('✅ [Login] login() completed successfully');
       // Navigation is handled by AuthContext
     } catch (err) {
-      console.error('❌ [Login] login() failed:', err);
+      console.error('Login failed:', err);
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
       setIsLoading(false);
@@ -33,17 +26,14 @@ export function Login() {
   };
 
   const handleGoogleLogin = async (): Promise<void> => {
-    console.log('🔐 [Login] handleGoogleLogin called');
     setError(null);
     setIsLoading(true);
 
     try {
-      console.log('🔐 [Login] About to call loginWithOAuth("google")');
       await loginWithOAuth('google');
-      console.log('✅ [Login] loginWithOAuth completed, should be redirecting to Google');
       // Redirect is handled by initOAuthFlow
     } catch (err) {
-      console.error('❌ [Login] handleGoogleLogin error:', err);
+      console.error('OAuth login failed:', err);
       setError(err instanceof Error ? err.message : 'OAuth initialization failed');
       setIsLoading(false);
     }
@@ -94,13 +84,7 @@ export function Login() {
           {/* Social Login Buttons */}
           <div className="flex flex-col gap-3 mb-6">
             <button
-              onClick={() => {
-                console.log('🔐 [Login] Google button clicked');
-                handleGoogleLogin();
-              }}
-              onMouseDown={() => {
-                console.log('🔐 [Login] Google button onMouseDown');
-              }}
+              onClick={handleGoogleLogin}
               disabled={isLoading}
               className="w-full flex items-center justify-center gap-3 px-6 py-3 text-base bg-base border-2 border-base text-foreground rounded-lg hover:bg-secondary transition-all duration-200 font-semibold cursor-pointer shadow-sm hover:shadow-md transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -134,10 +118,7 @@ export function Login() {
 
           {/* Email/Password Form */}
           <form
-            onSubmit={(e) => {
-              console.log('📝 [Login] Form onSubmit event fired');
-              handleSubmit(e);
-            }}
+            onSubmit={handleSubmit}
             className="flex flex-col gap-4"
           >
             <div className="flex flex-col gap-2">
@@ -148,10 +129,7 @@ export function Login() {
                 type="email"
                 id="email"
                 value={email}
-                onChange={(e) => {
-                  console.log('📝 [Login] Email changed:', e.target.value);
-                  setEmail(e.target.value);
-                }}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="ejemplo@correo.com"
                 className="px-4 py-3 bg-base border-2 border-base rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-foreground placeholder-foreground-tertiary transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 required
@@ -167,10 +145,7 @@ export function Login() {
                 type="password"
                 id="password"
                 value={password}
-                onChange={(e) => {
-                  console.log('📝 [Login] Password changed:', e.target.value.length, 'characters');
-                  setPassword(e.target.value);
-                }}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="Ingresa tu contraseña"
                 className="px-4 py-3 bg-base border-2 border-base rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-foreground placeholder-foreground-tertiary transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 required
@@ -181,20 +156,6 @@ export function Login() {
             <button
               type="submit"
               disabled={isLoading}
-              onClick={(e) => {
-                console.log('📝 [Login] Button onClick fired', {
-                  isLoading,
-                  hasEmail: !!email,
-                  hasPassword: !!password,
-                  email,
-                  password,
-                  eventType: e.type,
-                  buttonType: e.currentTarget.type
-                });
-              }}
-              onMouseDown={() => {
-                console.log('📝 [Login] Button onMouseDown fired');
-              }}
               className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? 'Entrando...' : '🔓 Entrar'}
