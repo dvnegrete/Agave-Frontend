@@ -6,7 +6,7 @@ import type {
   TransactionsBankResponse,
   UploadTransactionsResponse,
   ApiResponse,
-} from '../types/api.types';
+} from '../shared';
 
 /**
  * Get all bank transactions with optional filters

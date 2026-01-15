@@ -6,7 +6,7 @@ import {
 import type {
   UploadHistoricalRecordsOptions,
   HistoricalRecordsUploadHistory,
-} from '../types/api.types';
+} from '../shared';
 
 // Query Keys (patrón de factory)
 export const historicalRecordsKeys = {

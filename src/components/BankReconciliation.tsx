@@ -5,14 +5,14 @@ import { useVouchersQuery } from '../hooks/useVouchersQuery';
 import { useFormatDate } from '../hooks/useFormatDate';
 import { StartReconciliationModal } from './StartReconciliationModal';
 import { UnclaimedDepositsSection } from './UnclaimedDepositsSection';
-import { Button } from '../ui/Button';
-import { StatusBadge } from '../ui/StatusBadge';
-import { StatsCard } from '../ui/StatsCard';
-import { Tabs, type TabItem } from '../ui/Tabs';
-import { ReconciliationCard } from '../ui/ReconciliationCard';
-import { DateTimeCell } from '../ui/DateTimeCell';
-import { Table, type TableColumn } from '../ui/Table';
-import type { StartReconciliationResponse } from '../types/api.types';
+import { Button } from '../shared/Button';
+import { StatusBadge } from '../shared/StatusBadge';
+import { StatsCard } from '../shared/StatsCard';
+import { Tabs, type TabItem } from '../shared/Tabs';
+import { ReconciliationCard } from '../shared/ReconciliationCard';
+import { DateTimeCell } from '../shared/DateTimeCell';
+import { Table, type TableColumn } from '../shared/Table';
+import type { StartReconciliationResponse } from '../shared';
 
 export function BankReconciliation() {
   const {

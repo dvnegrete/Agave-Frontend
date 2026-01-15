@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Button } from '../ui/Button';
+import { Button } from '../shared/Button';
 import type { User, AssignHouseRequest } from '../types/user-management.types';
 
 interface ModalAssignHouseProps {

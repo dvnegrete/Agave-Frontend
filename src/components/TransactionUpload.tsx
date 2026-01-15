@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUploadTransactions } from '../hooks/useTransactionsBank';
 import { useFormatDate } from '../hooks/useFormatDate';
-import { Button } from '../ui/Button';
-import { StatusBadge } from '../ui/StatusBadge';
-import { StatsCard } from '../ui/StatsCard';
-import { Table, type TableColumn } from '../ui/Table';
-import { BankSelector } from '../ui/BankSelector';
-import { FileUploadZone } from '../ui/FileUploadZone';
+import { Button } from '../shared/Button';
+import { StatusBadge } from '../shared/StatusBadge';
+import { StatsCard } from '../shared/StatsCard';
+import { Table, type TableColumn } from '../shared/Table';
+import { BankSelector } from '../shared/BankSelector';
+import { FileUploadZone } from '../shared/FileUploadZone';
 
 export function TransactionUpload() {
   const navigate = useNavigate();

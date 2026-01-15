@@ -14,7 +14,7 @@ import type {
   PeriodResponseDto,
   PaymentHistoryResponseDTO,
   HouseBalanceDTO,
-} from '../types/api.types';
+} from '../shared';
 
 // Query Keys
 export const paymentManagementKeys = {

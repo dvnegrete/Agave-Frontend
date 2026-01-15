@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Button } from '../ui/Button';
-import type { StartReconciliationResponse } from '../types/api.types';
+import { Button } from '../shared/Button';
+import type { StartReconciliationResponse } from '../shared';
 
 type StartReconciliationResult = StartReconciliationResponse;
 

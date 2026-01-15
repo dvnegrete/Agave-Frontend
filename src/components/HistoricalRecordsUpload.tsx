@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useHistoricalRecordsMutation, useUploadHistoryQuery } from '../hooks/useHistoricalRecords';
-import { Button } from '../ui/Button';
-import { Tabs, type TabItem } from '../ui/Tabs';
-import { StatusBadge } from '../ui/StatusBadge';
-import { StatsCard } from '../ui/StatsCard';
-import { Table, type TableColumn } from '../ui/Table';
-import { BankSelector } from '../ui/BankSelector';
-import { FileUploadZone } from '../ui/FileUploadZone';
-import type { HistoricalRecordResponseDto, RowErrorDto } from '../types/api.types';
+import { Button } from '../shared/Button';
+import { Tabs, type TabItem } from '../shared/Tabs';
+import { StatusBadge } from '../shared/StatusBadge';
+import { StatsCard } from '../shared/StatsCard';
+import { Table, type TableColumn } from '../shared/Table';
+import { BankSelector } from '../shared/BankSelector';
+import { FileUploadZone } from '../shared/FileUploadZone';
+import type { HistoricalRecordResponseDto, RowErrorDto } from '../shared';
 
 type ActiveTab = 'upload' | 'history';
 

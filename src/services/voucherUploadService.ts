@@ -4,7 +4,7 @@ import type {
   VoucherUploadResponse,
   VoucherConfirmRequest,
   VoucherConfirmResponse,
-} from '../types/api.types';
+} from '../shared';
 
 /**
  * Upload a voucher file (image or PDF) for OCR processing

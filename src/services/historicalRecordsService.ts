@@ -3,7 +3,7 @@ import type {
   HistoricalRecordResponseDto,
   UploadHistoricalRecordsOptions,
   HistoricalRecordsUploadHistory,
-} from '../types/api.types';
+} from '../shared';
 
 const API_BASE = '/historical-records';
 

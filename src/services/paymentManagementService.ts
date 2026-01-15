@@ -6,7 +6,7 @@ import type {
   CreatePeriodConfigDto,
   PaymentHistoryResponseDTO,
   HouseBalanceDTO,
-} from '../types/api.types';
+} from '../shared';
 
 const API_BASE = '/payment-management';
 

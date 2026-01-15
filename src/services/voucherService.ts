@@ -7,7 +7,7 @@ import type {
   CreateVoucherRequest,
   UpdateVoucherRequest,
   ApiResponse,
-} from '../types/api.types';
+} from '../shared';
 
 /**
  * Get all vouchers with optional filters

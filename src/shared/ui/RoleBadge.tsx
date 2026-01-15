@@ -1,4 +1,4 @@
-import type { Role } from '../types/user-management.types';
+import type { Role } from '../../types/user-management.types';
 
 interface RoleBadgeProps {
   role: Role;

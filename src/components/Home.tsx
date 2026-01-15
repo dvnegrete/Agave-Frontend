@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Modal from './Modal';
-import { Button } from '../ui/Button';
+import { Button } from '../shared/Button';
 
 export default function Home() {
   const [showQuienesSomos, setShowQuienesSomos] = useState(false);

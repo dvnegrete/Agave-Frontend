@@ -34,7 +34,6 @@ export type {
 export type {
   StartReconciliationRequest,
   ReconciliationSummary,
-  ConfidenceLevel, // Type version of ConfidenceLevel
   MatchCriteria,
   MatchedReconciliation,
   PendingVoucher,
@@ -50,7 +49,8 @@ export type {
 } from './bank-reconciliation.types';
 
 export {
-  ConfidenceLevel, // Export the const separately
+  ConfidenceLevel, // Export both const and type (ConfidenceLevel is both a value and a type)
+  type ConfidenceLevel,
 } from './bank-reconciliation.types';
 
 // Payment management types

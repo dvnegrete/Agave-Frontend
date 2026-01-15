@@ -4,4 +4,4 @@
  *
  * Re-exporte desde /shared/types para compatibilidad hacia atrás
  */
-export * from '../shared/types';
+export * from '../shared';

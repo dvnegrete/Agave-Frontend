@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Button } from '../ui/Button';
-import { Table, type TableColumn } from '../ui/Table';
-import { DateTimeCell } from '../ui/DateTimeCell';
+import { Button } from '../shared/Button';
+import { Table, type TableColumn } from '../shared/Table';
+import { DateTimeCell } from '../shared/DateTimeCell';
 import { ModalAssignHouse } from './ModalAssignHouse';
 import { unclaimedDepositsService } from '../services/unclaimedDepositsService';
 import type { UnclaimedDeposit, UnclaimedDepositsPage, AssignHouseRequest } from '../types/unclaimed-deposits';

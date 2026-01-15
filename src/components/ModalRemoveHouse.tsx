@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button } from '../ui/Button';
+import { Button } from '../shared/Button';
 import type { User } from '../types/user-management.types';
 
 interface ModalRemoveHouseProps {

@@ -7,7 +7,7 @@ import type {
   ReconcileResponse,
   BulkReconcileRequest,
   BulkReconcileResponse,
-} from '../types/api.types';
+} from '../shared';
 
 /**
  * Start reconciliation process with optional date filters

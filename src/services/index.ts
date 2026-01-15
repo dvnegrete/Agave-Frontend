@@ -10,7 +10,7 @@ export * from './voucherUploadService';
 export * from './userManagementService';
 
 // Export types from shared/types (domain types)
-export * from '../shared/types';
+export * from '../shared';
 
 // Export auth types (User from auth.types is the authenticated user)
 export type {

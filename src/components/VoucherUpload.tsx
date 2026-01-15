@@ -3,7 +3,7 @@ import { uploadVoucher, confirmVoucher } from '../services/voucherUploadService'
 import type {
   VoucherStructuredData,
   ValidationResult,
-} from '../types/api.types';
+} from '../shared';
 
 type Step = 'upload' | 'review' | 'confirmed';
 
