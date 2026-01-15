@@ -7,16 +7,16 @@ import { StatsCard } from '@shared/ui';
 import { Table, type TableColumn } from '@shared/ui';
 import { BankSelector } from '@shared/ui/BankSelector';
 import { FileUploadZone } from '@shared/ui/FileUploadZone';
+import { BANKS } from '@shared/constants';
 import type { HistoricalRecordResponseDto, RowErrorDto, HistoricalRecordsUploadHistory } from '@shared';
-
-type ActiveTab = 'upload' | 'history';
+import type { ActiveTab } from '@shared/types/historical-records.types';
 
 export function HistoricalRecordsUpload() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('upload');
   const [file, setFile] = useState<File | null>(null);
   const [validateOnly, setValidateOnly] = useState(false);
   const [description, setDescription] = useState('');
-  const [bankSelection, setBankSelection] = useState<'BBVA' | 'Santander' | 'custom'>('BBVA');
+  const [bankSelection, setBankSelection] = useState<string>(BANKS.BBVA);
   const [customBank, setCustomBank] = useState<string>('');
   const [uploadResult, setUploadResult] = useState<HistoricalRecordResponseDto | null>(null);
   const [error, setError] = useState<string>('');
@@ -72,7 +72,7 @@ export function HistoricalRecordsUpload() {
     setFile(null);
     setValidateOnly(false);
     setDescription('');
-    setBankSelection('BBVA');
+    setBankSelection(BANKS.BBVA);
     setCustomBank('');
     setUploadResult(null);
     setError('');
@@ -126,9 +126,9 @@ export function HistoricalRecordsUpload() {
           <BankSelector
             value={bankSelection}
             customValue={customBank}
-            onBankChange={(bank) => setBankSelection(bank as 'BBVA' | 'Santander' | 'custom')}
+            onBankChange={(bank) => setBankSelection(bank)}
             onCustomChange={setCustomBank}
-            predefinedBanks={['Santander-2025']}
+            predefinedBanks={[BANKS.SANTANDER_2025]}
             disabled={isUploading}
             customPlaceholder="Ej: Scotiabank-2021, BBVA-2028, HSBC, Efectivo"
             customHint="💡 Ingresa el nombre exacto del banco para identificar la fuente de los registros históricos conciliados"

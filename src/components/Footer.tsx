@@ -1,3 +1,5 @@
+import { CONTACT_INFO } from '@shared/constants';
+
 export function Footer() {
   return (
     <footer className="w-full py-4 mt-4 border-t bg-gray-200 dark:bg-gray-700">
@@ -26,7 +28,7 @@ export function Footer() {
             </svg>
             <div>
               <h3 className="font-semibold mb-1 text-foreground">Dirección</h3>
-              <p className="text-foreground-secondary">Priv. Las Rosas 71, Temixco, Morelos, 62580</p>
+              <p className="text-foreground-secondary">{CONTACT_INFO.ADDRESS}</p>
             </div>
           </div>
 
@@ -42,10 +44,10 @@ export function Footer() {
             <div>
               <h3 className="font-semibold mb-1 text-foreground">WhatsApp</h3>
               <a
-                href="https://wa.me/+5212204381497"
+                href={`https://wa.me/${CONTACT_INFO.WHATSAPP.replace(/[^\d+]/g, '')}`}
                 className="text-foreground-secondary hover:text-success transition-colors"
               >
-                +52 220 438 1497
+                {CONTACT_INFO.WHATSAPP}
               </a>
             </div>
           </div>
@@ -68,10 +70,10 @@ export function Footer() {
             <div>
               <h3 className="font-semibold mb-1 text-foreground">Email</h3>
               <a
-                href="mailto:contacto@condominioelagave.com.mx"
+                href={`mailto:${CONTACT_INFO.EMAIL}`}
                 className="text-foreground-secondary hover:text-info transition-colors"
               >
-                contacto@condominioelagave.com.mx
+                {CONTACT_INFO.EMAIL}
               </a>
             </div>
           </div>

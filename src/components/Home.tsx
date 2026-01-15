@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Modal } from './Modal';
 import { Button } from '@shared/ui';
+import { LEGAL_TEXT } from '@shared/constants';
 
 export function Home() {
   const [showQuienesSomos, setShowQuienesSomos] = useState(false);
@@ -60,15 +61,11 @@ export function Home() {
         onClose={() => setShowQuienesSomos(false)}
         title="Quiénes Somos"
       >
-        <p>
-          El Comité de vigilancia del Condominio El Agave esta conformada por algunos de los residentes del fraccionamiento con el propósito de administrar y coordinar los servicios comunes, el mantenimiento de las áreas compartidas y la comunicación entre los habitantes.
-        </p>
-        <p>
-          Nuestro objetivo principal es atender las necesidades del condominio, fomentar la convivencia responsable, la transparencia en el manejo de recursos y el bienestar general de todos los residentes del condominio.
-        </p>
-        <p>
-          A través de este sitio web se facilita la comunicación, la gestión de pagos de mantenimiento y el acceso a información relevante para la comunidad.
-        </p>
+        {LEGAL_TEXT.WHO_WE_ARE.split('\n\n').map((paragraph, index) => (
+          <p key={index}>
+            {paragraph}
+          </p>
+        ))}
       </Modal>
 
       {/* Modal Aviso de Privacidad */}
@@ -77,26 +74,11 @@ export function Home() {
         onClose={() => setShowAvisoPrivacidad(false)}
         title="🔒 Aviso de Privacidad"
       >
-        <p>
-          En el Condominio El Agave, a través de su sitio web y canales de comunicación oficiales, respetamos y protegemos la información personal de nuestros residentes y usuarios.
-        </p>
-
-        <p>
-          Los datos personales que se recaben (como nombre, dirección, correo electrónico o número telefónico) serán utilizados exclusivamente para fines relacionados con la administración, comunicación, avisos y gestión de mantenimiento del condominio.
-        </p>
-
-        <p>
-          No compartimos, transferimos ni vendemos datos personales a terceros.
-          El tratamiento de la información se realiza conforme a los principios de licitud, consentimiento, información, calidad, finalidad, lealtad, proporcionalidad y responsabilidad establecidos en la Ley Federal de Protección de Datos Personales en Posesión de los Particulares (México).
-        </p>
-
-        <p>
-          Los titulares de los datos pueden ejercer sus derechos de acceso, rectificación, cancelación u oposición (derechos ARCO) enviando una solicitud al correo electrónico: <i>contacto@condominioelagave.com.mx</i>
-        </p>
-
-        <p className="text-xs italic mt-4 text-gray-500 dark:text-gray-500">
-          Este aviso puede actualizarse en cualquier momento; cualquier modificación será publicada en este mismo sitio web.
-        </p>
+        {LEGAL_TEXT.PRIVACY_POLICY.split('\n\n').map((paragraph, index) => (
+          <p key={index} className={index === LEGAL_TEXT.PRIVACY_POLICY.split('\n\n').length - 1 ? 'text-xs italic mt-4 text-gray-500 dark:text-gray-500' : ''}>
+            {paragraph}
+          </p>
+        ))}
       </Modal>
     </main>
   );

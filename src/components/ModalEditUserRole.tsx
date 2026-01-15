@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@shared/ui';
+import { USER_ROLES, ROLE_LABELS, ROLE_DESCRIPTIONS } from '@shared/constants';
 import type { User, Role } from '@/shared/types/user-management.types';
 
 interface ModalEditUserRoleProps {
@@ -8,13 +9,6 @@ interface ModalEditUserRoleProps {
   onSave: (userId: string, data: { role: Role }) => Promise<void>;
   onClose: () => void;
 }
-
-const ROLES: Role[] = ['admin', 'owner', 'tenant'];
-const ROLE_LABELS: Record<Role, string> = {
-  admin: '👑 Administrador',
-  owner: '🏠 Propietario',
-  tenant: '👤 Inquilino',
-};
 
 export function ModalEditUserRole({ isOpen, user, onSave, onClose }: ModalEditUserRoleProps) {
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
@@ -88,7 +82,7 @@ export function ModalEditUserRole({ isOpen, user, onSave, onClose }: ModalEditUs
           <label className="block text-sm font-semibold text-foreground mb-3">
             Nuevo Rol *
           </label>
-          {ROLES.map((role) => (
+          {USER_ROLES.map((role) => (
             <button
               key={role}
               onClick={() => setSelectedRole(role)}
@@ -100,9 +94,7 @@ export function ModalEditUserRole({ isOpen, user, onSave, onClose }: ModalEditUs
             >
               <div className="font-semibold">{ROLE_LABELS[role]}</div>
               <div className="text-xs text-foreground-tertiary mt-1">
-                {role === 'admin' && 'Acceso total al sistema'}
-                {role === 'owner' && 'Puede gestionar sus propiedades'}
-                {role === 'tenant' && 'Acceso limitado a inquilinos'}
+                {ROLE_DESCRIPTIONS[role]}
               </div>
             </button>
           ))}

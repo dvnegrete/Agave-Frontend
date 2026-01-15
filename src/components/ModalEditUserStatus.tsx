@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@shared/ui';
+import { USER_STATUSES, STATUS_LABELS } from '@shared/constants';
 import type { User, Status } from '@/shared/types/user-management.types';
 
 interface ModalEditUserStatusProps {
@@ -8,25 +9,6 @@ interface ModalEditUserStatusProps {
   onSave: (userId: string, data: { status: Status }) => Promise<void>;
   onClose: () => void;
 }
-
-const STATUSES: Status[] = ['active', 'suspend', 'inactive'];
-const STATUS_LABELS: Record<Status, { label: string; icon: string; description: string }> = {
-  active: {
-    label: '✅ Activo',
-    icon: '✅',
-    description: 'Usuario activo en el sistema',
-  },
-  suspend: {
-    label: '⏸️ Suspendido',
-    icon: '⏸️',
-    description: 'Acceso temporalmente desactivado',
-  },
-  inactive: {
-    label: '❌ Inactivo',
-    icon: '❌',
-    description: 'Usuario desactivado permanentemente',
-  },
-};
 
 export function ModalEditUserStatus({ isOpen, user, onSave, onClose }: ModalEditUserStatusProps) {
   const [selectedStatus, setSelectedStatus] = useState<Status | null>(null);
@@ -100,7 +82,7 @@ export function ModalEditUserStatus({ isOpen, user, onSave, onClose }: ModalEdit
           <label className="block text-sm font-semibold text-foreground mb-3">
             Nuevo Estado *
           </label>
-          {STATUSES.map((status) => (
+          {USER_STATUSES.map((status) => (
             <button
               key={status}
               onClick={() => setSelectedStatus(status)}

@@ -8,7 +8,8 @@ import { StatsCard } from '@shared/ui';
 import { Table, type TableColumn } from '@shared/ui';
 import { BankSelector } from '@shared/ui/BankSelector';
 import { FileUploadZone } from '@shared/ui/FileUploadZone';
-import { ROUTES, type UploadedTransaction } from '@shared';
+import { ROUTES, PREDEFINED_BANKS, BANKS } from '@shared/constants';
+import type { UploadedTransaction } from '@shared';
 
 export function TransactionUpload() {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ export function TransactionUpload() {
     useUploadTransactions();
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [bankSelection, setBankSelection] = useState<'Santander-2025' | 'custom'>('Santander-2025');
+  const [bankSelection, setBankSelection] = useState<string>(BANKS.SANTANDER_2025);
   const [customBank, setCustomBank] = useState<string>('');
 
   const handleFileSelect = (file: File): void => {
@@ -39,7 +40,7 @@ export function TransactionUpload() {
         return;
       }
     } else {
-      bankName = bankSelection;
+      bankName = bankSelection as string;
     }
 
     try {
@@ -48,7 +49,7 @@ export function TransactionUpload() {
       // Limpiar archivo
       setSelectedFile(null);
       setCustomBank('');
-      setBankSelection('Santander-2025');
+      setBankSelection(BANKS.SANTANDER_2025);
     } catch (err) {
       console.error('Error uploading file:', err);
     }
@@ -67,9 +68,9 @@ export function TransactionUpload() {
         <BankSelector
           value={bankSelection}
           customValue={customBank}
-          onBankChange={(bank) => setBankSelection(bank as 'Santander-2025' | 'custom')}
+          onBankChange={(bank) => setBankSelection(bank)}
           onCustomChange={setCustomBank}
-          predefinedBanks={['Santander-2025']}
+          predefinedBanks={[...PREDEFINED_BANKS]}
           disabled={uploading}
           customPlaceholder="Ej: Scotiabank-2021, BBVA-2028, HSBC, Efectivo"
           customHint="💡 Ingresa el nombre exacto del banco y el año de la creación de la cuenta para identificar la fuente de las transacciones"

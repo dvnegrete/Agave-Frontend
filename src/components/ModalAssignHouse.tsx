@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@shared/ui';
+import { HOUSE_NUMBER_RANGE, VALIDATION_MESSAGES } from '@shared/constants';
 import type { User, AssignHouseRequest } from '@/shared/types/user-management.types';
 
 interface ModalAssignHouseProps {
@@ -32,8 +33,8 @@ export function ModalAssignHouse({ isOpen, user, onSave, onClose }: ModalAssignH
       return;
     }
 
-    if (house < 1 || house > 999) {
-      setError('El número de casa debe estar entre 1 y 999');
+    if (house < HOUSE_NUMBER_RANGE.MIN || house > HOUSE_NUMBER_RANGE.MAX) {
+      setError(VALIDATION_MESSAGES.HOUSE_NUMBER_INVALID);
       return;
     }
 
@@ -95,8 +96,8 @@ export function ModalAssignHouse({ isOpen, user, onSave, onClose }: ModalAssignH
             </label>
             <input
               type="number"
-              min="1"
-              max="999"
+              min={HOUSE_NUMBER_RANGE.MIN}
+              max={HOUSE_NUMBER_RANGE.MAX}
               value={houseNumber}
               onChange={(e) => setHouseNumber(e.target.value)}
               placeholder="Ej: 101"
