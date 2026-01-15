@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { useVouchersQuery, useVoucherMutations } from '../hooks/useVouchersQuery';
-import { useFormatDate } from '../hooks/useFormatDate';
-import { useSortBy } from '../hooks/useSortBy';
-import { getVoucherById } from '../services/voucherService';
-import { Button } from '../shared/Button';
-import { StatusBadge } from '../shared/StatusBadge';
-import { ExpandableTable, type ExpandableTableColumn } from '../shared/ExpandableTable';
-import type { Voucher } from '../shared';
+import { useVouchersQuery, useVoucherMutations } from '@hooks/useVouchersQuery';
+import { useFormatDate } from '@hooks/useFormatDate';
+import { useSortBy } from '@hooks/useSortBy';
+import { getVoucherById } from '@services/voucherService';
+import { Button } from '@shared/ui';
+import { StatusBadge } from '@shared/ui';
+import { ExpandableTable, type ExpandableTableColumn } from '@shared/ui';
+import type { Voucher } from '@shared';
 
 export function VoucherList() {
   const [loadingViewUrl, setLoadingViewUrl] = useState<number | null>(null);

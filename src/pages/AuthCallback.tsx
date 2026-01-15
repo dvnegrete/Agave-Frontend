@@ -6,9 +6,9 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { tokenManager } from '../utils/tokenManager';
-import * as authService from '../services/authService';
-import { useAuth } from '../hooks/useAuth';
+import { tokenManager } from '@utils/tokenManager';
+import * as authService from '@services/authService';
+import { useAuth } from '@hooks/useAuth';
 
 interface JWTPayload {
   sub: string;

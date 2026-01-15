@@ -1,10 +1,10 @@
-import { httpClient } from '../utils/httpClient';
-import { API_ENDPOINTS } from '../config/api';
+import { httpClient } from '@utils/httpClient';
+import { API_ENDPOINTS } from '@config/api';
 import type {
   VoucherUploadResponse,
   VoucherConfirmRequest,
   VoucherConfirmResponse,
-} from '../shared';
+} from '@shared/types/voucher-upload.types';
 
 /**
  * Upload a voucher file (image or PDF) for OCR processing

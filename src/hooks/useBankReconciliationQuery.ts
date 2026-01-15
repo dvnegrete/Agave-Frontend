@@ -1,16 +1,15 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
+  type StartReconciliationRequest,
+  type ReconcileRequest,
+  type BulkReconcileRequest,
+} from '@shared/types/bank-reconciliation.types'
+import {
   startReconciliation,
   reconcileTransaction,
   bulkReconcile,
   undoReconciliation,
-  type StartReconciliationRequest,
-  type StartReconciliationResponse,
-  type ReconcileRequest,
-  type ReconcileResponse,
-  type BulkReconcileRequest,
-  type BulkReconcileResponse,
-} from '../services';
+} from '@services/bankReconciliationService';
 
 interface UseBankReconciliationMutationsReturn {
   start: (data?: StartReconciliationRequest) => Promise<unknown>;

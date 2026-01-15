@@ -1,5 +1,5 @@
-import { httpClient } from '../utils/httpClient';
-import { API_ENDPOINTS } from '../config/api';
+import { httpClient } from '@utils/httpClient';
+import { API_ENDPOINTS } from '@config/api';
 import type {
   User,
   UpdateUserRoleRequest,
@@ -7,7 +7,7 @@ import type {
   AssignHouseRequest,
   AssignHouseResponse,
   RemoveHouseResponse,
-} from '../types/user-management.types';
+} from '@/shared/types/user-management.types';
 
 /**
  * Get all users with their assigned houses

@@ -37,7 +37,7 @@ function Layout({ children, showMenu = false }: { children: React.ReactNode; sho
       {showMenu && <HamburgerMenu />}
       <div className='text-center'>
         <div className="flex flex-col justify-center items-center md:flex-row md:justify-evenly p-8 bg-base">
-          <h1 className='mt-6 text-3xl font-bold text-base md:text-4xl md:order-1'>
+          <h1 className='mt-6 text-3xl font-bold md:text-4xl md:order-1'>
             <a href="/" className='flex items-center'>
               <span>Condominio El Agave</span>
               <img

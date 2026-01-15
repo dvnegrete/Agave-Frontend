@@ -1,15 +1,17 @@
 import { useState, useEffect } from 'react';
 import {
+  type Voucher,
+  type VoucherQuery,
+  type CreateVoucherRequest,
+  type UpdateVoucherRequest,
+} from '@shared/types/vouchers.types'
+import {
   getVouchers,
   getVoucherById,
   createVoucher,
   updateVoucher,
   deleteVoucher,
-  type Voucher,
-  type VoucherQuery,
-  type CreateVoucherRequest,
-  type UpdateVoucherRequest,
-} from '../services';
+} from '@services/voucherService';
 
 interface UseVouchersReturn {
   vouchers: Voucher[];

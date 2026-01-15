@@ -1,10 +1,10 @@
-import { httpClient, type HttpClientOptions } from '../utils/httpClient';
+import { httpClient, type HttpClientOptions } from '@utils/httpClient';
 import type {
   UnclaimedDepositsPage,
   UnclaimedDepositsFilters,
-  AssignHouseRequest,
-  AssignHouseResponse,
-} from '../types/unclaimed-deposits';
+  DepositAssignHouseRequest,
+  DepositAssignHouseResponse,
+} from '@/shared/types/unclaimed-deposits.types';
 
 class UnclaimedDepositsService {
   /**
@@ -109,14 +109,14 @@ class UnclaimedDepositsService {
    */
   async assignHouseToDeposit(
     transactionId: string,
-    request: AssignHouseRequest
-  ): Promise<AssignHouseResponse> {
+    request: DepositAssignHouseRequest
+  ): Promise<DepositAssignHouseResponse> {
     try {
       const options: HttpClientOptions = {
         headers: this.getAuthHeaders(),
       };
 
-      const response = await httpClient.post<AssignHouseResponse>(
+      const response = await httpClient.post<DepositAssignHouseResponse>(
         `/bank-reconciliation/unclaimed-deposits/${transactionId}/assign-house`,
         request,
         options

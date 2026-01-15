@@ -1,16 +1,20 @@
 import { useState } from 'react';
 import {
-  startReconciliation,
-  reconcileTransaction,
-  bulkReconcile,
-  undoReconciliation,
   type StartReconciliationRequest,
   type StartReconciliationResponse,
   type ReconcileRequest,
   type ReconcileResponse,
   type BulkReconcileRequest,
   type BulkReconcileResponse,
-} from '../services';
+
+} from '@shared/types/bank-reconciliation.types'
+import {
+  startReconciliation,
+  reconcileTransaction,
+  bulkReconcile,
+  undoReconciliation,
+} from '@services/bankReconciliationService';
+
 
 interface UseBankReconciliationReturn {
   start: (data?: StartReconciliationRequest) => Promise<StartReconciliationResponse | undefined>;

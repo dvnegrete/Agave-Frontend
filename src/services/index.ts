@@ -10,7 +10,7 @@ export * from './voucherUploadService';
 export * from './userManagementService';
 
 // Export types from shared/types (domain types)
-export * from '../shared';
+export * from '@shared';
 
 // Export auth types (User from auth.types is the authenticated user)
 export type {
@@ -20,7 +20,7 @@ export type {
   OAuthCallbackRequest,
   RefreshTokenRequest,
   AuthContextType,
-} from '../types/auth.types';
+} from '@/shared/types/auth.types';
 
 // Export user management types (User from user-management.types is for admin management)
 export type {
@@ -33,4 +33,4 @@ export type {
   RemoveHouseResponse,
   AssignHouseResponse,
   UsersResponse,
-} from '../types/user-management.types';
+} from '@/shared/types/user-management.types';

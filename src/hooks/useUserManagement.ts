@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import {
+  type UpdateUserRoleRequest,
+  type UpdateUserStatusRequest,
+  type AssignHouseRequest,
+} from '@/shared/types/user-management.types'
+import {
   getUsers,
   updateUserRole,
   updateUserStatus,
   assignHouse,
   removeHouse,
-  type UpdateUserRoleRequest,
-  type UpdateUserStatusRequest,
-  type AssignHouseRequest,
-} from '../services/userManagementService';
-import type { User } from '../types/user-management.types';
+} from '@services/userManagementService';
+import type { User } from '@/shared/types/user-management.types';
 
 interface UseUserManagementReturn {
   users: User[];

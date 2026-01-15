@@ -1,18 +1,18 @@
 import { useState } from 'react';
-import { useBankReconciliationMutations } from '../hooks/useBankReconciliationQuery';
-import { useTransactionsBankQuery } from '../hooks/useTransactionsBankQuery';
-import { useVouchersQuery } from '../hooks/useVouchersQuery';
-import { useFormatDate } from '../hooks/useFormatDate';
+import { useBankReconciliationMutations } from '@hooks/useBankReconciliationQuery';
+import { useTransactionsBankQuery } from '@hooks/useTransactionsBankQuery';
+import { useVouchersQuery } from '@hooks/useVouchersQuery';
+import { useFormatDate } from '@hooks/useFormatDate';
 import { StartReconciliationModal } from './StartReconciliationModal';
 import { UnclaimedDepositsSection } from './UnclaimedDepositsSection';
-import { Button } from '../shared/Button';
-import { StatusBadge } from '../shared/StatusBadge';
-import { StatsCard } from '../shared/StatsCard';
-import { Tabs, type TabItem } from '../shared/Tabs';
-import { ReconciliationCard } from '../shared/ReconciliationCard';
-import { DateTimeCell } from '../shared/DateTimeCell';
-import { Table, type TableColumn } from '../shared/Table';
-import type { StartReconciliationResponse } from '../shared';
+import { Button } from '@shared/ui';
+import { StatusBadge } from '@shared/ui';
+import { StatsCard } from '@shared/ui';
+import { Tabs } from '@shared/ui';
+import { ReconciliationCard } from '@/shared/ui/ReconciliationCard';
+import { DateTimeCell } from '@shared/ui';
+import { Table, type TableColumn } from '@shared/ui';
+import type { StartReconciliationResponse } from '@shared';
 
 export function BankReconciliation() {
   const {
@@ -155,7 +155,7 @@ export function BankReconciliation() {
               { id: 'unfundedVouchers', label: 'Comprobantes NO Conciliados', icon: '⏳', badge: reconciliationResult.unfundedVouchers.length, color: 'yellow' },
               { id: 'unclaimedDeposits', label: 'Depósitos NO Asociados', icon: '➕', badge: reconciliationResult.unclaimedDeposits.length, color: 'orange' },
               { id: 'manual', label: 'Validación Manual', icon: '🔍', badge: reconciliationResult.manualValidationRequired.length, color: 'red' },
-            ] as TabItem[]}
+            ]}
             activeTab={activeTab}
             onTabChange={(tabId) => setActiveTab(tabId as 'summary' | 'conciliados' | 'unfundedVouchers' | 'unclaimedDeposits' | 'manual')}
           />

@@ -1,5 +1,5 @@
-import { httpClient } from '../utils/httpClient';
-import { API_ENDPOINTS } from '../config/api';
+import { httpClient } from '@utils/httpClient';
+import { API_ENDPOINTS } from '@config/api';
 import type {
   StartReconciliationRequest,
   StartReconciliationResponse,
@@ -7,7 +7,7 @@ import type {
   ReconcileResponse,
   BulkReconcileRequest,
   BulkReconcileResponse,
-} from '../shared';
+} from '@shared/types/bank-reconciliation.types';
 
 /**
  * Start reconciliation process with optional date filters

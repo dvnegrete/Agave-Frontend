@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { Button } from '../shared/Button';
-import { Table, type TableColumn } from '../shared/Table';
-import { DateTimeCell } from '../shared/DateTimeCell';
+import { Button } from '@shared/ui';
+import { Table, type TableColumn } from '@shared/ui';
+import { DateTimeCell } from '@shared/ui';
 import { ModalAssignHouse } from './ModalAssignHouse';
-import { unclaimedDepositsService } from '../services/unclaimedDepositsService';
-import type { UnclaimedDeposit, UnclaimedDepositsPage, AssignHouseRequest } from '../types/unclaimed-deposits';
+import { unclaimedDepositsService } from '@services/unclaimedDepositsService';
+import type { UnclaimedDeposit, UnclaimedDepositsPage, DepositAssignHouseRequest } from '@shared';
 
 interface UnclaimedDepositsSectionProps {
   onDepositAssigned?: () => void;
@@ -59,7 +59,7 @@ export function UnclaimedDepositsSection({ onDepositAssigned }: UnclaimedDeposit
     setAssignError(null);
 
     try {
-      const request: AssignHouseRequest = {
+      const request: DepositAssignHouseRequest = {
         houseNumber: parseInt(houseNumber),
         adminNotes: notes || undefined,
       };

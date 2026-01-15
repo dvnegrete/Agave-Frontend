@@ -1,4 +1,4 @@
-import { httpClient } from '../utils/httpClient';
+import { httpClient } from '@utils/httpClient';
 import type {
   PeriodResponseDto,
   CreatePeriodDto,
@@ -6,7 +6,7 @@ import type {
   CreatePeriodConfigDto,
   PaymentHistoryResponseDTO,
   HouseBalanceDTO,
-} from '../shared';
+} from '@shared/types/payment-management.types';
 
 const API_BASE = '/payment-management';
 

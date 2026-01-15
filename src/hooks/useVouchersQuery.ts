@@ -1,17 +1,18 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import {
+  type VoucherQuery,
+  type CreateVoucherRequest,
+  type UpdateVoucherRequest,
+  type Voucher,
+} from '@shared/types/vouchers.types'
+import {
   getVouchers,
   getVoucherById,
   createVoucher,
   updateVoucher,
   deleteVoucher,
-  type VoucherQuery,
-  type CreateVoucherRequest,
-  type UpdateVoucherRequest,
-  type Voucher,
-  type VouchersResponse,
-} from '../services';
+} from '@services/voucherService';
 
 // Query Keys
 export const voucherKeys = {

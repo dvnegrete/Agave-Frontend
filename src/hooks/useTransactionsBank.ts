@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import {
-  getTransactionsBank,
-  uploadTransactionsBank,
   type BankTransaction,
   type TransactionsBankQuery,
   type UploadTransactionsResponse,
-} from '../services';
+} from '@shared/types/bank-transactions.types'
+import {
+  getTransactionsBank,
+  uploadTransactionsBank,
+} from '@services/transactionBankService';
 
 interface UseTransactionsBankReturn {
   transactions: BankTransaction[];

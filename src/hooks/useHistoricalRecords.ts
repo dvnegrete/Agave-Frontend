@@ -2,11 +2,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   uploadHistoricalRecords,
   getUploadHistory,
-} from '../services/historicalRecordsService';
+} from '@services/historicalRecordsService';
 import type {
   UploadHistoricalRecordsOptions,
   HistoricalRecordsUploadHistory,
-} from '../shared';
+} from '@shared';
 
 // Query Keys (patrón de factory)
 export const historicalRecordsKeys = {

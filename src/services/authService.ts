@@ -3,13 +3,13 @@
  * Handles all authentication API calls (sign in, OAuth, token refresh, etc.)
  */
 
-import { httpClient } from '../utils/httpClient';
-import { API_ENDPOINTS } from '../config/api';
+import { httpClient } from '@utils/httpClient';
+import { API_ENDPOINTS } from '@config/api';
 import type {
   AuthResponse,
   LoginRequest,
   User,
-} from '../types/auth.types';
+} from '@/shared/types/auth.types';
 
 /**
  * Sign in with email and password

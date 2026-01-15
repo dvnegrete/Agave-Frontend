@@ -7,14 +7,14 @@ import {
   getPaymentHistory,
   getPaymentsByPeriod,
   getHouseBalance,
-} from '../services/paymentManagementService';
+} from '@services/paymentManagementService';
 import type {
   CreatePeriodDto,
   CreatePeriodConfigDto,
   PeriodResponseDto,
   PaymentHistoryResponseDTO,
   HouseBalanceDTO,
-} from '../shared';
+} from '@shared';
 
 // Query Keys
 export const paymentManagementKeys = {

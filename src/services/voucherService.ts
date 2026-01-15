@@ -1,13 +1,15 @@
-import { httpClient } from '../utils/httpClient';
-import { API_ENDPOINTS } from '../config/api';
+import { httpClient } from '@utils/httpClient';
+import { API_ENDPOINTS } from '@config/api';
 import type {
   Voucher,
   VouchersResponse,
   VoucherQuery,
   CreateVoucherRequest,
   UpdateVoucherRequest,
+} from '@shared/types/vouchers.types';
+import type {
   ApiResponse,
-} from '../shared';
+} from '@shared/types/common.types';
 
 /**
  * Get all vouchers with optional filters

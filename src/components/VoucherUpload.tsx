@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { uploadVoucher, confirmVoucher } from '../services/voucherUploadService';
+import { uploadVoucher, confirmVoucher } from '@services/voucherUploadService';
 import type {
   VoucherStructuredData,
   ValidationResult,
-} from '../shared';
+} from '@shared';
 
 type Step = 'upload' | 'review' | 'confirmed';
 

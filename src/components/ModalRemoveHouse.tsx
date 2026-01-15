@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Button } from '../shared/Button';
-import type { User } from '../types/user-management.types';
+import { Button } from '@shared/ui';
+import type { User } from '@/shared/types/user-management.types';
 
 interface ModalRemoveHouseProps {
   isOpen: boolean;

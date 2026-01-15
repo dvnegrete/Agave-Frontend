@@ -5,9 +5,9 @@
 
 import React, { createContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { User, AuthContextType } from '../types/auth.types';
-import { tokenManager } from '../utils/tokenManager';
-import * as authService from '../services/authService';
+import type { User, AuthContextType } from '@/shared/types/auth.types';
+import { tokenManager } from '@utils/tokenManager';
+import * as authService from '@services/authService';
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 

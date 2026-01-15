@@ -4,7 +4,7 @@
  * Access tokens are now stored in httpOnly cookies by the backend.
  */
 
-import type { User } from '../types/auth.types';
+import type { User } from '@/shared/types/auth.types';
 
 const STORAGE_KEYS = {
   REFRESH_TOKEN: 'agave_refresh_token',

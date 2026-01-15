@@ -1,14 +1,14 @@
 import { useState } from 'react';
-import { usePeriodsQuery, usePeriodMutations, usePaymentHistoryQuery, useHouseBalanceQuery, usePeriodConfigMutations } from '../hooks/usePaymentManagement';
-import { useFormatDate } from '../hooks/useFormatDate';
-import { Button } from '../shared/Button';
-import { Tabs, type TabItem } from '../shared/Tabs';
-import { StatusBadge } from '../shared/StatusBadge';
-import { StatsCard } from '../shared/StatsCard';
-import { Table, type TableColumn } from '../shared/Table';
-import { ExpandableTable, type ExpandableTableColumn } from '../shared/ExpandableTable';
+import { usePeriodsQuery, usePeriodMutations, usePaymentHistoryQuery, useHouseBalanceQuery, usePeriodConfigMutations } from '@hooks/usePaymentManagement';
+import { useFormatDate } from '@hooks/useFormatDate';
+import { Button } from '@shared/ui';
+import { Tabs } from '@shared/ui';
+import { StatusBadge } from '@shared/ui';
+import { StatsCard } from '@shared/ui';
+import { Table, type TableColumn } from '@shared/ui';
+import { ExpandableTable } from '@shared/ui';
 import { UnclaimedDepositsSection } from './UnclaimedDepositsSection';
-import type { HousePaymentTransaction, UnreconciledVoucher } from '../shared';
+import type { HousePaymentTransaction, UnreconciledVoucher } from '@shared';
 
 type ActiveTab = 'periods' | 'create-period' | 'house-payments' | 'house-balance' | 'unclaimed-deposits';
 

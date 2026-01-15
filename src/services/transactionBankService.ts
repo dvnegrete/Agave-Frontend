@@ -1,12 +1,14 @@
-import { httpClient } from '../utils/httpClient';
-import { API_ENDPOINTS } from '../config/api';
+import { httpClient } from '@utils/httpClient';
+import { API_ENDPOINTS } from '@config/api';
 import type {
   BankTransaction,
   TransactionsBankQuery,
   TransactionsBankResponse,
   UploadTransactionsResponse,
+} from '@shared/types/bank-transactions.types';
+import type {
   ApiResponse,
-} from '../shared';
+} from '@shared/types/common.types';
 
 /**
  * Get all bank transactions with optional filters

@@ -1,9 +1,9 @@
-import { httpClient } from '../utils/httpClient';
+import { httpClient } from '@utils/httpClient';
 import type {
   HistoricalRecordResponseDto,
   UploadHistoricalRecordsOptions,
   HistoricalRecordsUploadHistory,
-} from '../shared';
+} from '@shared/types/historical-records.types';
 
 const API_BASE = '/historical-records';
 

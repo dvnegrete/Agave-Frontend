@@ -48,10 +48,9 @@ export type {
   BulkReconcileResponse,
 } from './bank-reconciliation.types';
 
-export {
-  ConfidenceLevel, // Export both const and type (ConfidenceLevel is both a value and a type)
-  type ConfidenceLevel,
-} from './bank-reconciliation.types';
+// ConfidenceLevel: exported as both a const value and a type
+// export { ConfidenceLevel } from './bank-reconciliation.types';
+export type { ConfidenceLevel } from './bank-reconciliation.types';
 
 // Payment management types
 export type {

@@ -1,13 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import {
+  type BankTransaction,
+  type TransactionsBankQuery,
+  type UploadTransactionsResponse,
+} from '@shared/types/bank-transactions.types'
+import {
   getTransactionsBank,
   uploadTransactionsBank,
-  deleteTransactionBank,
-  type TransactionsBankQuery,
-  type BankTransaction,
-  type UploadTransactionsResponse,
-} from '../services';
+} from '@services/transactionBankService';
 
 // Query Keys
 export const transactionBankKeys = {

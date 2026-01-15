@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Button } from '../shared/Button';
-import type { User, AssignHouseRequest } from '../types/user-management.types';
+import { Button } from '@shared/ui';
+import type { User, AssignHouseRequest } from '@/shared/types/user-management.types';
 
 interface ModalAssignHouseProps {
   isOpen: boolean;
