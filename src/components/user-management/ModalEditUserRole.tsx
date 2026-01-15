@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@shared/ui';
-import { USER_ROLES, ROLE_LABELS, ROLE_DESCRIPTIONS } from '@shared/constants';
-import type { User, Role } from '@/shared/types/user-management.types';
+import { USER_ROLES, ROLE_LABELS, ROLE_DESCRIPTIONS } from '@shared';
+import type { User, Role } from '@/shared';
 
 interface ModalEditUserRoleProps {
   isOpen: boolean;

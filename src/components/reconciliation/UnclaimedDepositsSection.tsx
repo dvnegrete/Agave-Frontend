@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { ModalAssignHouse } from '@components/index';
-import { Button, Table, DateTimeCell } from '@shared/ui';
+import { ModalAssignHouse } from '@components/user-management';
+import { Button, Table, DateTimeCell } from '@shared';
 import type { TableColumn } from '@shared/ui';
 import type { UnclaimedDeposit, UnclaimedDepositsPage, DepositAssignHouseRequest, } from '@shared';
 import { unclaimedDepositsService } from '@services/unclaimedDepositsService';

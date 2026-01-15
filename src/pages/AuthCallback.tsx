@@ -21,7 +21,7 @@ interface JWTPayload {
   exp?: number;
 }
 
-export default function AuthCallback() {
+export function AuthCallback() {
   const navigate = useNavigate();
   const { updateUser } = useAuth();
   const [error, setError] = useState<string | null>(null);

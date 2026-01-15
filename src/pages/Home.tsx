@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Modal } from './Modal';
-import { Button } from '@shared/ui';
+import { Modal, Button } from '@shared/ui';
 import { LEGAL_TEXT } from '@shared/constants';
 
 export function Home() {

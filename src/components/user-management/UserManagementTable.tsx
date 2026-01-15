@@ -1,8 +1,6 @@
-import { Table, type TableColumn } from '@shared/ui';
-import { RoleBadge } from '@shared/ui';
-import { StatusBadge } from '@shared/ui';
-import { Button } from '@shared/ui';
-import type { User } from '@/shared/types/user-management.types';
+import type { TableColumn } from '@shared/ui';
+import { RoleBadge, StatusBadge, Button, Table } from '@shared/ui';
+import type { User } from '@/shared';
 
 interface UserManagementTableProps {
   users: User[];

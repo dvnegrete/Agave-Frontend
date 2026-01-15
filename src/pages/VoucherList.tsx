@@ -3,9 +3,7 @@ import { useVouchersQuery, useVoucherMutations } from '@hooks/useVouchersQuery';
 import { useFormatDate } from '@hooks/useFormatDate';
 import { useSortBy } from '@hooks/useSortBy';
 import { getVoucherById } from '@services/voucherService';
-import { Button } from '@shared/ui';
-import { StatusBadge } from '@shared/ui';
-import { ExpandableTable, type ExpandableTableColumn } from '@shared/ui';
+import { Button, StatusBadge, ExpandableTable, type ExpandableTableColumn } from '@shared/ui';
 import type { Voucher } from '@shared';
 
 export function VoucherList() {

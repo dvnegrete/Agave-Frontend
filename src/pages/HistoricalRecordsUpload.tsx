@@ -1,14 +1,22 @@
 import { useState } from 'react';
-import { useHistoricalRecordsMutation, useUploadHistoryQuery } from '@hooks/useHistoricalRecords';
-import { Button } from '@shared/ui';
-import { Tabs, type TabItem } from '@shared/ui';
-import { StatusBadge } from '@shared/ui';
-import { StatsCard } from '@shared/ui';
-import { Table, type TableColumn } from '@shared/ui';
-import { BankSelector } from '@shared/ui/BankSelector';
-import { FileUploadZone } from '@shared/ui/FileUploadZone';
-import { BANKS } from '@shared/constants';
-import type { HistoricalRecordResponseDto, RowErrorDto, HistoricalRecordsUploadHistory } from '@shared';
+import { useHistoricalRecordsMutation, useUploadHistoryQuery } from '@hooks/index';
+import {
+  type TabItem,
+  type TableColumn,
+  Button,
+  Tabs,
+  StatsCard,
+  StatusBadge,
+  Table,
+  BankSelector,
+  FileUploadZone,
+} from '@shared/ui';
+import {
+  type HistoricalRecordResponseDto,
+  type RowErrorDto,
+  type HistoricalRecordsUploadHistory,
+  BANKS,
+} from '@shared';
 import type { ActiveTab } from '@shared/types/historical-records.types';
 
 export function HistoricalRecordsUpload() {
@@ -290,11 +298,10 @@ export function HistoricalRecordsUpload() {
 
               {/* Summary Message */}
               <div
-                className={`mt-6 p-4 rounded-lg border-l-4 bg-tertiary ${
-                  uploadResult.failed === 0
-                    ? 'border-success text-success'
-                    : 'border-warning text-warning'
-                }`}
+                className={`mt-6 p-4 rounded-lg border-l-4 bg-tertiary ${uploadResult.failed === 0
+                  ? 'border-success text-success'
+                  : 'border-warning text-warning'
+                  }`}
               >
                 <p className="font-semibold">
                   {uploadResult.failed === 0

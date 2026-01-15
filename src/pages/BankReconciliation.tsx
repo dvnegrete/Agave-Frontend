@@ -1,17 +1,21 @@
 import { useState } from 'react';
-import { useBankReconciliationMutations } from '@hooks/useBankReconciliationQuery';
-import { useTransactionsBankQuery } from '@hooks/useTransactionsBankQuery';
+import {
+  useBankReconciliationMutations,
+  useTransactionsBankQuery,
+  useFormatDate,
+} from '@hooks/index';
 import { useVouchersQuery } from '@hooks/useVouchersQuery';
-import { useFormatDate } from '@hooks/useFormatDate';
-import { StartReconciliationModal } from './StartReconciliationModal';
-import { UnclaimedDepositsSection } from './UnclaimedDepositsSection';
-import { Button } from '@shared/ui';
-import { StatusBadge } from '@shared/ui';
-import { StatsCard } from '@shared/ui';
-import { Tabs } from '@shared/ui';
-import { ReconciliationCard } from '@/shared/ui/ReconciliationCard';
-import { DateTimeCell } from '@shared/ui';
-import { Table, type TableColumn } from '@shared/ui';
+import { StartReconciliationModal, UnclaimedDepositsSection } from '@components/reconciliation';
+import {
+  Button,
+  StatusBadge,
+  StatsCard,
+  Tabs,
+  DateTimeCell,
+  Table,
+  ReconciliationCard,
+  type TableColumn
+} from '@shared/ui';
 import type { StartReconciliationResponse, MatchedReconciliation, PendingVoucher, SurplusTransaction } from '@shared';
 
 export function BankReconciliation() {

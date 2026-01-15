@@ -10,6 +10,7 @@ export { DateTimeCell } from './DateTimeCell';
 export { ExpandableTable } from './ExpandableTable';
 export type { ExpandableTableColumn, ExpandableTableProps } from './ExpandableTable';
 export { FileUploadZone } from './FileUploadZone';
+export { Modal } from './Modal';
 export { ReconciliationCard } from './ReconciliationCard';
 export { RoleBadge } from './RoleBadge';
 export { StatsCard } from './StatsCard';

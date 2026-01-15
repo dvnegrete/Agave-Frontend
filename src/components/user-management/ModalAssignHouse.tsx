@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@shared/ui';
-import { HOUSE_NUMBER_RANGE, VALIDATION_MESSAGES } from '@shared/constants';
-import type { User, AssignHouseRequest } from '@/shared/types/user-management.types';
+import { HOUSE_NUMBER_RANGE, VALIDATION_MESSAGES } from '@shared';
+import type { User, AssignHouseRequest } from '@/shared';
 
 interface ModalAssignHouseProps {
   isOpen: boolean;

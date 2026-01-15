@@ -7,8 +7,16 @@ import { StatusBadge } from '@shared/ui';
 import { StatsCard } from '@shared/ui';
 import { Table, type TableColumn } from '@shared/ui';
 import { ExpandableTable } from '@shared/ui';
-import { UnclaimedDepositsSection } from './UnclaimedDepositsSection';
-import type { HousePaymentTransaction, UnreconciledVoucher, PeriodResponseDto, ActiveTab, BalanceStatusVariant } from '@shared';
+import { UnclaimedDepositsSection } from '@components/reconciliation';
+import type { HousePaymentTransaction, UnreconciledVoucher, PeriodResponseDto, BalanceStatusVariant } from '@shared';
+import type { ActiveTab } from '@/shared/types/payment-management.types';
+
+interface PaymentMovement extends HousePaymentTransaction {
+  type: 'transaction' | 'voucher';
+  _date: number;
+  created_at?: string;
+  confirmation_code?: string;
+}
 
 export function PaymentManagement() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('periods');
@@ -388,7 +396,7 @@ export function PaymentManagement() {
                       created_at: voucher.created_at,
                       confirmation_code: voucher.confirmation_code,
                       _date: new Date(voucher.date).getTime(),
-                    });
+                    } as PaymentMovement);
                   });
                 }
 
@@ -420,7 +428,7 @@ export function PaymentManagement() {
                     return (
                       <div className="space-y-1">
                         <p className="text-xs text-foreground-secondary">Código de confirmación:</p>
-                        <p className="font-mono text-sm font-semibold text-primary">{movement.confirmation_code || '-'}</p>
+                        <p className="font-mono text-sm font-semibold text-primary">{(movement as any).confirmation_code || '-'}</p>
                       </div>
                     );
                   }

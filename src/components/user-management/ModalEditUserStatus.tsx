@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@shared/ui';
-import { USER_STATUSES, STATUS_LABELS } from '@shared/constants';
-import type { User, Status } from '@/shared/types/user-management.types';
+import { USER_STATUSES, STATUS_LABELS } from '@shared';
+import type { User, Status } from '@/shared';
 
 interface ModalEditUserStatusProps {
   isOpen: boolean;

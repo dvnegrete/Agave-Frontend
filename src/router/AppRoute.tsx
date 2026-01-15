@@ -1,6 +1,5 @@
 import { Route } from 'react-router-dom'
 import {
-  ProtectedRoute,
   Home,
   Login,
   VoucherList,
@@ -10,8 +9,9 @@ import {
   PaymentManagement,
   HistoricalRecordsUpload,
   UserManagement,
-} from '@components/index'
-import AuthCallback from '@/pages/AuthCallback'
+  AuthCallback,
+} from '@pages/index'
+import { ProtectedRoute } from '@components/index'
 import { ROUTES } from '@/shared'
 import type { BaseLayoutProps } from '@/shared'
 
