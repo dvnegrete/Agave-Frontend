@@ -11,6 +11,7 @@ export interface BankTransaction {
   voucherId?: string;
   createdAt: string;
   updatedAt: string;
+  [key: string]: unknown;
 }
 
 export interface UploadedTransaction {

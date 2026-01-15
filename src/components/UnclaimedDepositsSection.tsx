@@ -16,10 +16,10 @@ export function UnclaimedDepositsSection({ onDepositAssigned }: UnclaimedDeposit
   const [data, setData] = useState<UnclaimedDepositsPage | null>(null);
   const [selectedDeposit, setSelectedDeposit] = useState<UnclaimedDeposit | null>(null);
   const [showAssignModal, setShowAssignModal] = useState(false);
-  const [assignLoading, setAssignLoading] = useState(false);
-  const [assignError, setAssignError] = useState<string | null>(null);
   const [houseNumber, setHouseNumber] = useState('');
   const [notes, setNotes] = useState('');
+  const [_assignLoading, setAssignLoading] = useState(false);
+  const [_assignError, setAssignError] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleLoadDeposits = async (): Promise<void> => {
@@ -215,14 +215,10 @@ export function UnclaimedDepositsSection({ onDepositAssigned }: UnclaimedDeposit
       {/* Modal para asignar casa */}
       <ModalAssignHouse
         isOpen={showAssignModal}
-        deposit={selectedDeposit}
-        houseNumber={houseNumber}
-        notes={notes}
-        isLoading={assignLoading}
-        error={assignError}
-        onHouseNumberChange={setHouseNumber}
-        onNotesChange={setNotes}
-        onAssign={handleAssignHouse}
+        user={selectedDeposit ? ({ id: selectedDeposit.transactionBankId } as any) : null}
+        onSave={async () => {
+          await handleAssignHouse();
+        }}
         onClose={() => setShowAssignModal(false)}
       />
     </div>

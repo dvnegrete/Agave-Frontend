@@ -17,3 +17,4 @@ export { StatusBadge } from './StatusBadge';
 export { Table } from './Table';
 export type { TableColumn, TableProps } from './Table';
 export { Tabs } from './Tabs';
+export type { TabItem } from './Tabs';

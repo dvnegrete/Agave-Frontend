@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useHistoricalRecordsMutation, useUploadHistoryQuery } from '@hooks/useHistoricalRecords';
 import { Button } from '@shared/ui';
-import { Tabs } from '@shared/ui';
+import { Tabs, type TabItem } from '@shared/ui';
 import { StatusBadge } from '@shared/ui';
 import { StatsCard } from '@shared/ui';
 import { Table, type TableColumn } from '@shared/ui';
 import { BankSelector } from '@shared/ui/BankSelector';
 import { FileUploadZone } from '@shared/ui/FileUploadZone';
-import type { HistoricalRecordResponseDto, RowErrorDto } from '@shared';
+import type { HistoricalRecordResponseDto, RowErrorDto, HistoricalRecordsUploadHistory } from '@shared';
 
 type ActiveTab = 'upload' | 'history';
 
@@ -57,7 +57,7 @@ export function HistoricalRecordsUpload() {
           validateOnly: validateOnly || undefined
         },
       });
-      setUploadResult(result);
+      setUploadResult(result as HistoricalRecordResponseDto);
       setFile(null);
       setValidateOnly(false);
       setDescription('');
@@ -126,7 +126,7 @@ export function HistoricalRecordsUpload() {
           <BankSelector
             value={bankSelection}
             customValue={customBank}
-            onBankChange={setBankSelection}
+            onBankChange={(bank) => setBankSelection(bank as 'BBVA' | 'Santander' | 'custom')}
             onCustomChange={setCustomBank}
             predefinedBanks={['Santander-2025']}
             disabled={isUploading}
@@ -394,7 +394,7 @@ export function HistoricalRecordsUpload() {
                         />
                       ),
                     },
-                  ] as TableColumn[]
+                  ] as TableColumn<HistoricalRecordsUploadHistory>[]
                 }
                 data={uploadHistory}
                 emptyMessage="Sin historial de cargas"

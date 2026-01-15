@@ -17,6 +17,7 @@ export interface CreatePeriodDto {
   year: number;
   month: number;
   period_config_id?: number;  // Optional for create, required for certain operations
+  [key: string]: unknown;
 }
 
 // Period Config Types

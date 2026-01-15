@@ -11,6 +11,7 @@ export interface Voucher {
   number_house: number;
   created_at: string;
   updated_at: string;
+  [key: string]: unknown;
 }
 
 export interface CreateVoucherRequest {

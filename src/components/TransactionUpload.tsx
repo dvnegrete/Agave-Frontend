@@ -8,6 +8,7 @@ import { StatsCard } from '@shared/ui';
 import { Table, type TableColumn } from '@shared/ui';
 import { BankSelector } from '@shared/ui/BankSelector';
 import { FileUploadZone } from '@shared/ui/FileUploadZone';
+import type { UploadedTransaction } from '@shared';
 
 export function TransactionUpload() {
   const navigate = useNavigate();
@@ -73,7 +74,7 @@ export function TransactionUpload() {
         <BankSelector
           value={bankSelection}
           customValue={customBank}
-          onBankChange={setBankSelection}
+          onBankChange={(bank) => setBankSelection(bank as 'Santander-2025' | 'custom')}
           onCustomChange={setCustomBank}
           predefinedBanks={['Santander-2025']}
           disabled={uploading}
@@ -215,7 +216,7 @@ export function TransactionUpload() {
                       />
                     ),
                   },
-                ] as TableColumn[]}
+                ] as TableColumn<UploadedTransaction>[]}
                 data={uploadResult.transactions}
                 keyField={(row) => row.id || row.concept}
                 maxHeight="384px"
@@ -273,7 +274,7 @@ export function TransactionUpload() {
                       />
                     ),
                   },
-                ] as TableColumn[]}
+                ] as TableColumn<UploadedTransaction>[]}
                 data={uploadResult.lastDayTransaction}
                 keyField={(row) => row.id || row.concept}
                 maxHeight="256px"

@@ -112,14 +112,18 @@ export function UserManagement() {
       <ModalEditUserRole
         isOpen={modalType === 'role'}
         user={selectedUser}
-        onSave={changeRole}
+        onSave={async (userId, data) => {
+          await changeRole(userId, data);
+        }}
         onClose={closeModal}
       />
 
       <ModalEditUserStatus
         isOpen={modalType === 'status'}
         user={selectedUser}
-        onSave={changeStatus}
+        onSave={async (userId, data) => {
+          await changeStatus(userId, data);
+        }}
         onClose={closeModal}
       />
 

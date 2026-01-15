@@ -5,7 +5,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { tokenManager } from '@utils/tokenManager';
 import * as authService from '@services/authService';
 import { useAuth } from '@hooks/useAuth';
@@ -19,8 +19,7 @@ interface JWTPayload {
   exp?: number;
 }
 
-export default function AuthCallback(): JSX.Element {
-  const [searchParams] = useSearchParams();
+export default function AuthCallback() {
   const navigate = useNavigate();
   const { updateUser } = useAuth();
   const [error, setError] = useState<string | null>(null);

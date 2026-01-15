@@ -12,7 +12,7 @@ import { Tabs } from '@shared/ui';
 import { ReconciliationCard } from '@/shared/ui/ReconciliationCard';
 import { DateTimeCell } from '@shared/ui';
 import { Table, type TableColumn } from '@shared/ui';
-import type { StartReconciliationResponse } from '@shared';
+import type { StartReconciliationResponse, MatchedReconciliation, PendingVoucher, SurplusTransaction } from '@shared';
 
 export function BankReconciliation() {
   const {
@@ -67,18 +67,18 @@ export function BankReconciliation() {
     }
   };
 
-  const handleStartReconciliation = async (data: { startDate?: string; endDate?: string }): Promise<StartReconciliationResponse | null> => {
+  const handleStartReconciliation = async (data: { startDate?: string; endDate?: string }): Promise<StartReconciliationResponse | undefined> => {
     const result = await start(data);
     if (result) {
       // Save result to state
-      setReconciliationResult(result);
+      setReconciliationResult(result as StartReconciliationResponse);
       // Switch to summary tab
       setActiveTab('summary');
       // Refresh data after starting reconciliation
       refetchTransactions();
       refetchVouchers();
     }
-    return result;
+    return result as StartReconciliationResponse | undefined;
   };
 
   const handleManualValidation = async (voucherId: number, transactionId: number): Promise<void> => {
@@ -98,7 +98,7 @@ export function BankReconciliation() {
       // Re-run reconciliation to get updated results
       const updatedResult = await start({});
       if (updatedResult) {
-        setReconciliationResult(updatedResult);
+        setReconciliationResult(updatedResult as StartReconciliationResponse);
         // Stay on manual validation tab to continue working
       }
 
@@ -255,7 +255,7 @@ export function BankReconciliation() {
                     />
                   ),
                 },
-              ] as TableColumn[]}
+              ] as TableColumn<MatchedReconciliation>[]}
               data={reconciliationResult.conciliados}
               emptyMessage="No hay registros conciliados"
               headerVariant="success"
@@ -289,7 +289,7 @@ export function BankReconciliation() {
                   header: 'Razón',
                   render: (item) => item.reason || 'Sin razón especificada',
                 },
-              ] as TableColumn[]}
+              ] as TableColumn<PendingVoucher>[]}
               data={reconciliationResult.unfundedVouchers}
               emptyMessage="No hay comprobantes NO conciliados"
               headerVariant="warning"
@@ -323,7 +323,7 @@ export function BankReconciliation() {
                   header: 'Razón',
                   render: (item) => item.reason || 'Sin razón especificada',
                 },
-              ] as TableColumn[]}
+              ] as TableColumn<SurplusTransaction>[]}
               data={reconciliationResult.unclaimedDeposits}
               emptyMessage="No hay movimientos bancarios sin asociar/conciliar"
               headerVariant="warning"

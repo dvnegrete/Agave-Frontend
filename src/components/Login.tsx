@@ -94,7 +94,7 @@ export default function Login() {
           {/* Social Login Buttons */}
           <div className="flex flex-col gap-3 mb-6">
             <button
-              onClick={(e) => {
+              onClick={() => {
                 console.log('🔐 [Login] Google button clicked');
                 handleGoogleLogin();
               }}
@@ -207,16 +207,6 @@ export default function Login() {
           >
             Volver al inicio
           </a>
-
-          {/* TEST BUTTON - Outside form to verify events work */}
-          <button
-            onClick={() => {
-              console.log('📝 [Login] TEST BUTTON CLICKED - Events ARE working!');
-            }}
-            className="w-full mt-4 px-6 py-2 bg-yellow-600 hover:bg-yellow-700 text-white text-sm font-semibold rounded-lg"
-          >
-            🧪 Test Button (click this to verify events work)
-          </button>
         </div>
       </div>
     </main>

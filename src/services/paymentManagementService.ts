@@ -48,7 +48,7 @@ export const createPeriod = async (
       data,
       { signal }
     );
-    return response.data;
+    return response;
   } catch (err: unknown) {
     console.error('❌ [Service] Error in createPeriod:', err);
     throw err;
@@ -69,7 +69,7 @@ export const ensurePeriod = async (
       data,
       { signal }
     );
-    return response.data;
+    return response;
   } catch (err: unknown) {
     console.error('❌ [Service] Error in ensurePeriod:', err);
     throw err;
@@ -89,7 +89,7 @@ export const createPeriodConfig = async (
       data,
       { signal }
     );
-    return response.data;
+    return response;
   } catch (err: unknown) {
     console.error('❌ [Service] Error in createPeriodConfig:', err);
     throw err;
@@ -151,7 +151,7 @@ export const getHouseBalance = async (
       `${API_BASE}/houses/${houseId}/balance`,
       { signal }
     );
-    return response.data;
+    return response;
   } catch (err: unknown) {
     console.error('❌ [Service] Error in getHouseBalance:', err);
     throw err;

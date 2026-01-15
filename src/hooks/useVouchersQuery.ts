@@ -89,7 +89,9 @@ export const useVouchersQuery = (initialQuery?: VoucherQuery): UseVouchersQueryR
     isFetching,
     error: error?.message || null,
     setFilters,
-    refetch,
+    refetch: async () => {
+      await refetch();
+    },
   };
 };
 

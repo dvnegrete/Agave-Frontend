@@ -10,7 +10,7 @@ export interface HttpClientOptions {
 class HttpClient {
   private baseURL: string;
   private isRefreshing: boolean = false;
-  private refreshSubscribers: ((token: string) => void)[] = [];
+  private refreshSubscribers: (() => void)[] = [];
   private requestCount: Map<string, number> = new Map();
   private readonly MAX_RETRIES_PER_ENDPOINT = 3;
 
@@ -192,11 +192,11 @@ class HttpClient {
     return this.request<T>(endpoint, 'GET', options);
   }
 
-  async post<T>(endpoint: string, body?: Record<string, unknown>, options?: HttpClientOptions): Promise<T> {
+  async post<T>(endpoint: string, body?: Record<string, unknown> | FormData, options?: HttpClientOptions): Promise<T> {
     return this.request<T>(endpoint, 'POST', { ...options, body });
   }
 
-  async put<T>(endpoint: string, body?: Record<string, unknown>, options?: HttpClientOptions): Promise<T> {
+  async put<T>(endpoint: string, body?: Record<string, unknown> | FormData, options?: HttpClientOptions): Promise<T> {
     return this.request<T>(endpoint, 'PUT', { ...options, body });
   }
 
@@ -204,7 +204,7 @@ class HttpClient {
     return this.request<T>(endpoint, 'DELETE', options);
   }
 
-  async patch<T>(endpoint: string, body?: Record<string, unknown>, options?: HttpClientOptions): Promise<T> {
+  async patch<T>(endpoint: string, body?: Record<string, unknown> | FormData, options?: HttpClientOptions): Promise<T> {
     return this.request<T>(endpoint, 'PATCH', { ...options, body });
   }
 }

@@ -8,6 +8,7 @@ import {
 import {
   getTransactionsBank,
   uploadTransactionsBank,
+  deleteTransactionBank,
 } from '@services/transactionBankService';
 
 // Query Keys

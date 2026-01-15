@@ -2,13 +2,13 @@ import { useState } from 'react';
 import { usePeriodsQuery, usePeriodMutations, usePaymentHistoryQuery, useHouseBalanceQuery, usePeriodConfigMutations } from '@hooks/usePaymentManagement';
 import { useFormatDate } from '@hooks/useFormatDate';
 import { Button } from '@shared/ui';
-import { Tabs } from '@shared/ui';
+import { Tabs, type TabItem } from '@shared/ui';
 import { StatusBadge } from '@shared/ui';
 import { StatsCard } from '@shared/ui';
 import { Table, type TableColumn } from '@shared/ui';
 import { ExpandableTable } from '@shared/ui';
 import { UnclaimedDepositsSection } from './UnclaimedDepositsSection';
-import type { HousePaymentTransaction, UnreconciledVoucher } from '@shared';
+import type { HousePaymentTransaction, UnreconciledVoucher, PeriodResponseDto } from '@shared';
 
 type ActiveTab = 'periods' | 'create-period' | 'house-payments' | 'house-balance' | 'unclaimed-deposits';
 
@@ -158,7 +158,7 @@ export function PaymentManagement() {
                   align: 'center',
                   render: (period) => useFormatDate(period.created_at),
                 },
-              ] as TableColumn[]}
+              ] as TableColumn<PeriodResponseDto>[]}
               data={periods}
               emptyMessage="No hay períodos registrados"
               hoverable
