@@ -1,15 +1,14 @@
 /**
- * Auth Context
+ * Auth Context Provider
  * Global authentication state management using React Context API
  */
 
-import React, { createContext, useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { User, AuthContextType } from '@/shared/types/auth.types';
+import { AuthContext } from './AuthContextStore';
 import { tokenManager } from '@utils/tokenManager';
 import * as authService from '@services/authService';
-
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
   children: React.ReactNode;

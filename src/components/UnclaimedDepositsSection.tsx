@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { Button } from '@shared/ui';
-import { Table, type TableColumn } from '@shared/ui';
-import { DateTimeCell } from '@shared/ui';
-import { ModalAssignHouse } from './ModalAssignHouse';
+import { ModalAssignHouse } from '@components/index';
+import { Button, Table, DateTimeCell } from '@shared/ui';
+import type { TableColumn } from '@shared/ui';
+import type { UnclaimedDeposit, UnclaimedDepositsPage, DepositAssignHouseRequest, } from '@shared';
 import { unclaimedDepositsService } from '@services/unclaimedDepositsService';
-import type { UnclaimedDeposit, UnclaimedDepositsPage, DepositAssignHouseRequest } from '@shared';
 
 interface UnclaimedDepositsSectionProps {
   onDepositAssigned?: () => void;

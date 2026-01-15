@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@hooks/useAuth';
 import { useUserManagement } from '@hooks/useUserManagement';
-import { UserManagementTable } from './UserManagementTable';
-import { ModalEditUserRole } from './ModalEditUserRole';
-import { ModalEditUserStatus } from './ModalEditUserStatus';
-import { ModalAssignHouse } from './ModalAssignHouse';
-import { ModalRemoveHouse } from './ModalRemoveHouse';
+import {
+  UserManagementTable,
+  ModalEditUserRole,
+  ModalEditUserStatus,
+  ModalAssignHouse,
+  ModalRemoveHouse,
+} from '@components/index';
 import type { User } from '@/shared/types/user-management.types';
 
 type ModalType = 'role' | 'status' | 'assign' | 'remove' | null;

@@ -1,23 +1,44 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@hooks/useAuth';
-
-interface MenuItem {
-  path: string;
-  label: string;
-  icon: string;
-}
+import type { MenuItem } from '@/shared';
+import { ICONS, LABELS, ROUTES } from '@/shared';
 
 const menuItems: MenuItem[] = [
-  { path: '/', label: 'Inicio', icon: '🏠' },
-  { path: '/vouchers', label: 'Vouchers', icon: '📝' },
-  { path: '/transactions', label: 'Transacciones Bancarias', icon: '💰' },
-  { path: '/reconciliation', label: 'Conciliación', icon: '🔄' },
-  { path: '/payment-management', label: 'Gestión de Pagos', icon: '💳' },
+  { path: '/', label: LABELS.HOME, icon: ICONS.HOME },
+  {
+    path: ROUTES.VOUCHER_UPLOAD,
+    label: LABELS.VOUCHER_UPLOAD,
+    icon: ICONS.VOUCHER_UPLOAD
+  },
 ];
 
 const adminMenuItems: MenuItem[] = [
-  { path: '/user-management', label: 'Administración de Usuarios', icon: '👥' },
+  {
+    path: ROUTES.TRANSACTION_UPLOAD,
+    label: LABELS.TRANSACTION_UPLOAD,
+    icon: ICONS.TRANSACTION_UPLOAD
+  },
+  {
+    path: ROUTES.VOUCHER_LIST,
+    label: LABELS.VOUCHER_LIST,
+    icon: ICONS.VOUCHER_LIST
+  },
+  {
+    path: ROUTES.BANK_RECONCILIATION,
+    label: LABELS.BANK_RECONCILIATION,
+    icon: ICONS.BANK_RECONCILIATION
+  },
+  {
+    path: ROUTES.PAYMENT_MANAGEMENT,
+    label: LABELS.PAYMENT_MANAGEMENT,
+    icon: ICONS.PAYMENT_MANAGEMENT
+  },
+  {
+    path: ROUTES.USER_MANAGEMENT,
+    label: LABELS.USER_MANAGEMENT,
+    icon: ICONS.USER_MANAGEMENT
+  },
 ];
 
 export function HamburgerMenu() {
@@ -43,19 +64,16 @@ export function HamburgerMenu() {
       >
         <div className="w-6 h-5 flex flex-col justify-between">
           <span
-            className={`block h-0.5 w-full bg-white transition-all duration-300 ${
-              isOpen ? 'rotate-45 translate-y-2' : ''
-            }`}
+            className={`block h-0.5 w-full bg-white transition-all duration-300 ${isOpen ? 'rotate-45 translate-y-2' : ''
+              }`}
           ></span>
           <span
-            className={`block h-0.5 w-full bg-white transition-all duration-300 ${
-              isOpen ? 'opacity-0' : ''
-            }`}
+            className={`block h-0.5 w-full bg-white transition-all duration-300 ${isOpen ? 'opacity-0' : ''
+              }`}
           ></span>
           <span
-            className={`block h-0.5 w-full bg-white transition-all duration-300 ${
-              isOpen ? '-rotate-45 -translate-y-2' : ''
-            }`}
+            className={`block h-0.5 w-full bg-white transition-all duration-300 ${isOpen ? '-rotate-45 -translate-y-2' : ''
+              }`}
           ></span>
         </div>
       </button>
@@ -70,9 +88,8 @@ export function HamburgerMenu() {
 
       {/* Sidebar Menu */}
       <aside
-        className={`fixed top-0 left-0 h-full w-64 bg-gray-200/100 dark:bg-gray-800/100 shadow-xl z-40 transform transition-transform duration-300 ease-in-out ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`fixed top-0 left-0 h-full w-64 bg-gray-200/100 dark:bg-gray-800/100 shadow-xl z-40 transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
       >
         <div className="p-6">
           <h2 className="text-2xl font-bold text-foreground mb-2">El Agave</h2>
@@ -87,11 +104,10 @@ export function HamburgerMenu() {
                     <Link
                       to={item.path}
                       onClick={closeMenu}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                        isActive
+                      className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
                           ? 'bg-primary font-bold shadow-sm bg-gray-400/50'
                           : 'text-foreground'
-                      }`}
+                        }`}
                     >
                       <span className="text-xl">{item.icon}</span>
                       <span>{item.label}</span>
@@ -115,11 +131,10 @@ export function HamburgerMenu() {
                         <Link
                           to={item.path}
                           onClick={closeMenu}
-                          className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                            isActive
+                          className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
                               ? 'bg-error/30 font-bold shadow-sm text-error'
                               : 'text-foreground'
-                          }`}
+                            }`}
                         >
                           <span className="text-xl">{item.icon}</span>
                           <span>{item.label}</span>
@@ -146,7 +161,7 @@ export function HamburgerMenu() {
                     }}
                     className="w-full px-4 py-2 text-sm text-center bg-error hover:bg-error/90 text-white rounded-lg transition-colors font-semibold"
                   >
-                    🚪 Cerrar Sesión
+                    {ICONS.LOGOUT} {LABELS.LOGOUT}
                   </button>
                 </>
               )}

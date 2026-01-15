@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '../__setup__/test-utils';
 import userEvent from '@testing-library/user-event';
-import Modal from '../../src/components/Modal';
+import { Modal } from '../../src/components/Modal';
 
 describe('Modal Component', () => {
   it('should not render when isOpen is false', () => {

@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import Modal from './Modal';
+import { Modal } from './Modal';
 import { Button } from '@shared/ui';
 
-export default function Home() {
+export function Home() {
   const [showQuienesSomos, setShowQuienesSomos] = useState(false);
   const [showAvisoPrivacidad, setShowAvisoPrivacidad] = useState(false);
 
@@ -33,33 +33,6 @@ export default function Home() {
         >
           Subir comprobante de mantenimiento
         </Button>
-
-        <p className="text-sm text-foreground-secondary mt-4">
-          Acceso rápido:
-        </p>
-        <div className="flex flex-wrap gap-2 justify-center">
-          <Button
-            onClick={() => window.location.href = '/vouchers'}
-            variant="success"
-            className="sm:text-sm sm:py-2 sm:px-3"
-          >
-            📝 Vouchers
-          </Button>
-          <Button
-            onClick={() => window.location.href = '/transactions'}
-            variant="info"
-            className="sm:text-sm sm:py-2 sm:px-3"
-          >
-            💰 Transacciones
-          </Button>
-          <Button
-            onClick={() => window.location.href = '/reconciliation'}
-            variant="warning"
-            className="sm:text-sm sm:py-2 sm:px-3"
-          >
-            🔄 Conciliación
-          </Button>
-        </div>
       </div>
 
       {/* Sección de Información */}

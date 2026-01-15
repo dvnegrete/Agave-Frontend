@@ -1,21 +1,10 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { AuthProvider } from './context/AuthContext'
-import { ProtectedRoute } from './components/ProtectedRoute'
-import Home from './components/Home'
-import Login from './components/Login'
-import Footer from './components/Footer'
-import { HamburgerMenu } from './components/HamburgerMenu'
-import { VoucherList } from './components/VoucherList'
-import { VoucherUpload } from './components/VoucherUpload'
-import { TransactionUpload } from './components/TransactionUpload'
-import { BankReconciliation } from './components/BankReconciliation'
-import { PaymentManagement } from './components/PaymentManagement'
-import { HistoricalRecordsUpload } from './components/HistoricalRecordsUpload'
-import { UserManagement } from './components/UserManagement'
 import { ApiStatus } from './components/ApiStatus'
-import AuthCallback from './pages/AuthCallback'
+import { createAppRoutes } from './router/AppRoute'
+import { BaseLayout } from './layouts/BaseLayout'
 import './App.css'
 
 // Create a client
@@ -29,43 +18,7 @@ const queryClient = new QueryClient({
   },
 })
 
-const imgAlt = "El Agave logo";
-
-function Layout({ children, showMenu = false }: { children: React.ReactNode; showMenu?: boolean }): React.ReactNode {
-  return (
-    <div className="min-h-screen flex flex-col">
-      {showMenu && <HamburgerMenu />}
-      <div className='text-center'>
-        <div className="flex flex-col justify-center items-center md:flex-row md:justify-evenly p-8 bg-base">
-          <h1 className='mt-6 text-3xl font-bold md:text-4xl md:order-1'>
-            <a href="/" className='flex items-center'>
-              <span>Condominio El Agave</span>
-              <img
-                className="md:mt-0 mx-2"
-                src="/logo_el_agave.png"
-                alt={imgAlt}
-                width={60}
-                height={60}
-              />
-            </a>
-          </h1>
-          <img
-            className="rounded-full mt-3 md:mt-0"
-            src="/el-agave-1.png"
-            alt={imgAlt}
-            width={250}
-            height={250}
-          />
-        </div>
-      </div>
-      {children}
-      <Footer />
-    </div>
-  );
-}
-
 function App(): React.ReactNode {
-  // Capturar errores globales
   window.addEventListener('error', (event: ErrorEvent): void => {
     console.error('🚨 [Global Error]:', event.error);
   });
@@ -80,68 +33,7 @@ function App(): React.ReactNode {
         <AuthProvider>
           <ApiStatus />
           <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<Layout showMenu={true}><Home /></Layout>} />
-            <Route path="/login" element={<Layout><Login /></Layout>} />
-            <Route path="/auth/callback" element={<AuthCallback />} />
-
-            {/* Protected routes */}
-            <Route
-              path="/subir-comprobante"
-              element={
-                <ProtectedRoute>
-                  <Layout showMenu={true}><VoucherUpload /></Layout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/vouchers"
-              element={
-                <ProtectedRoute>
-                  <Layout showMenu={true}><VoucherList /></Layout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/transactions"
-              element={
-                <ProtectedRoute>
-                  <Layout showMenu={true}><TransactionUpload /></Layout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/reconciliation"
-              element={
-                <ProtectedRoute>
-                  <Layout showMenu={true}><BankReconciliation /></Layout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/payment-management"
-              element={
-                <ProtectedRoute>
-                  <Layout showMenu={true}><PaymentManagement /></Layout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/historical-records-upload"
-              element={
-                <ProtectedRoute>
-                  <Layout showMenu={true}><HistoricalRecordsUpload /></Layout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/user-management"
-              element={
-                <ProtectedRoute>
-                  <Layout showMenu={true}><UserManagement /></Layout>
-                </ProtectedRoute>
-              }
-            />
+            {createAppRoutes(BaseLayout)}
           </Routes>
         </AuthProvider>
       </BrowserRouter>

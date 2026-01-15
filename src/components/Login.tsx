@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '@hooks/useAuth';
 
-export default function Login() {
+export function Login() {
   console.log('📝 [Login] Component rendering');
 
   const [email, setEmail] = useState('');

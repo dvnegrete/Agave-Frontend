@@ -103,4 +103,6 @@ export type {
 export type {
   ApiResponse,
   ApiError,
+  BaseLayoutProps,
+  MenuItem
 } from './common.types';
