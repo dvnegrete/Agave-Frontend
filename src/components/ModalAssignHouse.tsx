@@ -1,134 +1,128 @@
+import { useState, useEffect } from 'react';
 import { Button } from '../ui/Button';
-import { StatusBadge } from '../ui/StatusBadge';
-import { DateTimeCell } from '../ui/DateTimeCell';
-import type { UnclaimedDeposit } from '../types/unclaimed-deposits';
+import type { User, AssignHouseRequest } from '../types/user-management.types';
 
 interface ModalAssignHouseProps {
   isOpen: boolean;
-  deposit: UnclaimedDeposit | null;
-  houseNumber: string;
-  notes: string;
-  isLoading: boolean;
-  error: string | null;
-  onHouseNumberChange: (value: string) => void;
-  onNotesChange: (value: string) => void;
-  onAssign: () => void;
+  user: User | null;
+  onSave: (userId: string, data: AssignHouseRequest) => Promise<void>;
   onClose: () => void;
 }
 
-/**
- * Modal para asignar una casa a un depósito no reclamado
- * Muestra los detalles del depósito y un formulario para ingresar el número de casa
- */
-export function ModalAssignHouse({
-  isOpen,
-  deposit,
-  houseNumber,
-  notes,
-  isLoading,
-  error,
-  onHouseNumberChange,
-  onNotesChange,
-  onAssign,
-  onClose,
-}: ModalAssignHouseProps) {
-  if (!isOpen || !deposit) return null;
+export function ModalAssignHouse({ isOpen, user, onSave, onClose }: ModalAssignHouseProps) {
+  const [houseNumber, setHouseNumber] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setHouseNumber('');
+      setError(null);
+    }
+  }, [isOpen]);
+
+  if (!isOpen || !user) return null;
+
+  const handleSave = async (): Promise<void> => {
+    const house = parseInt(houseNumber, 10);
+
+    // Validation
+    if (!houseNumber || isNaN(house)) {
+      setError('Por favor ingresa un número de casa válido');
+      return;
+    }
+
+    if (house < 1 || house > 999) {
+      setError('El número de casa debe estar entre 1 y 999');
+      return;
+    }
+
+    if (user.houses.includes(house)) {
+      setError('Este usuario ya tiene asignada esta casa');
+      return;
+    }
+
+    setIsSaving(true);
+    setError(null);
+
+    try {
+      await onSave(user.id, { house_number: house });
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al asignar la casa');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
-    <div className="fixed inset-0 bg-base z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
       <div className="bg-secondary border-2 border-primary/20 rounded-lg p-6 max-w-md w-full shadow-xl">
         {/* Header */}
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-foreground mb-2">🏠 Asignar Casa</h2>
           <p className="text-sm text-foreground-secondary">
-            Asigna una casa a este depósito no reclamado
+            Asigna una casa a {user.name || 'este usuario'}
           </p>
         </div>
 
-        {/* Resumen del depósito */}
+        {/* User Info */}
         <div className="bg-base rounded-lg p-4 mb-6 space-y-2 text-sm">
           <div className="flex justify-between">
-            <span className="text-foreground-secondary">ID:</span>
-            <span className="font-mono text-foreground">{deposit.transactionBankId}</span>
+            <span className="text-foreground-secondary">Nombre:</span>
+            <span className="font-semibold text-foreground">{user.name || 'Sin nombre'}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-foreground-secondary">Monto:</span>
-            <span className="font-bold text-foreground">${deposit.amount.toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between items-start">
-            <span className="text-foreground-secondary">Fecha y Hora:</span>
-            <div className="text-right">
-              <DateTimeCell
-                dateString={typeof deposit.date === 'string' ? deposit.date : deposit.date?.toISOString()}
-                timeString={deposit.time}
-                variant="compact"
-                showIcon={false}
-              />
-            </div>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-foreground-secondary">Estado:</span>
-            <StatusBadge
-              status={deposit.validationStatus === 'conflict' ? 'warning' : 'error'}
-              label={deposit.validationStatus === 'conflict' ? 'Conflicto' : 'No Encontrado'}
-            />
+            <span className="text-foreground-secondary">Casas actuales:</span>
+            <span className="font-semibold text-foreground">
+              {user.houses.length > 0 ? user.houses.join(', ') : 'Ninguna'}
+            </span>
           </div>
         </div>
 
-        {/* Formulario */}
-        <div className="space-y-4 mb-6">
+        {/* Error Message */}
+        {error && (
+          <div className="bg-error/20 border border-error text-error p-3 rounded mb-4 text-sm">
+            ❌ {error}
+          </div>
+        )}
+
+        {/* Form */}
+        <div className="mb-6 space-y-4">
           <div>
             <label className="block text-sm font-semibold text-foreground mb-2">
-              Número de Casa (1-66) *
+              Número de Casa *
             </label>
             <input
               type="number"
               min="1"
-              max="66"
+              max="999"
               value={houseNumber}
-              onChange={(e) => onHouseNumberChange(e.target.value)}
-              placeholder="Ej: 15"
+              onChange={(e) => setHouseNumber(e.target.value)}
+              placeholder="Ej: 101"
               className="w-full px-4 py-2 bg-base border-2 border-base rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-foreground transition-all duration-200"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-foreground mb-2">
-              Notas (Opcional)
-            </label>
-            <textarea
-              value={notes}
-              onChange={(e) => onNotesChange(e.target.value)}
-              placeholder="Ej: Confirmado con el residente..."
-              rows={3}
-              className="w-full px-4 py-2 bg-base border-2 border-base rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-foreground placeholder-foreground-tertiary transition-all duration-200 resize-none"
             />
           </div>
         </div>
 
-        {/* Error del formulario */}
-        {error && (
-          <div className="bg-error/10 border-l-4 border-error rounded-lg p-3 mb-4 text-sm text-error">
-            {error}
-          </div>
-        )}
-
-        {/* Botones */}
-        <div className="flex gap-3 justify-end">
+        {/* Actions */}
+        <div className="flex gap-3">
           <Button
-            onClick={onClose}
-            disabled={isLoading}
             variant="sameUi"
+            onClick={onClose}
+            disabled={isSaving}
+            className="flex-1"
           >
             Cancelar
           </Button>
           <Button
-            onClick={onAssign}
-            disabled={isLoading || !houseNumber}
-            isLoading={isLoading}
-            variant="success"
+            variant="primary"
+            onClick={handleSave}
+            isLoading={isSaving}
+            disabled={!houseNumber}
+            className="flex-1"
           >
-            Asignar
+            Asignar Casa
           </Button>
         </div>
       </div>

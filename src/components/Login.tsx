@@ -13,7 +13,7 @@ export default function Login() {
   const { login, loginWithOAuth } = useAuth();
   console.log('✅ [Login] useAuth hook initialized, login function available:', !!login);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     console.log('📝 [Login] handleSubmit called');
     e.preventDefault();
     setError(null);
@@ -32,7 +32,7 @@ export default function Login() {
     }
   };
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleLogin = async (): Promise<void> => {
     console.log('🔐 [Login] handleGoogleLogin called');
     setError(null);
     setIsLoading(true);
@@ -49,7 +49,7 @@ export default function Login() {
     }
   };
 
-  const handleFacebookLogin = async () => {
+  const handleFacebookLogin = async (): Promise<void> => {
     setError(null);
     setIsLoading(true);
 

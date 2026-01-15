@@ -16,16 +16,20 @@ const menuItems: MenuItem[] = [
   { path: '/payment-management', label: 'Gestión de Pagos', icon: '💳' },
 ];
 
+const adminMenuItems: MenuItem[] = [
+  { path: '/user-management', label: 'Administración de Usuarios', icon: '👥' },
+];
+
 export function HamburgerMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { user, logout } = useAuth();
 
-  const toggleMenu = () => {
+  const toggleMenu = (): void => {
     setIsOpen(!isOpen);
   };
 
-  const closeMenu = () => {
+  const closeMenu = (): void => {
     setIsOpen(false);
   };
 
@@ -95,6 +99,36 @@ export function HamburgerMenu() {
                   </li>
                 );
               })}
+
+              {/* Admin Menu Items */}
+              {user?.role === 'admin' && (
+                <>
+                  <li className="pt-2 mt-2 border-t border-base">
+                    <p className="px-4 py-2 text-xs font-bold text-foreground-secondary uppercase tracking-wide">
+                      Administración
+                    </p>
+                  </li>
+                  {adminMenuItems.map((item) => {
+                    const isActive = location.pathname === item.path;
+                    return (
+                      <li key={item.path}>
+                        <Link
+                          to={item.path}
+                          onClick={closeMenu}
+                          className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                            isActive
+                              ? 'bg-error/30 font-bold shadow-sm text-error'
+                              : 'text-foreground'
+                          }`}
+                        >
+                          <span className="text-xl">{item.icon}</span>
+                          <span>{item.label}</span>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </>
+              )}
             </ul>
           </nav>
 

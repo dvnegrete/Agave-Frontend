@@ -8,8 +8,20 @@ import { StatsCard } from '../ui/StatsCard';
 import { Table, type TableColumn } from '../ui/Table';
 import { ExpandableTable, type ExpandableTableColumn } from '../ui/ExpandableTable';
 import { UnclaimedDepositsSection } from './UnclaimedDepositsSection';
+import type { HousePaymentTransaction, UnreconciledVoucher } from '../types/api.types';
 
 type ActiveTab = 'periods' | 'create-period' | 'house-payments' | 'house-balance' | 'unclaimed-deposits';
+
+type PaymentMovement = (HousePaymentTransaction & { type: 'transaction'; _date: number }) |
+  (Omit<UnreconciledVoucher, 'created_at'> & {
+    type: 'voucher';
+    time: string;
+    created_at: string;
+    confirmation_code: string;
+    _date: number;
+  });
+
+type BalanceStatusVariant = 'success' | 'info' | 'error' | 'warning';
 
 export function PaymentManagement() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('periods');
@@ -31,7 +43,7 @@ export function PaymentManagement() {
   const { balance, isLoading: balanceLoading } = useHouseBalanceQuery(selectedHouseId);
 
   // Handlers
-  const handleCreatePeriod = async () => {
+  const handleCreatePeriod = async (): Promise<void> => {
     try {
       await createPeriod({ year: newYear, month: newMonth });
       setNewYear(new Date().getFullYear());
@@ -43,7 +55,7 @@ export function PaymentManagement() {
     }
   };
 
-  const handleCreateConfig = async () => {
+  const handleCreateConfig = async (): Promise<void> => {
     try {
       await createConfig(newConfigData);
       setNewConfigData({
@@ -60,7 +72,7 @@ export function PaymentManagement() {
   };
 
   // Helper para mapear estados de saldo a variantes de StatusBadge
-  const getBalanceStatusVariant = (status: string) => {
+  const getBalanceStatusVariant = (status: string): BalanceStatusVariant => {
     switch (status) {
       case 'balanced':
         return 'success';
@@ -368,10 +380,10 @@ export function PaymentManagement() {
               {/* Tabla de transacciones y vouchers expandible */}
               {(() => {
                 // Combinar transacciones y vouchers no reconciliados
-                const allMovements: any[] = [];
+                const allMovements: PaymentMovement[] = [];
 
                 if (paymentHistory.transactions && paymentHistory.transactions.length > 0) {
-                  paymentHistory.transactions.forEach((transaction) => {
+                  paymentHistory.transactions.forEach((transaction: HousePaymentTransaction) => {
                     allMovements.push({
                       ...transaction,
                       type: 'transaction',
@@ -381,7 +393,7 @@ export function PaymentManagement() {
                 }
 
                 if (paymentHistory.unreconciled_vouchers?.vouchers && paymentHistory.unreconciled_vouchers.vouchers.length > 0) {
-                  paymentHistory.unreconciled_vouchers.vouchers.forEach((voucher) => {
+                  paymentHistory.unreconciled_vouchers.vouchers.forEach((voucher: UnreconciledVoucher) => {
                     allMovements.push({
                       date: voucher.date,
                       time: new Date(voucher.date).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
@@ -396,88 +408,104 @@ export function PaymentManagement() {
                 }
 
                 // Ordenar por fecha descendente
-                allMovements.sort((a, b) => b._date - a._date);
+                allMovements.sort((a: PaymentMovement, b: PaymentMovement) => b._date - a._date);
+
+                const renderMovementType = (movement: PaymentMovement): React.ReactNode => (
+                  <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${
+                    movement.type === 'transaction'
+                      ? 'bg-info/20 text-info'
+                      : 'bg-warning/20 text-warning'
+                  }`}>
+                    {movement.type === 'transaction' ? '🏦 Transacción Bancaria' : '📋 Comprobante'}
+                  </span>
+                );
+
+                const renderMovementDate = (movement: PaymentMovement): React.ReactNode => (
+                  <div className="text-sm font-mono">
+                    <div>{useFormatDate(movement.date)}</div>
+                    <div className="text-foreground-secondary text-xs">{movement.time}</div>
+                  </div>
+                );
+
+                const renderMovementAmount = (movement: PaymentMovement): string =>
+                  `$${movement.amount.toFixed(2)}`;
+
+                const renderMovementConcept = (movement: PaymentMovement): React.ReactNode => {
+                  if (movement.type === 'voucher') {
+                    return (
+                      <div className="space-y-1">
+                        <p className="text-xs text-foreground-secondary">Código de confirmación:</p>
+                        <p className="font-mono text-sm font-semibold text-primary">{movement.confirmation_code || '-'}</p>
+                      </div>
+                    );
+                  }
+                  return (movement as HousePaymentTransaction).concept || 'N/A';
+                };
+
+                const renderMovementBank = (movement: PaymentMovement): React.ReactNode => {
+                  if (movement.type === 'voucher') {
+                    return '';
+                  }
+                  return <p className="text-sm">{(movement as HousePaymentTransaction).bank_name || '-'}</p>;
+                };
+
+                const renderMovementStatus = (movement: PaymentMovement): React.ReactNode => (
+                  <StatusBadge
+                    status={movement.confirmation_status ? 'success' : 'warning'}
+                    label={movement.confirmation_status ? 'Confirmada' : 'Pendiente'}
+                    icon={movement.confirmation_status ? '✓' : '⏳'}
+                  />
+                );
+
+                const getMovementKey = (movement: PaymentMovement): string =>
+                  `${movement.type}-${movement.date}-${movement.amount}`;
 
                 return allMovements.length > 0 ? (
-                  <ExpandableTable
+                  <ExpandableTable<PaymentMovement>
                     data={allMovements}
                     mainColumns={[
                       {
                         id: 'type',
                         header: 'Tipo',
                         align: 'center',
-                        render: (movement: any) => (
-                          <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${
-                            movement.type === 'transaction'
-                              ? 'bg-info/20 text-info'
-                              : 'bg-warning/20 text-warning'
-                          }`}>
-                            {movement.type === 'transaction' ? '🏦 Transacción Bancaria' : '📋 Comprobante'}
-                          </span>
-                        ),
+                        render: renderMovementType,
                       },
                       {
                         id: 'date',
                         header: 'Fecha y Hora',
                         align: 'center',
-                        render: (movement: any) => (
-                          <div className="text-sm font-mono">
-                            <div>{useFormatDate(movement.date)}</div>
-                            <div className="text-foreground-secondary text-xs">{movement.time}</div>
-                          </div>
-                        ),
+                        render: renderMovementDate,
                       },
                       {
                         id: 'amount',
                         header: 'Monto',
                         align: 'center',
-                        render: (movement: any) => `$${movement.amount.toFixed(2)}`,
+                        render: renderMovementAmount,
                         className: 'font-semibold text-primary-light',
                       },
-                    ] as ExpandableTableColumn[]}
+                    ]}
                     expandableColumns={[
                       {
                         id: 'concept',
                         header: 'Concepto',
                         align: 'left',
-                        render: (movement: any) => {
-                          if (movement.type === 'voucher') {
-                            return (
-                              <div className="space-y-1">
-                                <p className="text-xs text-foreground-secondary">Código de confirmación:</p>
-                                <p className="font-mono text-sm font-semibold text-primary">{movement.confirmation_code || '-'}</p>
-                              </div>
-                            );
-                          }
-                          return movement.concept || 'N/A';
-                        },
+                        render: renderMovementConcept,
                       },
                       {
                         id: 'bank_or_code',
                         header: 'Banco',
                         align: 'left',
-                        render: (movement: any) => {
-                          if (movement.type === 'voucher') {
-                            return '';
-                          }
-                          return <p className="text-sm">{movement.bank_name || '-'}</p>;
-                        },
+                        render: renderMovementBank,
                       },
                       {
                         id: 'confirmation_status',
                         header: 'Estatus',
                         align: 'center',
-                        render: (movement: any) => (
-                          <StatusBadge
-                            status={movement.confirmation_status ? 'success' : 'warning'}
-                            label={movement.confirmation_status ? 'Confirmada' : 'Pendiente'}
-                            icon={movement.confirmation_status ? '✓' : '⏳'}
-                          />
-                        ),
+                        render: renderMovementStatus,
                       },
-                    ] as ExpandableTableColumn[]}
+                    ]}
                     expandedRowLayout="table"
-                    keyField={(movement: any) => `${movement.type}-${movement.date}-${movement.amount}`}
+                    keyField={getMovementKey}
                     variant="spacious"
                     emptyMessage="No hay movimientos registrados"
                   />

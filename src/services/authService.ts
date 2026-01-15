@@ -18,11 +18,16 @@ export const signIn = async (
   credentials: LoginRequest,
   signal?: AbortSignal
 ): Promise<AuthResponse> => {
-  return httpClient.post<AuthResponse>(
-    API_ENDPOINTS.authSignIn,
-    credentials,
-    { signal }
-  );
+  try {
+    return httpClient.post<AuthResponse>(
+      API_ENDPOINTS.authSignIn,
+      credentials,
+      { signal }
+    );
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in signIn:', err);
+    throw err;
+  }
 };
 
 /**
@@ -44,9 +49,9 @@ export const initOAuthFlow = async (
     );
     console.log('🔐 [authService] initOAuthFlow response:', response);
     return response;
-  } catch (error) {
-    console.error('❌ [authService] initOAuthFlow error:', error);
-    throw error;
+  } catch (err: unknown) {
+    console.error('❌ [authService] initOAuthFlow error:', err);
+    throw err;
   }
 };
 
@@ -70,9 +75,9 @@ export const handleOAuthCallback = async (
       hasRefreshToken: !!response.refreshToken,
     });
     return response;
-  } catch (error) {
-    console.error('❌ [authService] handleOAuthCallback error:', error);
-    throw error;
+  } catch (err: unknown) {
+    console.error('❌ [authService] handleOAuthCallback error:', err);
+    throw err;
   }
 };
 
@@ -84,11 +89,16 @@ export const refreshToken = async (
   refreshTokenValue: string,
   signal?: AbortSignal
 ): Promise<{ success: boolean }> => {
-  return httpClient.post<{ success: boolean }>(
-    API_ENDPOINTS.authRefresh,
-    { refreshToken: refreshTokenValue },
-    { signal }
-  );
+  try {
+    return httpClient.post<{ success: boolean }>(
+      API_ENDPOINTS.authRefresh,
+      { refreshToken: refreshTokenValue },
+      { signal }
+    );
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in refreshToken:', err);
+    throw err;
+  }
 };
 
 /**
@@ -97,10 +107,15 @@ export const refreshToken = async (
 export const getCurrentUser = async (
   signal?: AbortSignal
 ): Promise<User> => {
-  return httpClient.get<User>(
-    API_ENDPOINTS.authMe,
-    { signal }
-  );
+  try {
+    return httpClient.get<User>(
+      API_ENDPOINTS.authMe,
+      { signal }
+    );
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in getCurrentUser:', err);
+    throw err;
+  }
 };
 
 /**
@@ -109,9 +124,14 @@ export const getCurrentUser = async (
 export const signOut = async (
   signal?: AbortSignal
 ): Promise<void> => {
-  await httpClient.post<void>(
-    API_ENDPOINTS.authSignOut,
-    {},
-    { signal }
-  );
+  try {
+    await httpClient.post<void>(
+      API_ENDPOINTS.authSignOut,
+      {},
+      { signal }
+    );
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in signOut:', err);
+    throw err;
+  }
 };

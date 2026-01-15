@@ -13,6 +13,7 @@ import { TransactionUpload } from './components/TransactionUpload'
 import { BankReconciliation } from './components/BankReconciliation'
 import { PaymentManagement } from './components/PaymentManagement'
 import { HistoricalRecordsUpload } from './components/HistoricalRecordsUpload'
+import { UserManagement } from './components/UserManagement'
 import { ApiStatus } from './components/ApiStatus'
 import AuthCallback from './pages/AuthCallback'
 import './App.css'
@@ -130,6 +131,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Layout showMenu={true}><HistoricalRecordsUpload /></Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/user-management"
+              element={
+                <ProtectedRoute>
+                  <Layout showMenu={true}><UserManagement /></Layout>
                 </ProtectedRoute>
               }
             />

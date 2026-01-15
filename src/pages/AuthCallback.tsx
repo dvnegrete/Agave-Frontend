@@ -10,14 +10,23 @@ import { tokenManager } from '../utils/tokenManager';
 import * as authService from '../services/authService';
 import { useAuth } from '../hooks/useAuth';
 
-export default function AuthCallback() {
+interface JWTPayload {
+  sub: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  iat?: number;
+  exp?: number;
+}
+
+export default function AuthCallback(): JSX.Element {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { updateUser } = useAuth();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const handleCallback = async () => {
+    const handleCallback = async (): Promise<void> => {
       console.log('🔐 [AuthCallback] useEffect triggered');
       console.log('🔐 [AuthCallback] Current window.location.href:', window.location.href);
       console.log('🔐 [AuthCallback] Current window.location.hash:', window.location.hash);
@@ -61,14 +70,33 @@ export default function AuthCallback() {
         // Backend automatically set access_token cookie
         // Extract user info from refresh token JWT
         try {
-          const payload = JSON.parse(atob(response.refreshToken.split('.')[1]));
-          console.log('🔐 [AuthCallback] Extracted JWT payload:', payload);
+          const tokenParts = response.refreshToken.split('.');
+          if (tokenParts.length !== 3) {
+            throw new Error('Invalid JWT token format');
+          }
+
+          const payload = JSON.parse(atob(tokenParts[1])) as unknown;
+
+          // Validate JWT payload structure
+          if (
+            typeof payload !== 'object' ||
+            payload === null ||
+            !('sub' in payload) ||
+            !('email' in payload) ||
+            !('firstName' in payload) ||
+            !('lastName' in payload)
+          ) {
+            throw new Error('JWT payload missing required fields');
+          }
+
+          const validatedPayload = payload as JWTPayload;
+          console.log('🔐 [AuthCallback] Extracted JWT payload:', validatedPayload);
 
           const user = {
-            id: payload.sub,
-            email: payload.email,
-            firstName: payload.firstName,
-            lastName: payload.lastName,
+            id: validatedPayload.sub,
+            email: validatedPayload.email,
+            firstName: validatedPayload.firstName,
+            lastName: validatedPayload.lastName,
           };
 
           console.log('🔐 [AuthCallback] Extracted user info:', user);
@@ -79,11 +107,11 @@ export default function AuthCallback() {
 
           console.log('✅ [AuthCallback] OAuth authentication successful');
           setTimeout(() => navigate('/'), 500);
-        } catch (parseErr) {
+        } catch (parseErr: unknown) {
           console.error('❌ [AuthCallback] Error parsing JWT payload:', parseErr);
           throw new Error('Failed to parse authentication token');
         }
-      } catch (err) {
+      } catch (err: unknown) {
         console.error('❌ [AuthCallback] OAuth callback error:', err);
         setError(err instanceof Error ? err.message : 'Authentication failed');
         setTimeout(() => navigate('/login'), 3000);

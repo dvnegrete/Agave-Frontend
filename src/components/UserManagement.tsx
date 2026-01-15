@@ -1,0 +1,142 @@
+import { useEffect, useState } from 'react';
+import { useAuth } from '../hooks/useAuth';
+import { useUserManagement } from '../hooks/useUserManagement';
+import { UserManagementTable } from './UserManagementTable';
+import { ModalEditUserRole } from './ModalEditUserRole';
+import { ModalEditUserStatus } from './ModalEditUserStatus';
+import { ModalAssignHouse } from './ModalAssignHouse';
+import { ModalRemoveHouse } from './ModalRemoveHouse';
+import type { User } from '../types/user-management.types';
+
+type ModalType = 'role' | 'status' | 'assign' | 'remove' | null;
+
+export function UserManagement() {
+  const { user: currentUser } = useAuth();
+  const { users, loading, error, fetchUsers, changeRole, changeStatus, addHouse, removeUserHouse } =
+    useUserManagement();
+
+  // Modal state
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [modalType, setModalType] = useState<ModalType>(null);
+  const [selectedHouseNumber, setSelectedHouseNumber] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  // Check if current user is admin
+  if (currentUser?.role !== 'admin') {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="bg-error/20 border-2 border-error text-error rounded-lg p-6 text-center">
+          <div className="text-3xl mb-2">⛔</div>
+          <h2 className="text-xl font-bold mb-2">Acceso Denegado</h2>
+          <p className="text-sm">Solo administradores pueden acceder a esta página.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const openModal = (type: ModalType, user: User, houseNumber?: number): void => {
+    setSelectedUser(user);
+    setModalType(type);
+    if (houseNumber) setSelectedHouseNumber(houseNumber);
+  };
+
+  const closeModal = (): void => {
+    setSelectedUser(null);
+    setModalType(null);
+    setSelectedHouseNumber(null);
+  };
+
+  return (
+    <div className="container mx-auto p-6">
+      {/* Header */}
+      <header className="mb-8">
+        <h1 className="text-4xl font-bold text-foreground mb-2">👥 Administración de Usuarios</h1>
+        <p className="text-foreground-secondary">
+          Gestiona los usuarios del condominio, roles, estados y asignación de casas
+        </p>
+      </header>
+
+      {/* Error Banner */}
+      {error && (
+        <div className="bg-error/20 border-2 border-error text-error rounded-lg p-4 mb-6 flex items-start gap-3">
+          <span className="text-2xl">❌</span>
+          <div>
+            <h3 className="font-bold">Error</h3>
+            <p className="text-sm">{error}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="bg-base border-l-4 border-primary rounded-lg p-4">
+          <div className="text-foreground-secondary text-sm font-semibold">Total Usuarios</div>
+          <div className="text-3xl font-bold text-primary mt-2">{users.length}</div>
+        </div>
+        <div className="bg-base border-l-4 border-success rounded-lg p-4">
+          <div className="text-foreground-secondary text-sm font-semibold">Activos</div>
+          <div className="text-3xl font-bold text-success mt-2">
+            {users.filter((u) => u.status === 'active').length}
+          </div>
+        </div>
+        <div className="bg-base border-l-4 border-warning rounded-lg p-4">
+          <div className="text-foreground-secondary text-sm font-semibold">Suspendidos</div>
+          <div className="text-3xl font-bold text-warning mt-2">
+            {users.filter((u) => u.status === 'suspend').length}
+          </div>
+        </div>
+        <div className="bg-base border-l-4 border-error rounded-lg p-4">
+          <div className="text-foreground-secondary text-sm font-semibold">Inactivos</div>
+          <div className="text-3xl font-bold text-error mt-2">
+            {users.filter((u) => u.status === 'inactive').length}
+          </div>
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="bg-secondary border border-base rounded-lg overflow-hidden shadow-lg">
+        <UserManagementTable
+          users={users}
+          loading={loading}
+          onEditRole={(user) => openModal('role', user)}
+          onEditStatus={(user) => openModal('status', user)}
+          onAssignHouse={(user) => openModal('assign', user)}
+          onRemoveHouse={(user, houseNumber) => openModal('remove', user, houseNumber)}
+        />
+      </div>
+
+      {/* Modals */}
+      <ModalEditUserRole
+        isOpen={modalType === 'role'}
+        user={selectedUser}
+        onSave={changeRole}
+        onClose={closeModal}
+      />
+
+      <ModalEditUserStatus
+        isOpen={modalType === 'status'}
+        user={selectedUser}
+        onSave={changeStatus}
+        onClose={closeModal}
+      />
+
+      <ModalAssignHouse
+        isOpen={modalType === 'assign'}
+        user={selectedUser}
+        onSave={addHouse}
+        onClose={closeModal}
+      />
+
+      <ModalRemoveHouse
+        isOpen={modalType === 'remove'}
+        user={selectedUser}
+        houseNumber={selectedHouseNumber}
+        onConfirm={removeUserHouse}
+        onClose={closeModal}
+      />
+    </div>
+  );
+}

@@ -28,4 +28,12 @@ export const API_ENDPOINTS = {
   paymentManagementConfig: '/payment-management/config',
   paymentManagementHousePayments: (houseId: number) => `/payment-management/houses/${houseId}/payments`,
   paymentManagementHouseBalance: (houseId: number) => `/payment-management/houses/${houseId}/balance`,
+
+  // User Management
+  userManagementUsers: '/user-management/users',
+  userManagementUserRole: (userId: string) => `/user-management/users/${userId}/role`,
+  userManagementUserStatus: (userId: string) => `/user-management/users/${userId}/status`,
+  userManagementUserHouses: (userId: string) => `/user-management/users/${userId}/houses`,
+  userManagementUserHouseRemove: (userId: string, houseNumber: number) =>
+    `/user-management/users/${userId}/houses/${houseNumber}`,
 } as const;
