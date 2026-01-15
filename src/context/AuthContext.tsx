@@ -9,6 +9,7 @@ import type { User, AuthContextType } from '@/shared/types/auth.types';
 import { AuthContext } from './AuthContextStore';
 import { tokenManager } from '@utils/tokenManager';
 import * as authService from '@services/authService';
+import { ROUTES } from '@/shared';
 
 interface AuthProviderProps {
   children: React.ReactNode;
@@ -70,7 +71,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(response.user);
       console.log('🔐 [AuthContext] User state updated, navigating to home');
 
-      navigate('/');
+      navigate(ROUTES.HOME);
     } catch (error) {
       console.error('❌ [AuthContext] Login error:', error);
       throw error;
@@ -119,7 +120,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     authService.signOut().catch(console.error);
     tokenManager.clearAll();
     setUser(null);
-    navigate('/login');
+    navigate(ROUTES.LOGIN);
   }, [navigate]);
 
   /**

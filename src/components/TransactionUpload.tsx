@@ -8,7 +8,7 @@ import { StatsCard } from '@shared/ui';
 import { Table, type TableColumn } from '@shared/ui';
 import { BankSelector } from '@shared/ui/BankSelector';
 import { FileUploadZone } from '@shared/ui/FileUploadZone';
-import type { UploadedTransaction } from '@shared';
+import { ROUTES, type UploadedTransaction } from '@shared';
 
 export function TransactionUpload() {
   const navigate = useNavigate();
@@ -314,7 +314,7 @@ export function TransactionUpload() {
             </p>
           </div>
           <Button
-            onClick={() => navigate('/historical-records-upload')}
+            onClick={() => navigate(ROUTES.HISTORICAL_RECORDS_UPLOAD)}
             variant="error"
             className="whitespace-nowrap"
           >

@@ -9,12 +9,14 @@ import { useNavigate } from 'react-router-dom';
 import { tokenManager } from '@utils/tokenManager';
 import * as authService from '@services/authService';
 import { useAuth } from '@hooks/useAuth';
+import { ROUTES } from '@/shared';
 
 interface JWTPayload {
   sub: string;
   email: string;
   firstName: string;
   lastName: string;
+  role?: string;
   iat?: number;
   exp?: number;
 }
@@ -47,7 +49,7 @@ export default function AuthCallback() {
       if (!accessToken) {
         console.error('❌ [AuthCallback] No access token found in hash');
         setError('No access token received from OAuth provider');
-        setTimeout(() => navigate('/login'), 3000);
+        setTimeout(() => navigate(ROUTES.HOME), 3000);
         return;
       }
 
@@ -96,6 +98,7 @@ export default function AuthCallback() {
             email: validatedPayload.email,
             firstName: validatedPayload.firstName,
             lastName: validatedPayload.lastName,
+            role: validatedPayload.role,
           };
 
           console.log('🔐 [AuthCallback] Extracted user info:', user);
@@ -105,7 +108,7 @@ export default function AuthCallback() {
           updateUser(user);
 
           console.log('✅ [AuthCallback] OAuth authentication successful');
-          setTimeout(() => navigate('/'), 500);
+          setTimeout(() => navigate(ROUTES.HOME), 500);
         } catch (parseErr: unknown) {
           console.error('❌ [AuthCallback] Error parsing JWT payload:', parseErr);
           throw new Error('Failed to parse authentication token');
@@ -113,7 +116,7 @@ export default function AuthCallback() {
       } catch (err: unknown) {
         console.error('❌ [AuthCallback] OAuth callback error:', err);
         setError(err instanceof Error ? err.message : 'Authentication failed');
-        setTimeout(() => navigate('/login'), 3000);
+        setTimeout(() => navigate(ROUTES.LOGIN), 3000);
       }
     };
 
