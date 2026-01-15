@@ -48,3 +48,6 @@ export interface HistoricalRecordsUploadHistory {
   failed: number;
   success_rate: number;
 }
+
+// Component UI Types
+export type ActiveTab = 'upload' | 'history';

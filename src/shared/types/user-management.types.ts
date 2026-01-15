@@ -41,3 +41,11 @@ export interface AssignHouseResponse {
 export interface UsersResponse {
   users: User[];
 }
+
+// Modal Types for User Management
+export type ModalType =
+  | 'role'
+  | 'status'
+  | 'assign'
+  | 'remove'
+  | null;

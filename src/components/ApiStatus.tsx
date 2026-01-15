@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { API_BASE_URL } from '@config/api';
+import type { ApiStatus } from '@shared/types';
 
 export function ApiStatus() {
-  const [status, setStatus] = useState<'checking' | 'online' | 'offline'>('checking');
+  const [status, setStatus] = useState<ApiStatus>('checking');
 
   useEffect(() => {
 

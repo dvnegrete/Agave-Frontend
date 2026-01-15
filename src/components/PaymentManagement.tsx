@@ -8,20 +8,7 @@ import { StatsCard } from '@shared/ui';
 import { Table, type TableColumn } from '@shared/ui';
 import { ExpandableTable } from '@shared/ui';
 import { UnclaimedDepositsSection } from './UnclaimedDepositsSection';
-import type { HousePaymentTransaction, UnreconciledVoucher, PeriodResponseDto } from '@shared';
-
-type ActiveTab = 'periods' | 'create-period' | 'house-payments' | 'house-balance' | 'unclaimed-deposits';
-
-type PaymentMovement = (HousePaymentTransaction & { type: 'transaction'; _date: number }) |
-  (Omit<UnreconciledVoucher, 'created_at'> & {
-    type: 'voucher';
-    time: string;
-    created_at: string;
-    confirmation_code: string;
-    _date: number;
-  });
-
-type BalanceStatusVariant = 'success' | 'info' | 'error' | 'warning';
+import type { HousePaymentTransaction, UnreconciledVoucher, PeriodResponseDto, ActiveTab, BalanceStatusVariant } from '@shared';
 
 export function PaymentManagement() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('periods');

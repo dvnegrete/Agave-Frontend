@@ -52,6 +52,20 @@ export type {
 // export { ConfidenceLevel } from './bank-reconciliation.types';
 export type { ConfidenceLevel } from './bank-reconciliation.types';
 
+// User management types
+export type {
+  Role,
+  Status,
+  User,
+  UpdateUserRoleRequest,
+  UpdateUserStatusRequest,
+  AssignHouseRequest,
+  RemoveHouseResponse,
+  AssignHouseResponse,
+  UsersResponse,
+  ModalType,
+} from './user-management.types';
+
 // Payment management types
 export type {
   PeriodResponseDto,
@@ -70,6 +84,9 @@ export type {
   HouseBalance,
   HouseBalanceDTO,
   PaymentManagementQuery,
+  ActiveTab as PaymentActiveTab,
+  BalanceStatusVariant,
+  PaymentMovement,
 } from './payment-management.types';
 
 // Historical records types
@@ -79,6 +96,7 @@ export type {
   HistoricalRecordResponseDto,
   HistoricalRecord,
   HistoricalRecordsUploadHistory,
+  ActiveTab as HistoricalRecordsActiveTab,
 } from './historical-records.types';
 
 // Voucher upload types
@@ -104,5 +122,7 @@ export type {
   ApiResponse,
   ApiError,
   BaseLayoutProps,
-  MenuItem
+  MenuItem,
+  ApiStatus,
+  Step,
 } from './common.types';

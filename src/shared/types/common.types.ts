@@ -1,9 +1,11 @@
-// Generic API Response
+// API
 export interface ApiResponse<T> {
   success: boolean;
   data: T;
   message?: string;
 }
+
+export type ApiStatus = 'checking' | 'online' | 'offline';
 
 export interface ApiError {
   success: false;
@@ -24,3 +26,6 @@ export interface MenuItem {
   label: string;
   icon: string;
 }
+
+// Voucher Upload Steps
+export type Step = 'upload' | 'review' | 'confirmed';

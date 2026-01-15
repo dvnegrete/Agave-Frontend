@@ -8,9 +8,7 @@ import {
   ModalAssignHouse,
   ModalRemoveHouse,
 } from '@components/index';
-import type { User } from '@/shared/types/user-management.types';
-
-type ModalType = 'role' | 'status' | 'assign' | 'remove' | null;
+import type { User, ModalType } from '@/shared/types/user-management.types';
 
 export function UserManagement() {
   const { user: currentUser } = useAuth();

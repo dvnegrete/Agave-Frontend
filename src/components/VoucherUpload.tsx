@@ -3,9 +3,8 @@ import { uploadVoucher, confirmVoucher } from '@services/voucherUploadService';
 import type {
   VoucherStructuredData,
   ValidationResult,
+  Step,
 } from '@shared';
-
-type Step = 'upload' | 'review' | 'confirmed';
 
 export function VoucherUpload() {
   const [step, setStep] = useState<Step>('upload');

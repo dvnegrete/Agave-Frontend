@@ -156,3 +156,18 @@ export interface PaymentManagementQuery {
   period_id?: number;
   [key: string]: unknown;
 }
+
+// Component UI Types
+export type ActiveTab = 'periods' | 'create-period' | 'house-payments' | 'house-balance' | 'unclaimed-deposits';
+
+// Balance Status Variants
+export type BalanceStatusVariant = 'success' | 'info' | 'error' | 'warning';
+
+// Payment Movement - union of HousePaymentTransaction and UnreconciledVoucher with additional fields
+export interface PaymentMovement {
+  id: string;
+  concept: string;
+  amount: number;
+  date: string;
+  type: 'income' | 'expense';
+}
