@@ -2,6 +2,7 @@ import { Route } from 'react-router-dom'
 import {
   Home,
   Login,
+  Signup,
   VoucherList,
   VoucherUpload,
   TransactionUpload,
@@ -20,6 +21,7 @@ export const createAppRoutes = (Layout: (props: BaseLayoutProps) => React.ReactN
     {/* Public routes */}
     <Route path="/" element={<Layout><Home /></Layout>} />
     <Route path={ROUTES.LOGIN} element={<Layout><Login /></Layout>} />
+    <Route path={ROUTES.SIGNUP} element={<Layout><Signup /></Layout>} />
     <Route path="/auth/callback" element={<AuthCallback />} />
     <Route path={ROUTES.VOUCHER_UPLOAD} element={<Layout><VoucherUpload /></Layout>}
     />

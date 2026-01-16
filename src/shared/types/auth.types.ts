@@ -24,6 +24,15 @@ export interface LoginRequest {
   [key: string]: unknown;
 }
 
+export interface SignupRequest {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  houseNumber: number;
+  [key: string]: unknown;
+}
+
 export interface OAuthCallbackRequest {
   code: string;
 }

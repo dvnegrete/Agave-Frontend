@@ -1,6 +1,7 @@
 export { AuthCallback } from './AuthCallback';
 export { Home } from './Home';
 export { Login } from './Login';
+export { Signup } from './Signup';
 export { VoucherList } from './VoucherList';
 export { VoucherUpload } from './VoucherUpload';
 export { TransactionUpload } from './TransactionUpload';

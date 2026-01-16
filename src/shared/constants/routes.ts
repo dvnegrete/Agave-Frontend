@@ -1,6 +1,7 @@
 export const ROUTES = {
     HOME: '/',
     LOGIN: '/login',
+    SIGNUP: '/registrarse',
     VOUCHER_UPLOAD: '/subir-comprobante',
     VOUCHER_LIST: '/comprobantes',
     TRANSACTION_UPLOAD: '/transacciones',

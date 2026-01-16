@@ -8,6 +8,7 @@ import { API_ENDPOINTS } from '@config/api';
 import type {
   AuthResponse,
   LoginRequest,
+  SignupRequest,
   User,
 } from '@/shared/types/auth.types';
 
@@ -26,6 +27,25 @@ export const signIn = async (
     );
   } catch (err: unknown) {
     console.error('Sign in failed:', err);
+    throw err;
+  }
+};
+
+/**
+ * Sign up new user with email and password
+ */
+export const signUp = async (
+  data: SignupRequest,
+  signal?: AbortSignal
+): Promise<AuthResponse> => {
+  try {
+    return httpClient.post<AuthResponse>(
+      API_ENDPOINTS.authSignUp,
+      data,
+      { signal }
+    );
+  } catch (err: unknown) {
+    console.error('Sign up failed:', err);
     throw err;
   }
 };
