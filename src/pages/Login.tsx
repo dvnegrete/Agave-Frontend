@@ -23,7 +23,7 @@ export function Login() {
       // Navigation is handled by AuthContext
     } catch (err) {
       console.error('Login failed:', err);
-      setError(err instanceof Error ? err.message : 'Login failed');
+      setError(err instanceof Error ? err.message : 'No se pudo completar el inicio de sesión. Por favor intenta de nuevo.');
     } finally {
       setIsLoading(false);
     }

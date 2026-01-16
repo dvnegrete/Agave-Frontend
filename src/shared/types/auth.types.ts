@@ -10,10 +10,10 @@ export interface User {
   lastName?: string;
   role?: string;
   status?: string;
+  houses?: number[];
 }
 
 export interface AuthResponse {
-  accessToken: string;
   refreshToken: string;
   user: User;
   requiresEmailConfirmation?: boolean;

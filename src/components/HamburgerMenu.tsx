@@ -155,15 +155,26 @@ export function HamburgerMenu() {
                   <p className="text-xs text-foreground-secondary text-center mb-2">
                     {user.email}
                   </p>
-                  <button
-                    onClick={() => {
-                      logout();
-                      closeMenu();
-                    }}
-                    className="w-full px-4 py-2 text-sm text-center bg-error hover:bg-error/90 text-white rounded-lg transition-colors font-semibold"
-                  >
-                    {ICONS.LOGOUT} {LABELS.LOGOUT}
-                  </button>
+
+                  {/* User has houses assigned - show logout */}
+                  {user.houses && user.houses.length > 0 && (
+                    <button
+                      onClick={() => {
+                        logout();
+                        closeMenu();
+                      }}
+                      className="w-full px-4 py-2 text-sm text-center bg-error hover:bg-error/90 text-white rounded-lg transition-colors font-semibold"
+                    >
+                      {ICONS.LOGOUT} {LABELS.LOGOUT}
+                    </button>
+                  )}
+
+                  {/* User has NO houses - show pending message */}
+                  {(!user.houses || user.houses.length === 0) && (
+                    <div className="w-full px-4 py-2 text-sm text-center bg-yellow-500/20 border border-yellow-500/50 text-yellow-600 dark:text-yellow-400 rounded-lg font-semibold">
+                      ⏳ En espera de confirmación por parte de un administrador
+                    </div>
+                  )}
                 </>
               )}
               {!user && (

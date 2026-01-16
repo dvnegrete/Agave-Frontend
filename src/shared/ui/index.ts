@@ -8,6 +8,7 @@ export { BankSelector } from './BankSelector';
 export { Button } from './Button';
 export { DateTimeCell } from './DateTimeCell';
 export { ExpandableTable } from './ExpandableTable';
+export { FormInput } from './FormInput';
 export type { ExpandableTableColumn, ExpandableTableProps } from './ExpandableTable';
 export { FacebookLoginButton } from './FacebookLoginButton';
 export { FileUploadZone } from './FileUploadZone';

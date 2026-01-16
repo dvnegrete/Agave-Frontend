@@ -2,6 +2,7 @@ export const ROUTES = {
     HOME: '/',
     LOGIN: '/login',
     SIGNUP: '/registrarse',
+    EMAIL_CONFIRMATION: '/confirmar-correo',
     VOUCHER_UPLOAD: '/subir-comprobante',
     VOUCHER_LIST: '/comprobantes',
     TRANSACTION_UPLOAD: '/transacciones',

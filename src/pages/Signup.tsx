@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as authService from '@services/authService';
 import { tokenManager } from '@utils/tokenManager';
+import { Button, FormInput } from '@/shared/ui';
 import { HOUSE_NUMBER_RANGE, ROUTES, VALIDATION_MESSAGES } from '@/shared';
 
 export function Signup() {
@@ -69,7 +70,7 @@ export function Signup() {
       }
 
       // Store tokens and user data only if we have valid tokens
-      if (response.accessToken && response.refreshToken) {
+      if (response.refreshToken) {
         tokenManager.setRefreshToken(response.refreshToken);
         tokenManager.setUser(response.user);
         // Navigate to home
@@ -96,7 +97,7 @@ export function Signup() {
         <div className="bg-secondary border-2 border-primary/20 rounded-lg p-8 shadow-xl">
           {/* Error Alert */}
           {error && (
-            <div className="flex items-start gap-3 p-4 border-l-4 border-error rounded-lg shadow-sm mb-6">
+            <div className="flex items-start gap-3 p-4 bg-error/10 border-l-4 border-error rounded-lg shadow-sm mb-6">
               <svg className="w-6 h-6 text-error flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -117,117 +118,84 @@ export function Signup() {
 
           {/* Signup Form */}
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            {/* First Name */}
-            <div className="flex flex-col gap-2">
-              <label htmlFor="firstName" className="text-sm font-semibold text-foreground">
-                Nombre
-              </label>
-              <input
-                type="text"
-                id="firstName"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                placeholder="Tu nombre"
-                className="px-4 py-3 bg-base border-2 border-base rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-foreground placeholder-foreground-tertiary transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                required
-                disabled={isLoading}
-              />
-            </div>
+            <FormInput
+              id="firstName"
+              label="Nombre"
+              type="text"
+              value={firstName}
+              onChange={setFirstName}
+              placeholder="Tu nombre"
+              required
+              disabled={isLoading}
+            />
 
-            {/* Last Name */}
-            <div className="flex flex-col gap-2">
-              <label htmlFor="lastName" className="text-sm font-semibold text-foreground">
-                Apellido
-              </label>
-              <input
-                type="text"
-                id="lastName"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                placeholder="Tu apellido"
-                className="px-4 py-3 bg-base border-2 border-base rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-foreground placeholder-foreground-tertiary transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                required
-                disabled={isLoading}
-              />
-            </div>
+            <FormInput
+              id="lastName"
+              label="Apellido"
+              type="text"
+              value={lastName}
+              onChange={setLastName}
+              placeholder="Tu apellido"
+              required
+              disabled={isLoading}
+            />
 
-            {/* House Number */}
-            <div className="flex flex-col gap-2">
-              <label htmlFor="houseNumber" className="text-sm font-semibold text-foreground">
-                🏠 Número de Casa <span className="text-foreground-tertiary text-xs">(Opcional)</span>
-              </label>
-              <input
-                type="number"
-                id="houseNumber"
-                value={houseNumber}
-                onChange={(e) => setHouseNumber(e.target.value)}
-                placeholder="Ej: 5, 12, 45"
-                min="1"
-                max="66"
-                className="px-4 py-3 bg-base border-2 border-base rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-foreground placeholder-foreground-tertiary transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={isLoading}
-              />
-            </div>
+            <FormInput
+              id="houseNumber"
+              label="🏠 Número de Casa"
+              type="number"
+              value={houseNumber}
+              onChange={setHouseNumber}
+              placeholder="Ej: 5, 12, 45"
+              required={false}
+              optional
+              min={HOUSE_NUMBER_RANGE.MIN}
+              max={HOUSE_NUMBER_RANGE.MAX}
+              disabled={isLoading}
+            />
 
-            {/* Email */}
-            <div className="flex flex-col gap-2">
-              <label htmlFor="email" className="text-sm font-semibold text-foreground">
-                Correo Electrónico
-              </label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="ejemplo@correo.com"
-                className="px-4 py-3 bg-base border-2 border-base rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-foreground placeholder-foreground-tertiary transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                required
-                disabled={isLoading}
-              />
-            </div>
+            <FormInput
+              id="email"
+              label="Correo Electrónico"
+              type="email"
+              value={email}
+              onChange={setEmail}
+              placeholder="ejemplo@correo.com"
+              required
+              disabled={isLoading}
+            />
 
-            {/* Password */}
-            <div className="flex flex-col gap-2">
-              <label htmlFor="password" className="text-sm font-semibold text-foreground">
-                Contraseña
-              </label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Mínimo 6 caracteres"
-                className="px-4 py-3 bg-base border-2 border-base rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-foreground placeholder-foreground-tertiary transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                required
-                disabled={isLoading}
-              />
-            </div>
+            <FormInput
+              id="password"
+              label="Contraseña"
+              type="password"
+              value={password}
+              onChange={setPassword}
+              placeholder="Mínimo 6 caracteres"
+              required
+              disabled={isLoading}
+            />
 
-            {/* Confirm Password */}
-            <div className="flex flex-col gap-2">
-              <label htmlFor="confirmPassword" className="text-sm font-semibold text-foreground">
-                Confirmar Contraseña
-              </label>
-              <input
-                type="password"
-                id="confirmPassword"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Repite tu contraseña"
-                className="px-4 py-3 bg-base border-2 border-base rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-foreground placeholder-foreground-tertiary transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                required
-                disabled={isLoading}
-              />
-            </div>
+            <FormInput
+              id="confirmPassword"
+              label="Confirmar Contraseña"
+              type="password"
+              value={confirmPassword}
+              onChange={setConfirmPassword}
+              placeholder="Repite tu contraseña"
+              required
+              disabled={isLoading}
+            />
 
-            {/* Submit Button */}
-            <button
+            <Button
               type="submit"
               disabled={isLoading}
-              className="w-full px-6 py-3 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              isLoading={isLoading}
+              variant="primary"
+              className="w-full justify-center"
             >
-              {isLoading ? 'Registrando...' : '📝 Crear Cuenta'}
-            </button>
+              📝 Crear Cuenta
+            </Button>
           </form>
 
           {/* Login Link */}
