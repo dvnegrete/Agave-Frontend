@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as authService from '@services/authService';
 import { tokenManager } from '@utils/tokenManager';
-import { ROUTES } from '@/shared';
+import { HOUSE_NUMBER_RANGE, ROUTES, VALIDATION_MESSAGES } from '@/shared';
 
 export function Signup() {
   const [firstName, setFirstName] = useState('');
@@ -25,8 +25,9 @@ export function Signup() {
       return;
     }
 
-    if (!houseNumber || parseInt(houseNumber) <= 0) {
-      setError('Por favor ingresa un número de casa válido');
+    // Validate house number if provided
+    if (houseNumber && (parseInt(houseNumber) < HOUSE_NUMBER_RANGE.MIN || parseInt(houseNumber) > HOUSE_NUMBER_RANGE.MAX)) {
+      setError(VALIDATION_MESSAGES.HOUSE_NUMBER_INVALID);
       return;
     }
 
@@ -43,20 +44,40 @@ export function Signup() {
     setIsLoading(true);
 
     try {
-      const response = await authService.signUp({
+      const signUpData: any = {
         email,
         password,
         firstName,
         lastName,
-        houseNumber: parseInt(houseNumber),
-      });
+      };
 
-      // Store tokens and user data
-      tokenManager.setRefreshToken(response.refreshToken);
-      tokenManager.setUser(response.user);
+      // Only include houseNumber if provided
+      if (houseNumber) {
+        signUpData.houseNumber = parseInt(houseNumber);
+      }
 
-      // Navigate to home
-      navigate(ROUTES.HOME);
+      const response = await authService.signUp(signUpData);
+
+      // Check if email confirmation is required
+      if (response.requiresEmailConfirmation) {
+        setError(null);
+        // Show success message
+        alert(`¡Cuenta creada exitosamente! 🎉\n\nPor favor verifica tu correo electrónico (${email}) para confirmar tu cuenta.\n\nUna vez confirmado, podrás iniciar sesión.`);
+        // Redirect to login page
+        navigate(ROUTES.LOGIN);
+        return;
+      }
+
+      // Store tokens and user data only if we have valid tokens
+      if (response.accessToken && response.refreshToken) {
+        tokenManager.setRefreshToken(response.refreshToken);
+        tokenManager.setUser(response.user);
+        // Navigate to home
+        navigate(ROUTES.HOME);
+      } else {
+        // This shouldn't happen, but handle gracefully
+        setError('Error al procesar el registro. Por favor intenta de nuevo.');
+      }
     } catch (err) {
       console.error('Signup failed:', err);
       setError(err instanceof Error ? err.message : 'Error en el registro');
@@ -75,13 +96,13 @@ export function Signup() {
         <div className="bg-secondary border-2 border-primary/20 rounded-lg p-8 shadow-xl">
           {/* Error Alert */}
           {error && (
-            <div className="flex items-start gap-3 p-4 bg-error/10 border-l-4 border-error rounded-lg shadow-sm mb-6">
+            <div className="flex items-start gap-3 p-4 border-l-4 border-error rounded-lg shadow-sm mb-6">
               <svg className="w-6 h-6 text-error flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <div className="flex-1">
                 <h3 className="text-sm font-semibold text-error mb-1">Error en el registro</h3>
-                <p className="text-sm text-foreground-secondary">{error}</p>
+                <p className="text-sm text-error">{error}</p>
               </div>
               <button
                 onClick={() => setError(null)}
@@ -133,7 +154,7 @@ export function Signup() {
             {/* House Number */}
             <div className="flex flex-col gap-2">
               <label htmlFor="houseNumber" className="text-sm font-semibold text-foreground">
-                🏠 Número de Casa
+                🏠 Número de Casa <span className="text-foreground-tertiary text-xs">(Opcional)</span>
               </label>
               <input
                 type="number"
@@ -142,8 +163,8 @@ export function Signup() {
                 onChange={(e) => setHouseNumber(e.target.value)}
                 placeholder="Ej: 5, 12, 45"
                 min="1"
+                max="66"
                 className="px-4 py-3 bg-base border-2 border-base rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-foreground placeholder-foreground-tertiary transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                required
                 disabled={isLoading}
               />
             </div>
@@ -203,7 +224,7 @@ export function Signup() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-6 py-3 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? 'Registrando...' : '📝 Crear Cuenta'}
             </button>

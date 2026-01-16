@@ -5,7 +5,7 @@
 
 export const HOUSE_NUMBER_RANGE = {
   MIN: 1,
-  MAX: 999,
+  MAX: 66,
 } as const;
 
 export const VALIDATION_MESSAGES = {

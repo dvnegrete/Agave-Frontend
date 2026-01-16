@@ -16,6 +16,7 @@ export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
   user: User;
+  requiresEmailConfirmation?: boolean;
 }
 
 export interface LoginRequest {
@@ -27,9 +28,9 @@ export interface LoginRequest {
 export interface SignupRequest {
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
-  houseNumber: number;
+  firstName?: string;
+  lastName?: string;
+  houseNumber?: number;
   [key: string]: unknown;
 }
 
