@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { usePeriodsQuery, usePeriodMutations, usePaymentHistoryQuery, useHouseBalanceQuery, usePeriodConfigMutations } from '@hooks/usePaymentManagement';
 import { useFormatDate } from '@hooks/useFormatDate';
+import { useAlert } from '@hooks/useAlert';
 import { Button } from '@shared/ui';
 import { Tabs, type TabItem } from '@shared/ui';
 import { StatusBadge } from '@shared/ui';
@@ -19,6 +20,7 @@ interface PaymentMovement extends HousePaymentTransaction {
 }
 
 export function PaymentManagement() {
+  const alert = useAlert();
   const [activeTab, setActiveTab] = useState<ActiveTab>('periods');
   const [selectedHouseId, setSelectedHouseId] = useState<number | null>(null);
   const [newYear, setNewYear] = useState<number>(new Date().getFullYear());
@@ -58,9 +60,10 @@ export function PaymentManagement() {
         extraordinary_fee: 0,
         due_day: 15,
       });
-      alert('Configuración creada exitosamente');
+      alert.success('Éxito', 'Configuración creada exitosamente');
     } catch (err) {
       console.error('Error creating config:', err);
+      alert.error('Error', 'No se pudo crear la configuración. Intenta de nuevo.');
     }
   };
 

@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { useVouchersQuery, useVoucherMutations } from '@hooks/useVouchersQuery';
 import { useFormatDate } from '@hooks/useFormatDate';
 import { useSortBy } from '@hooks/useSortBy';
+import { useAlert } from '@hooks/useAlert';
 import { getVoucherById } from '@services/voucherService';
 import { Button, StatusBadge, ExpandableTable, type ExpandableTableColumn } from '@shared/ui';
 import type { Voucher } from '@shared';
 
 export function VoucherList() {
+  const alert = useAlert();
   const [loadingViewUrl, setLoadingViewUrl] = useState<number | null>(null);
 
   const {
@@ -37,11 +39,11 @@ export function VoucherList() {
       if (voucher.viewUrl) {
         window.open(voucher.viewUrl, '_blank');
       } else {
-        alert('No hay URL de visualización disponible para este comprobante');
+        alert.warning('Sin URL disponible', 'No hay URL de visualización disponible para este comprobante');
       }
     } catch (err) {
       console.error('Error al obtener el comprobante:', err);
-      alert('Error al obtener el comprobante');
+      alert.error('Error', 'No se pudo obtener el comprobante');
     } finally {
       setLoadingViewUrl(null);
     }
@@ -57,10 +59,11 @@ export function VoucherList() {
         confirmation_status: false,
         url: '',
       });
+      alert.success('Éxito', 'Voucher creado exitosamente');
       // React Query automáticamente invalida y refetch las queries
     } catch (err) {
       console.error('Error creating voucher:', err);
-      alert('Error al crear el voucher');
+      alert.error('Error', 'No se pudo crear el voucher');
     }
   };
 
@@ -70,10 +73,11 @@ export function VoucherList() {
         id: id.toString(),
         data: { confirmation_status: true }
       });
+      alert.success('Éxito', 'Voucher confirmado exitosamente');
       // React Query automáticamente invalida y refetch las queries
     } catch (err) {
       console.error('Error confirming voucher:', err);
-      alert('Error al confirmar el voucher');
+      alert.error('Error', 'No se pudo confirmar el voucher');
     }
   };
 
@@ -81,10 +85,11 @@ export function VoucherList() {
     if (confirm('¿Estás seguro de eliminar este voucher?')) {
       try {
         await remove(id.toString());
+        alert.success('Éxito', 'Voucher eliminado exitosamente');
         // React Query automáticamente invalida y refetch las queries
       } catch (err) {
         console.error('Error deleting voucher:', err);
-        alert('Error al eliminar el voucher');
+        alert.error('Error', 'No se pudo eliminar el voucher');
       }
     }
   };

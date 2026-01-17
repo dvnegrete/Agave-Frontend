@@ -2,6 +2,7 @@ import { BrowserRouter, Routes } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { AuthProvider } from './context/AuthContext'
+import { AlertProvider } from '@shared/context/AlertContext'
 import { ApiStatus } from './components/ApiStatus'
 import { createAppRoutes } from './router/AppRoute'
 import { BaseLayout } from './layouts/BaseLayout'
@@ -30,12 +31,14 @@ function App(): React.ReactNode {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <AuthProvider>
-          <ApiStatus />
-          <Routes>
-            {createAppRoutes(BaseLayout)}
-          </Routes>
-        </AuthProvider>
+        <AlertProvider>
+          <AuthProvider>
+            <ApiStatus />
+            <Routes>
+              {createAppRoutes(BaseLayout)}
+            </Routes>
+          </AuthProvider>
+        </AlertProvider>
       </BrowserRouter>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

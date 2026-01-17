@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUploadTransactions } from '@hooks/useTransactionsBank';
 import { useFormatDate } from '@hooks/useFormatDate';
+import { useAlert } from '@hooks/useAlert';
 import {
   type TableColumn,
   Button,
@@ -16,6 +17,7 @@ import type { UploadedTransaction } from '@shared';
 
 export function TransactionUpload() {
   const navigate = useNavigate();
+  const alert = useAlert();
   const { upload, uploading, uploadResult, uploadError, reset } =
     useUploadTransactions();
 
@@ -30,7 +32,7 @@ export function TransactionUpload() {
 
   const handleUpload = async (): Promise<void> => {
     if (!selectedFile) {
-      alert('Por favor selecciona un archivo');
+      alert.warning('Archivo requerido', 'Por favor selecciona un archivo para cargar');
       return;
     }
 
@@ -39,7 +41,7 @@ export function TransactionUpload() {
     if (bankSelection === 'custom') {
       bankName = customBank.trim();
       if (!bankName) {
-        alert('Por favor ingresa el nombre del banco personalizado');
+        alert.warning('Banco requerido', 'Por favor ingresa el nombre del banco personalizado');
         return;
       }
     } else {

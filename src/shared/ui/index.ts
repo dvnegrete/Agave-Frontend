@@ -4,6 +4,8 @@
  * Centralized location for all reusable UI components
  */
 
+export { AlertDialog } from './AlertDialog';
+export type { AlertVariant, AlertConfig } from './AlertDialog';
 export { BankSelector } from './BankSelector';
 export { Button } from './Button';
 export { DateTimeCell } from './DateTimeCell';

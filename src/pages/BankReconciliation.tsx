@@ -3,6 +3,7 @@ import {
   useBankReconciliationMutations,
   useTransactionsBankQuery,
   useFormatDate,
+  useAlert,
 } from '@hooks/index';
 import { useVouchersQuery } from '@hooks/useVouchersQuery';
 import { StartReconciliationModal, UnclaimedDepositsSection } from '@components/reconciliation';
@@ -19,6 +20,7 @@ import {
 import type { StartReconciliationResponse, MatchedReconciliation, PendingVoucher, SurplusTransaction } from '@shared';
 
 export function BankReconciliation() {
+  const alert = useAlert();
   const {
     transactions,
     refetch: refetchTransactions,
@@ -52,7 +54,7 @@ export function BankReconciliation() {
 
   const handleManualReconcile = async (): Promise<void> => {
     if (!selectedTransaction || !selectedVoucher) {
-      alert('Por favor selecciona una transacción y un voucher');
+      alert.warning('Validación requerida', 'Por favor selecciona una transacción y un voucher');
       return;
     }
 
@@ -61,13 +63,14 @@ export function BankReconciliation() {
         transactionId: selectedTransaction,
         voucherId: selectedVoucher,
       });
-      alert('Conciliación exitosa');
+      alert.success('Éxito', 'Conciliación completada exitosamente');
       setSelectedTransaction(null);
       setSelectedVoucher(null);
       refetchTransactions();
       refetchVouchers();
     } catch (err) {
       console.error('Error reconciling:', err);
+      alert.error('Error', 'No se pudo completar la conciliación. Intenta de nuevo.');
     }
   };
 
@@ -104,7 +107,7 @@ export function BankReconciliation() {
       refetchVouchers();
     } catch (err) {
       console.error('Error en conciliación manual:', err);
-      alert('Error al realizar la conciliación manual. Por favor intenta de nuevo.');
+      alert.error('Error', 'No se pudo completar la validación manual. Por favor intenta de nuevo.');
     }
   };
 
@@ -342,7 +345,7 @@ export function BankReconciliation() {
                     if (item.voucherId) {
                       handleManualValidation(item.voucherId, transactionId);
                     } else {
-                      alert('Error: Datos incompletos para realizar la conciliación');
+                      alert.error('Error', 'Datos incompletos para realizar la conciliación');
                     }
                   }}
                   isProcessing={reconciling}

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAlert } from './useAlert';
 import * as authService from '@services/authService';
 import { tokenManager } from '@utils/tokenManager';
 import {
@@ -104,6 +105,7 @@ export function useSignup(): UseSignupReturn {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const alert = useAlert();
 
   const handleSignup = async (formData: SignupFormData): Promise<void> => {
     setError(null);
@@ -132,7 +134,7 @@ export function useSignup(): UseSignupReturn {
       const response = await authService.signUp(signUpData);
 
       if (response.requiresEmailConfirmation) {
-        alert(SIGNUP_SUCCESS_MESSAGES.EMAIL_CONFIRMATION_FULL(formData.email));
+        alert.success('Registro completado', SIGNUP_SUCCESS_MESSAGES.EMAIL_CONFIRMATION_FULL(formData.email));
         navigate(ROUTES.LOGIN);
         return;
       }
