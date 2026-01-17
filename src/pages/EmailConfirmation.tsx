@@ -4,7 +4,7 @@
  * User lands here after clicking the email confirmation link
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/shared/ui';
 import { ROUTES } from '@/shared';
@@ -15,26 +15,48 @@ export function EmailConfirmation() {
   const navigate = useNavigate();
   const [status, setStatus] = useState<ConfirmationStatus>('loading');
   const [message, setMessage] = useState('');
+  const hasProcessedRef = useRef(false);
 
   useEffect(() => {
-    const handleEmailConfirmation = async (): Promise<void> => {
+    // Only process once using ref to avoid async setState issues
+    if (hasProcessedRef.current) {
+      return;
+    }
+    hasProcessedRef.current = true;
+
+    const handleEmailConfirmation = (): void => {
       try {
-        let accessToken = null;
+        let accessToken: string | null = null;
+
+        // Try hash first (older format): #access_token=...
         if (window.location.hash) {
           const hashParams = new URLSearchParams(window.location.hash.substring(1));
           accessToken = hashParams.get('access_token');
+          if (accessToken) {
+            console.log('Token found in hash');
+          }
         }
 
-        // If not in hash, try query parameters - look for 'access_token' first (OAuth)
+        // Try query parameters - look for 'access_token' first (OAuth)
         if (!accessToken && window.location.search) {
           const queryParams = new URLSearchParams(window.location.search);
           accessToken = queryParams.get('access_token');
 
-          // If still not found, try 'token' parameter (Email verification from Supabase verify endpoint)
+          // If not found, try 'token' parameter (Email verification)
           if (!accessToken) {
             accessToken = queryParams.get('token');
+            if (accessToken) {
+              console.log('Token found in query parameter "token"');
+            }
+          } else {
+            console.log('Token found in query parameter "access_token"');
           }
         }
+
+        console.log('URL:', window.location.href);
+        console.log('Hash:', window.location.hash);
+        console.log('Search:', window.location.search);
+        console.log('Token found:', !!accessToken);
 
         if (!accessToken) {
           setStatus('error');
@@ -43,19 +65,13 @@ export function EmailConfirmation() {
           return;
         }
 
-        // Email confirmation was successful (Supabase redirected here)
+        // Email confirmation was successful
         setStatus('success');
         setMessage('¡Tu correo ha sido confirmado exitosamente! 🎉');
 
-        window.history.replaceState(null, '', window.location.pathname);
-
-        // Redirect to login after a short delay
+        // Redirect to login after showing success message
         setTimeout(() => {
-          navigate(ROUTES.LOGIN, {
-            state: {
-              message: 'Email confirmado. Ahora puedes iniciar sesión con tu correo y contraseña.',
-            },
-          });
+          navigate(ROUTES.LOGIN);
         }, 2000);
       } catch (err) {
         console.error('Email confirmation error:', err);
