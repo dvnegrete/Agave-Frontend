@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ModalAssignHouse } from '@components/user-management';
+import { ModalAssignDepositHouse } from './ModalAssignDepositHouse';
 import { Button, Table, DateTimeCell } from '@shared';
 import type { TableColumn } from '@shared/ui';
 import type { UnclaimedDeposit, UnclaimedDepositsPage, DepositAssignHouseRequest, } from '@shared';
@@ -15,8 +15,6 @@ export function UnclaimedDepositsSection({ onDepositAssigned }: UnclaimedDeposit
   const [data, setData] = useState<UnclaimedDepositsPage | null>(null);
   const [selectedDeposit, setSelectedDeposit] = useState<UnclaimedDeposit | null>(null);
   const [showAssignModal, setShowAssignModal] = useState(false);
-  const [houseNumber, setHouseNumber] = useState('');
-  const [notes, setNotes] = useState('');
   const [_assignLoading, setAssignLoading] = useState(false);
   const [_assignError, setAssignError] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -42,15 +40,12 @@ export function UnclaimedDepositsSection({ onDepositAssigned }: UnclaimedDeposit
 
   const handleAssignClick = (deposit: UnclaimedDeposit): void => {
     setSelectedDeposit(deposit);
-    setHouseNumber(deposit.suggestedHouseNumber?.toString() || '');
-    setNotes('');
-    setAssignError(null);
     setShowAssignModal(true);
   };
 
-  const handleAssignHouse = async (): Promise<void> => {
-    if (!selectedDeposit || !houseNumber) {
-      setAssignError('Por favor ingresa un número de casa válido');
+  const handleAssignHouse = async (data: DepositAssignHouseRequest): Promise<void> => {
+    if (!selectedDeposit) {
+      console.error('No deposit selected');
       return;
     }
 
@@ -58,21 +53,14 @@ export function UnclaimedDepositsSection({ onDepositAssigned }: UnclaimedDeposit
     setAssignError(null);
 
     try {
-      const request: DepositAssignHouseRequest = {
-        houseNumber: parseInt(houseNumber),
-        adminNotes: notes || undefined,
-      };
-
       await unclaimedDepositsService.assignHouseToDeposit(
         selectedDeposit.transactionBankId,
-        request
+        data
       );
 
       // Éxito - cerrar modal y recargar datos
       setShowAssignModal(false);
       setSelectedDeposit(null);
-      setHouseNumber('');
-      setNotes('');
 
       // Recargar la lista
       await handleLoadDeposits();
@@ -212,12 +200,10 @@ export function UnclaimedDepositsSection({ onDepositAssigned }: UnclaimedDeposit
       )}
 
       {/* Modal para asignar casa */}
-      <ModalAssignHouse
+      <ModalAssignDepositHouse
         isOpen={showAssignModal}
-        user={selectedDeposit ? ({ id: selectedDeposit.transactionBankId } as any) : null}
-        onSave={async () => {
-          await handleAssignHouse();
-        }}
+        deposit={selectedDeposit}
+        onSave={handleAssignHouse}
         onClose={() => setShowAssignModal(false)}
       />
     </div>
