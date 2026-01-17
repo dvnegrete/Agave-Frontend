@@ -34,6 +34,7 @@ export const API_ENDPOINTS = {
   userManagementUsers: '/user-management/users',
   userManagementUserRole: (userId: string) => `/user-management/users/${userId}/role`,
   userManagementUserStatus: (userId: string) => `/user-management/users/${userId}/status`,
+  userManagementUserObservations: (userId: string) => `/user-management/users/${userId}/observations`,
   userManagementUserHouses: (userId: string) => `/user-management/users/${userId}/houses`,
   userManagementUserHouseRemove: (userId: string, houseNumber: number) =>
     `/user-management/users/${userId}/houses/${houseNumber}`,

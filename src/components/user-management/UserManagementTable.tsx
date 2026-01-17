@@ -7,6 +7,7 @@ interface UserManagementTableProps {
   loading: boolean;
   onEditRole: (user: User) => void;
   onEditStatus: (user: User) => void;
+  onEditObservations: (user: User) => void;
   onAssignHouse: (user: User) => void;
   onRemoveHouse: (user: User, houseNumber: number) => void;
 }
@@ -16,6 +17,7 @@ export function UserManagementTable({
   loading,
   onEditRole,
   onEditStatus,
+  onEditObservations,
   onAssignHouse,
   onRemoveHouse,
 }: UserManagementTableProps) {
@@ -85,6 +87,26 @@ export function UserManagementTable({
             variant="sm"
             onClick={() => onEditStatus(user)}
             className="bg-primary/30 hover:bg-primary/50"
+          >
+            ✏️
+          </Button>
+        </div>
+      ),
+    },
+    {
+      id: 'observations',
+      header: 'Observaciones',
+      render: (user) => (
+        <div className="flex items-start gap-2">
+          {user.observations ? (
+            <span className="text-foreground text-sm whitespace-pre-wrap break-words flex-1">{user.observations}</span>
+          ) : (
+            <span className="text-foreground-tertiary">-</span>
+          )}
+          <Button
+            variant="sm"
+            onClick={() => onEditObservations(user)}
+            className="bg-primary/30 hover:bg-primary/50 flex-shrink-0"
           >
             ✏️
           </Button>

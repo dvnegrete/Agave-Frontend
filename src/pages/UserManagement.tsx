@@ -5,6 +5,7 @@ import {
   UserManagementTable,
   ModalEditUserRole,
   ModalEditUserStatus,
+  ModalEditObservations,
   ModalAssignHouse,
   ModalRemoveHouse,
 } from '@components/index';
@@ -12,7 +13,7 @@ import type { User, ModalType } from '@/shared/types/user-management.types';
 
 export function UserManagement() {
   const { user: currentUser } = useAuth();
-  const { users, loading, error, fetchUsers, changeRole, changeStatus, addHouse, removeUserHouse } =
+  const { users, loading, error, fetchUsers, changeRole, changeStatus, changeObservations, addHouse, removeUserHouse } =
     useUserManagement();
 
   // Modal state
@@ -103,6 +104,7 @@ export function UserManagement() {
           loading={loading}
           onEditRole={(user) => openModal('role', user)}
           onEditStatus={(user) => openModal('status', user)}
+          onEditObservations={(user) => openModal('observations', user)}
           onAssignHouse={(user) => openModal('assign', user)}
           onRemoveHouse={(user, houseNumber) => openModal('remove', user, houseNumber)}
         />
@@ -123,6 +125,15 @@ export function UserManagement() {
         user={selectedUser}
         onSave={async (userId, data) => {
           await changeStatus(userId, data);
+        }}
+        onClose={closeModal}
+      />
+
+      <ModalEditObservations
+        isOpen={modalType === 'observations'}
+        user={selectedUser}
+        onSave={async (userId, data) => {
+          await changeObservations(userId, data);
         }}
         onClose={closeModal}
       />

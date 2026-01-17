@@ -3,11 +3,13 @@ import {
   type UpdateUserRoleRequest,
   type UpdateUserStatusRequest,
   type AssignHouseRequest,
+  type UpdateUserObservationsRequest,
 } from '@/shared/types/user-management.types'
 import {
   getUsers,
   updateUserRole,
   updateUserStatus,
+  updateUserObservations,
   assignHouse,
   removeHouse,
 } from '@services/userManagementService';
@@ -20,6 +22,7 @@ interface UseUserManagementReturn {
   fetchUsers: () => Promise<void>;
   changeRole: (userId: string, data: UpdateUserRoleRequest) => Promise<User | undefined>;
   changeStatus: (userId: string, data: UpdateUserStatusRequest) => Promise<User | undefined>;
+  changeObservations: (userId: string, data: UpdateUserObservationsRequest) => Promise<User | undefined>;
   addHouse: (userId: string, data: AssignHouseRequest) => Promise<void>;
   removeUserHouse: (userId: string, houseNumber: number) => Promise<void>;
 }
@@ -76,6 +79,22 @@ export const useUserManagement = (): UseUserManagementReturn => {
     }
   };
 
+  const changeObservations = async (userId: string, data: UpdateUserObservationsRequest): Promise<User | undefined> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const updated = await updateUserObservations(userId, data);
+      setUsers((prev) => prev.map((u) => (u.id === userId ? updated : u)));
+      return updated;
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Error updating observations';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const addHouse = async (userId: string, data: AssignHouseRequest): Promise<void> => {
     setLoading(true);
     setError(null);
@@ -115,6 +134,7 @@ export const useUserManagement = (): UseUserManagementReturn => {
     fetchUsers,
     changeRole,
     changeStatus,
+    changeObservations,
     addHouse,
     removeUserHouse,
   };

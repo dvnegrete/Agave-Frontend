@@ -4,6 +4,7 @@ import type {
   User,
   UpdateUserRoleRequest,
   UpdateUserStatusRequest,
+  UpdateUserObservationsRequest,
   AssignHouseRequest,
   AssignHouseResponse,
   RemoveHouseResponse,
@@ -57,6 +58,26 @@ export const updateUserStatus = async (
     );
   } catch (err: unknown) {
     console.error('❌ [Service] Error in updateUserStatus:', err);
+    throw err;
+  }
+};
+
+/**
+ * Update a user's observations
+ */
+export const updateUserObservations = async (
+  userId: string,
+  data: UpdateUserObservationsRequest,
+  signal?: AbortSignal
+): Promise<User> => {
+  try {
+    return httpClient.patch<User>(
+      API_ENDPOINTS.userManagementUserObservations(userId),
+      data,
+      { signal }
+    );
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in updateUserObservations:', err);
     throw err;
   }
 };
