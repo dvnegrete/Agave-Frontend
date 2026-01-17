@@ -9,7 +9,8 @@ export function Home() {
   const { user } = useAuth();
 
   // Check if user is authenticated but has no access (no houses assigned)
-  const isPendingApproval = user && (!user.houses || user.houses.length === 0);
+  // Only show for tenant role - admin/owner don't need approval
+  const isPendingApproval = user && user.role === 'tenant' && (!user.houses || user.houses.length === 0);
   // Check if user is authenticated and has access
   const hasAccess = user && user.houses && user.houses.length > 0;
 

@@ -17,6 +17,7 @@
   --foreground: #f3f4f6;
   --foreground-secondary: #d1d5db;
   --foreground-tertiary: #9ca3af;
+  --gray-900: oklch(21% 0.034 264.665);
 
   /* Semantic Colors */
   --color-success: #10b981;
@@ -115,6 +116,10 @@ body {
 
   .text-foreground-tertiary {
     @apply text-[var(--foreground-tertiary)];
+  }
+
+  .text-gray-900 {
+    @apply text-[var(--gray-900)];
   }
 
   /* Border color classes */

@@ -19,9 +19,22 @@ export function EmailConfirmation() {
   useEffect(() => {
     const handleEmailConfirmation = async (): Promise<void> => {
       try {
-        // Check if we have the access token in the URL hash
-        const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        const accessToken = hashParams.get('access_token');
+        let accessToken = null;
+        if (window.location.hash) {
+          const hashParams = new URLSearchParams(window.location.hash.substring(1));
+          accessToken = hashParams.get('access_token');
+        }
+
+        // If not in hash, try query parameters - look for 'access_token' first (OAuth)
+        if (!accessToken && window.location.search) {
+          const queryParams = new URLSearchParams(window.location.search);
+          accessToken = queryParams.get('access_token');
+
+          // If still not found, try 'token' parameter (Email verification from Supabase verify endpoint)
+          if (!accessToken) {
+            accessToken = queryParams.get('token');
+          }
+        }
 
         if (!accessToken) {
           setStatus('error');
@@ -34,7 +47,6 @@ export function EmailConfirmation() {
         setStatus('success');
         setMessage('¡Tu correo ha sido confirmado exitosamente! 🎉');
 
-        // Clear the hash to clean up the URL
         window.history.replaceState(null, '', window.location.pathname);
 
         // Redirect to login after a short delay

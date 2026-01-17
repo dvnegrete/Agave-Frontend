@@ -106,8 +106,8 @@ export function HamburgerMenu() {
                       to={item.path}
                       onClick={closeMenu}
                       className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
-                          ? 'bg-primary font-bold shadow-sm bg-gray-400/50'
-                          : 'text-foreground'
+                        ? 'bg-primary font-bold shadow-sm'
+                        : 'text-foreground'
                         }`}
                     >
                       <span className="text-xl">{item.icon}</span>
@@ -133,8 +133,8 @@ export function HamburgerMenu() {
                           to={item.path}
                           onClick={closeMenu}
                           className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
-                              ? 'bg-error/30 font-bold shadow-sm text-error'
-                              : 'text-foreground'
+                            ? 'bg-primary font-bold shadow-sm text-gray-900'
+                            : 'text-foreground'
                             }`}
                         >
                           <span className="text-xl">{item.icon}</span>
@@ -156,37 +156,35 @@ export function HamburgerMenu() {
                     {user.email}
                   </p>
 
-                  {/* User has houses assigned - show logout */}
-                  {user.houses && user.houses.length > 0 && (
-                    <button
-                      onClick={() => {
-                        logout();
-                        closeMenu();
-                      }}
-                      className="w-full px-4 py-2 text-sm text-center bg-error hover:bg-error/90 text-white rounded-lg transition-colors font-semibold"
-                    >
-                      {ICONS.LOGOUT} {LABELS.LOGOUT}
-                    </button>
-                  )}
-
-                  {/* User has NO houses - show pending message */}
-                  {(!user.houses || user.houses.length === 0) && (
-                    <div className="w-full px-4 py-2 text-sm text-center bg-yellow-500/20 border border-yellow-500/50 text-yellow-600 dark:text-yellow-400 rounded-lg font-semibold">
+                  {/* Show pending message only for tenant role without houses */}
+                  {user.role === 'tenant' && (!user.houses || user.houses.length === 0) && (
+                    <div className="w-full px-4 py-2 text-sm text-center bg-yellow-500/20 border border-yellow-500/50 text-yellow-600 dark:text-yellow-400 rounded-lg font-semibold mb-3">
                       ⏳ En espera de confirmación por parte de un administrador
                     </div>
                   )}
+
+                  {/* Show logout button for all authenticated users */}
+                  <button
+                    onClick={() => {
+                      logout();
+                      closeMenu();
+                    }}
+                    className="w-full px-4 py-2 text-sm text-center bg-error hover:bg-error/90 text-white rounded-lg transition-colors font-semibold"
+                  >
+                    {LABELS.LOGOUT}
+                  </button>
                 </>
               )}
               {!user && (
                 <>
                   <button
-                  className='cursor-pointer'
-                    onClick={()=> {
+                    className='cursor-pointer'
+                    onClick={() => {
                       navigate(ROUTES.LOGIN)
                       closeMenu()
                     }}>
                     {ICONS.LOGIN} {LABELS.LOGIN}
-                    </button>
+                  </button>
                 </>
               )}
             </div>
