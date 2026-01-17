@@ -9,5 +9,3 @@ export const CONFIDENCE_LEVELS = {
   low: { label: 'Baja', icon: '⚠️', variant: 'warning' },
   manual: { label: 'Manual', icon: '🔧', variant: 'info' },
 } as const;
-
-export type ConfidenceLevel = keyof typeof CONFIDENCE_LEVELS;

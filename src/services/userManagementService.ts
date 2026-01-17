@@ -120,3 +120,21 @@ export const removeHouse = async (
     throw err;
   }
 };
+
+/**
+ * Delete a user
+ */
+export const deleteUser = async (
+  userId: string,
+  signal?: AbortSignal
+): Promise<{ message: string }> => {
+  try {
+    return httpClient.delete<{ message: string }>(
+      API_ENDPOINTS.userManagementUserDelete(userId),
+      { signal }
+    );
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in deleteUser:', err);
+    throw err;
+  }
+};

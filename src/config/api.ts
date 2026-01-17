@@ -38,4 +38,5 @@ export const API_ENDPOINTS = {
   userManagementUserHouses: (userId: string) => `/user-management/users/${userId}/houses`,
   userManagementUserHouseRemove: (userId: string, houseNumber: number) =>
     `/user-management/users/${userId}/houses/${houseNumber}`,
+  userManagementUserDelete: (userId: string) => `/user-management/users/${userId}`,
 } as const;

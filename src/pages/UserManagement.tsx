@@ -14,7 +14,7 @@ import type { User, ModalType } from '@/shared/types/user-management.types';
 
 export function UserManagement() {
   const { user: currentUser } = useAuth();
-  const { users, loading, error, fetchUsers, changeRole, changeStatus, changeObservations, addHouse, removeUserHouse } =
+  const { users, loading, error, fetchUsers, changeRole, changeStatus, changeObservations, addHouse, removeUserHouse, removeUser } =
     useUserManagement();
 
   // Modal state
@@ -125,6 +125,11 @@ export function UserManagement() {
         onSelectStatus={() => openModal('status', selectedUser!)}
         onSelectObservations={() => openModal('observations', selectedUser!)}
         onSelectHouse={() => openModal('assign', selectedUser!)}
+        onDeleteUser={async () => {
+          if (selectedUser) {
+            await removeUser(selectedUser.id);
+          }
+        }}
         onClose={closeModal}
       />
 

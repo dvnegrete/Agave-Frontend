@@ -12,6 +12,7 @@ import {
   updateUserObservations,
   assignHouse,
   removeHouse,
+  deleteUser,
 } from '@services/userManagementService';
 import type { User } from '@/shared/types/user-management.types';
 
@@ -25,6 +26,7 @@ interface UseUserManagementReturn {
   changeObservations: (userId: string, data: UpdateUserObservationsRequest) => Promise<User | undefined>;
   addHouse: (userId: string, data: AssignHouseRequest) => Promise<void>;
   removeUserHouse: (userId: string, houseNumber: number) => Promise<void>;
+  removeUser: (userId: string) => Promise<void>;
 }
 
 export const useUserManagement = (): UseUserManagementReturn => {
@@ -127,6 +129,22 @@ export const useUserManagement = (): UseUserManagementReturn => {
     }
   };
 
+  const removeUser = async (userId: string): Promise<void> => {
+    setLoading(true);
+    setError(null);
+    try {
+      await deleteUser(userId);
+      // Refresh users to get updated list
+      await fetchUsers();
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Error deleting user';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     users,
     loading,
@@ -137,5 +155,6 @@ export const useUserManagement = (): UseUserManagementReturn => {
     changeObservations,
     addHouse,
     removeUserHouse,
+    removeUser,
   };
 };
