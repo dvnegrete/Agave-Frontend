@@ -66,7 +66,7 @@ export function ModalRemoveHouse({
         </div>
 
         {/* Warning Message */}
-        <div className="bg-warning/10 border border-warning text-warning-light p-3 rounded mb-4 text-sm">
+        <div className=" border border-warning text-warning p-3 rounded mb-4 text-sm">
           ⚠️ Esta acción desasignará la casa del usuario. Esta acción no se puede deshacer fácilmente.
         </div>
 

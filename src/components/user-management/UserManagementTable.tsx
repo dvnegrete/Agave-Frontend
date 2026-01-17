@@ -5,9 +5,7 @@ import type { User } from '@/shared';
 interface UserManagementTableProps {
   users: User[];
   loading: boolean;
-  onEditRole: (user: User) => void;
-  onEditStatus: (user: User) => void;
-  onEditObservations: (user: User) => void;
+  onEdit: (user: User) => void;
   onAssignHouse: (user: User) => void;
   onRemoveHouse: (user: User, houseNumber: number) => void;
 }
@@ -15,10 +13,7 @@ interface UserManagementTableProps {
 export function UserManagementTable({
   users,
   loading,
-  onEditRole,
-  onEditStatus,
-  onEditObservations,
-  onAssignHouse,
+  onEdit,
   onRemoveHouse,
 }: UserManagementTableProps) {
   const columns: TableColumn<User>[] = [
@@ -55,61 +50,34 @@ export function UserManagementTable({
     {
       id: 'role',
       header: 'Rol',
-      render: (user) => (
-        <div className="flex items-center gap-2">
-          <RoleBadge role={user.role} />
-          <Button
-            variant="sm"
-            onClick={() => onEditRole(user)}
-            className="bg-primary/30 hover:bg-primary/50"
-          >
-            ✏️
-          </Button>
-        </div>
-      ),
+      render: (user) => <RoleBadge role={user.role} />,
     },
     {
       id: 'status',
       header: 'Estado',
       render: (user) => (
-        <div className="flex items-center gap-2">
-          <StatusBadge
-            status={
-              user.status === 'active'
-                ? 'success'
-                : user.status === 'suspend'
-                  ? 'warning'
-                  : 'error'
-            }
-            label={user.status.charAt(0).toUpperCase() + user.status.slice(1)}
-          />
-          <Button
-            variant="sm"
-            onClick={() => onEditStatus(user)}
-            className="bg-primary/30 hover:bg-primary/50"
-          >
-            ✏️
-          </Button>
-        </div>
+        <StatusBadge
+          status={
+            user.status === 'active'
+              ? 'success'
+              : user.status === 'suspend'
+                ? 'warning'
+                : 'error'
+          }
+          label={user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+        />
       ),
     },
     {
       id: 'observations',
       header: 'Observaciones',
       render: (user) => (
-        <div className="flex items-start gap-2">
+        <div>
           {user.observations ? (
-            <span className="text-foreground text-sm whitespace-pre-wrap break-words flex-1">{user.observations}</span>
+            <span className="text-foreground text-sm whitespace-pre-wrap break-words">{user.observations}</span>
           ) : (
             <span className="text-foreground-tertiary">-</span>
           )}
-          <Button
-            variant="sm"
-            onClick={() => onEditObservations(user)}
-            className="bg-primary/30 hover:bg-primary/50 flex-shrink-0"
-          >
-            ✏️
-          </Button>
         </div>
       ),
     },
@@ -135,24 +103,25 @@ export function UserManagementTable({
                   </button>
                 </span>
               ))}
-              <Button
-                variant="sm"
-                onClick={() => onAssignHouse(user)}
-                className="bg-success/30 hover:bg-success/50 text-success"
-              >
-                + Casa
-              </Button>
             </>
           ) : (
-            <Button
-              variant="sm"
-              onClick={() => onAssignHouse(user)}
-              className="bg-warning/30 hover:bg-warning/50 text-warning"
-            >
-              Asignar Casa
-            </Button>
+            <span className="text-foreground-tertiary text-sm">Sin casas asignadas</span>
           )}
         </div>
+      ),
+    },
+    {
+      id: 'actions',
+      header: 'Acciones',
+      align: 'center',
+      render: (user) => (
+        <Button
+          variant="sm"
+          onClick={() => onEdit(user)}
+          className="bg-primary/30 hover:bg-primary/50"
+        >
+          Editar
+        </Button>
       ),
     },
   ];

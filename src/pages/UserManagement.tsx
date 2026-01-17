@@ -8,6 +8,7 @@ import {
   ModalEditObservations,
   ModalAssignHouse,
   ModalRemoveHouse,
+  ModalEditActions,
 } from '@components/index';
 import type { User, ModalType } from '@/shared/types/user-management.types';
 
@@ -20,6 +21,7 @@ export function UserManagement() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [modalType, setModalType] = useState<ModalType>(null);
   const [selectedHouseNumber, setSelectedHouseNumber] = useState<number | null>(null);
+  const [showEditActionsModal, setShowEditActionsModal] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -38,9 +40,15 @@ export function UserManagement() {
     );
   }
 
+  const handleEdit = (user: User): void => {
+    setSelectedUser(user);
+    setShowEditActionsModal(true);
+  };
+
   const openModal = (type: ModalType, user: User, houseNumber?: number): void => {
     setSelectedUser(user);
     setModalType(type);
+    setShowEditActionsModal(false);
     if (houseNumber) setSelectedHouseNumber(houseNumber);
   };
 
@@ -48,6 +56,7 @@ export function UserManagement() {
     setSelectedUser(null);
     setModalType(null);
     setSelectedHouseNumber(null);
+    setShowEditActionsModal(false);
   };
 
   return (
@@ -102,15 +111,23 @@ export function UserManagement() {
         <UserManagementTable
           users={users}
           loading={loading}
-          onEditRole={(user) => openModal('role', user)}
-          onEditStatus={(user) => openModal('status', user)}
-          onEditObservations={(user) => openModal('observations', user)}
+          onEdit={handleEdit}
           onAssignHouse={(user) => openModal('assign', user)}
           onRemoveHouse={(user, houseNumber) => openModal('remove', user, houseNumber)}
         />
       </div>
 
       {/* Modals */}
+      <ModalEditActions
+        isOpen={showEditActionsModal}
+        user={selectedUser}
+        onSelectRole={() => openModal('role', selectedUser!)}
+        onSelectStatus={() => openModal('status', selectedUser!)}
+        onSelectObservations={() => openModal('observations', selectedUser!)}
+        onSelectHouse={() => openModal('assign', selectedUser!)}
+        onClose={closeModal}
+      />
+
       <ModalEditUserRole
         isOpen={modalType === 'role'}
         user={selectedUser}
