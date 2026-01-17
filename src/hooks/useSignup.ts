@@ -44,7 +44,15 @@ function isErrorWithMessage(error: unknown): error is ErrorWithMessage {
 function getSignupErrorMessage(error: unknown): string {
   if (error instanceof Error) {
     const message = error.message.toLowerCase();
-    if (message.includes('duplicate') || message.includes('already exists') || message.includes('unique')) {
+    // Check for email already registered/exists (English and Spanish)
+    if (
+      message.includes('duplicate') ||
+      message.includes('already exists') ||
+      message.includes('already registered') ||
+      message.includes('unique') ||
+      message.includes('registrado') ||
+      message.includes('ya existe')
+    ) {
       return SIGNUP_ERROR_MESSAGES.EMAIL_ALREADY_EXISTS;
     }
     if (message.includes('invalid')) {
@@ -55,7 +63,15 @@ function getSignupErrorMessage(error: unknown): string {
 
   if (isErrorWithMessage(error)) {
     const message = error.message.toLowerCase();
-    if (message.includes('duplicate') || message.includes('already exists') || message.includes('unique')) {
+    // Check for email already registered/exists (English and Spanish)
+    if (
+      message.includes('duplicate') ||
+      message.includes('already exists') ||
+      message.includes('already registered') ||
+      message.includes('unique') ||
+      message.includes('registrado') ||
+      message.includes('ya existe')
+    ) {
       return SIGNUP_ERROR_MESSAGES.EMAIL_ALREADY_EXISTS;
     }
     return error.message;
