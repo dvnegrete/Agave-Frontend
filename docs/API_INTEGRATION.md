@@ -1,0 +1,1148 @@
+# API Integration Guide
+
+## Overview
+
+The application communicates with a REST API backend for all data operations. This document explains the integration layer and how to work with the API.
+
+## Configuration
+
+### Environment
+
+Create a `.env` file in the project root:
+
+```env
+VITE_API_BASE_URL=http://localhost:3000
+```
+
+The API base URL defaults to `http://localhost:3000/api` (see `src/config/api.ts`).
+
+## API Architecture
+
+### Layers
+
+```
+Component (React)
+  ↓
+Hook (useVouchersQuery, etc.)
+  ↓
+Service (voucherService.ts)
+  ↓
+HTTP Client (httpClient.ts)
+  ↓
+API (http://localhost:3000/api)
+```
+
+### Service Layer
+
+All API calls go through service files in `src/services/`:
+
+```typescript
+// ✅ Good: Use services
+import { getVouchers } from './services/voucherService';
+const vouchers = await getVouchers();
+
+// ❌ Bad: Direct API calls
+const response = await fetch('/api/vouchers');
+```
+
+**Benefits**:
+- Centralized API logic
+- Easy to change endpoints
+- Consistent error handling
+- Mock-friendly for testing
+
+## API Endpoints
+
+### Vouchers
+
+#### GET /api/vouchers
+
+Fetch all vouchers.
+
+**Query Parameters**: None (pagination not supported)
+
+**Response**:
+```typescript
+interface VouchersResponse {
+  vouchers: Voucher[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+// OR direct array
+Voucher[]
+```
+
+**Example**:
+```typescript
+import { getVouchers } from './services/voucherService';
+
+const response = await getVouchers();
+// response.vouchers or response (array)
+```
+
+---
+
+#### GET /api/vouchers/{id}
+
+Fetch a single voucher with details.
+
+**URL Parameters**:
+- `id` (number): Voucher ID
+
+**Response**:
+```typescript
+interface Voucher {
+  id: number;
+  date: string;                    // ISO date: "2025-01-15"
+  authorization_number: string;    // e.g., "AUTH-123"
+  confirmation_code: string;       // e.g., "CONF-456"
+  amount: number;                  // e.g., 1500.50
+  confirmation_status: boolean;    // true/false
+  url: string;                     // PDF/file URL
+  viewUrl?: string;               // Direct view URL
+  number_house: number;            // Account/house number
+  created_at: string;             // ISO timestamp
+  updated_at: string;             // ISO timestamp
+}
+```
+
+**Example**:
+```typescript
+import { getVoucherById } from './services/voucherService';
+
+const voucher = await getVoucherById(123);
+console.log(voucher.viewUrl);  // Use to open in new tab
+```
+
+---
+
+#### POST /api/vouchers
+
+Create a new voucher.
+
+**Request Body**:
+```typescript
+interface CreateVoucherRequest {
+  authorization_number: string;
+  date: string;                // ISO date format
+  confirmation_code: string;
+  amount: number;
+  confirmation_status: boolean;
+  url: string;
+}
+```
+
+**Response**:
+```typescript
+Voucher  // Created voucher with ID
+```
+
+**Example**:
+```typescript
+import { createVoucher } from './services/voucherService';
+
+const newVoucher = await createVoucher({
+  authorization_number: 'AUTH-789',
+  date: '2025-01-15',
+  confirmation_code: 'CONF-789',
+  amount: 2500.00,
+  confirmation_status: true,
+  url: 'https://example.com/voucher.pdf'
+});
+```
+
+---
+
+#### PUT /api/vouchers/{id}
+
+Update a voucher.
+
+**URL Parameters**:
+- `id` (number): Voucher ID
+
+**Request Body**:
+```typescript
+interface UpdateVoucherRequest {
+  authorization_number?: string;
+  date?: string;
+  confirmation_code?: string;
+  amount?: number;
+  confirmation_status?: boolean;
+  url?: string;
+}
+```
+
+**Response**: Updated `Voucher`
+
+---
+
+#### DELETE /api/vouchers/{id}
+
+Delete a voucher.
+
+**URL Parameters**:
+- `id` (number): Voucher ID
+
+**Response**: `{ success: boolean }`
+
+---
+
+### Bank Transactions
+
+#### GET /api/transactions-bank
+
+Fetch all bank transactions.
+
+**Query Parameters**: None (no pagination)
+
+**Response**:
+```typescript
+interface TransactionsBankResponse {
+  transactions: BankTransaction[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+// OR direct array
+BankTransaction[]
+
+interface BankTransaction {
+  id: string;
+  date: string;           // ISO date
+  description: string;    // Transaction description
+  reference: string;      // Bank reference number
+  debit: number;         // Debit amount (0 if credit)
+  credit: number;        // Credit amount (0 if debit)
+  balance: number;       // Account balance after transaction
+  reconciled: boolean;   // Is reconciled with a voucher
+  voucherId?: string;    // Linked voucher ID
+  createdAt: string;     // ISO timestamp
+  updatedAt: string;     // ISO timestamp
+}
+```
+
+**Example**:
+```typescript
+import { getTransactionsBank } from './services/transactionBankService';
+
+const response = await getTransactionsBank();
+const transactions = Array.isArray(response)
+  ? response
+  : response.transactions;
+```
+
+---
+
+#### POST /api/transactions-bank/upload
+
+Upload a bank statement file.
+
+**Query Parameters**:
+- `bankName` (string): Bank name origin (required)
+  - Example values: "Santander-2025", "BBVA-2028", or any custom bank name
+
+**Request**:
+- Content-Type: `multipart/form-data`
+- Body: File as form data
+
+**Response**:
+```typescript
+interface UploadTransactionsResponse {
+  message: string;                    // Success message
+  success: boolean;                   // true/false
+  totalTransactions: number;          // All transactions in file
+  validTransactions: number;          // Valid ones
+  invalidTransactions: number;        // Invalid ones
+  previouslyProcessedTransactions: number; // Already in DB
+  transactions: UploadedTransaction[]; // Processed transactions
+  errors: any[];                      // Error details
+  dateRange: {
+    start: string;                    // First transaction date
+    end: string;                      // Last transaction date
+  };
+  lastDayTransaction: UploadedTransaction[]; // Latest day's transactions
+}
+
+interface UploadedTransaction {
+  date: string;           // ISO date
+  time: string;          // HH:MM:SS
+  concept: string;       // Transaction description
+  amount: number;        // Transaction amount
+  currency: string;      // "USD", "MXN", etc.
+  is_deposit: boolean;   // true=deposit, false=withdrawal
+  bank_name: string;     // Bank name
+  validation_flag: boolean;
+  status: string;        // "pending", "processed", etc.
+  id: string;            // Transaction ID
+  createdAt: string;     // ISO timestamp
+  updatedAt: string;     // ISO timestamp
+}
+```
+
+**Example**:
+```typescript
+import { uploadTransactionsBank } from './services/transactionBankService';
+
+const file = document.getElementById('file').files[0];
+const result = await uploadTransactionsBank(file, 'Santander-2025');
+
+console.log(`Valid: ${result.validTransactions}`);
+console.log(`Invalid: ${result.invalidTransactions}`);
+result.transactions.forEach(t => {
+  console.log(`${t.date}: ${t.amount} ${t.currency}`);
+});
+```
+
+---
+
+### Payment Management
+
+#### GET /api/payment-management/houses
+
+Fetch list of houses (for dropdown/selection).
+
+**Response**:
+```typescript
+House[] // Array of houses with id, number, etc.
+```
+
+---
+
+#### GET /api/payment-management/houses/{houseId}/payments
+
+Fetch payment history and transactions for a specific house.
+
+**URL Parameters**:
+- `houseId` (number or string): House ID
+
+**Response**:
+```typescript
+interface HousePayments {
+  house_id: number;
+  house_number: number;
+  total_transactions: number;           // Total payment transactions
+  total_amount: number;                 // Total amount of all transactions
+  confirmed_transactions: number;       // Count of confirmed transactions
+  pending_transactions: number;         // Count of pending transactions
+  transactions: HousePaymentTransaction[];  // Array of bank transactions
+  unreconciled_vouchers?: {
+    total_count: number;
+    vouchers: UnreconciledVoucher[];
+  };
+}
+
+interface HousePaymentTransaction {
+  date: string;              // ISO datetime (e.g., "2025-01-15T14:30:00")
+  time: string;              // HH:MM:SS (e.g., "14:30:00")
+  concept: string;           // Transaction description/concept
+  amount: number;            // Transaction amount
+  currency: string;          // Currency code (e.g., "USD")
+  bank_name: string;         // Name of the bank
+  confirmation_status: boolean;  // Is transaction confirmed
+}
+
+interface UnreconciledVoucher {
+  date: string;              // ISO datetime
+  amount: number;
+  confirmation_status: boolean;
+  created_at: string;        // ISO datetime
+  confirmation_code: string; // Code for identifying voucher
+}
+```
+
+**Example**:
+```typescript
+const response = await httpClient.get('/payment-management/houses/123/payments');
+// response.data contains HousePayments object
+```
+
+**Features**:
+- Combined bank transactions and unreconciled vouchers in single response
+- Transacations sorted by date
+- Vouchers include confirmation codes for reconciliation
+- Optional unreconciled_vouchers (not present if no vouchers)
+
+---
+
+### Bank Reconciliation
+
+#### POST /api/bank-reconciliation/start
+
+Start the reconciliation process.
+
+**Request Body**:
+```typescript
+interface StartReconciliationRequest {
+  startDate?: string;   // ISO date (optional)
+  endDate?: string;     // ISO date (optional)
+}
+```
+
+**Response**:
+```typescript
+interface StartReconciliationResponse {
+  summary: ReconciliationSummary;
+  conciliados: MatchedReconciliation[];      // Matched items
+  unfundedVouchers: PendingVoucher[];        // Vouchers without matches
+  unclaimedDeposits: SurplusTransaction[];   // Transactions without vouchers
+  manualValidationRequired: ManualValidationCase[];
+}
+
+interface ReconciliationSummary {
+  totalVouchers: number;
+  totalTransactions: number;
+  matched: number;
+  pendingVouchers: number;
+  surplusTransactions: number;
+  manualValidationRequired: number;
+}
+
+interface MatchedReconciliation {
+  transactionBankId: string;
+  amount: number;
+  houseNumber: number;
+  matchCriteria: MatchCriteria[];
+  confidenceLevel: 'high' | 'medium' | 'low' | 'manual';
+  voucherId?: number;
+  dateDifferenceHours?: number;
+}
+
+interface PendingVoucher {
+  voucherId: number;
+  amount: number;
+  date: string;
+  reason: string;
+}
+
+interface SurplusTransaction {
+  transactionId: number;
+  amount: number;
+  date: string;
+  reason: string;
+}
+
+interface ManualValidationCase {
+  voucherId: number;
+  amount: number;
+  date: string;
+  reason: string;
+  possibleMatches: PossibleMatch[];
+}
+```
+
+**Example**:
+```typescript
+import { startReconciliation } from './services/bankReconciliationService';
+
+const result = await startReconciliation({
+  startDate: '2025-01-01',
+  endDate: '2025-12-31'
+});
+
+console.log(`Matched: ${result.summary.matched}`);
+console.log(`Manual cases: ${result.manualValidationRequired.length}`);
+```
+
+---
+
+#### POST /api/bank-reconciliation/reconcile
+
+Reconcile a single transaction with a voucher.
+
+**Request Body**:
+```typescript
+interface ReconcileRequest {
+  transactionId: string;  // Transaction ID
+  voucherId: string;      // Voucher ID
+}
+```
+
+**Response**:
+```typescript
+interface ReconcileResponse {
+  success: boolean;
+  message: string;
+  transaction: BankTransaction;  // Updated transaction
+  voucher: Voucher;              // Updated voucher
+}
+```
+
+**Example**:
+```typescript
+import { reconcileTransaction } from './services/bankReconciliationService';
+
+const result = await reconcileTransaction({
+  transactionId: 'trans-123',
+  voucherId: 'vouch-456'
+});
+
+if (result.success) {
+  console.log('Reconciliation saved');
+}
+```
+
+---
+
+#### POST /api/bank-reconciliation/reconcile/bulk
+
+Reconcile multiple transactions at once.
+
+**Request Body**:
+```typescript
+interface BulkReconcileRequest {
+  matches: ReconciliationMatch[];
+}
+
+interface ReconciliationMatch {
+  transactionId: string;
+  voucherId: string;
+  similarity: number;      // 0.0 to 1.0
+  suggested: boolean;      // Was this system-suggested
+}
+```
+
+**Response**:
+```typescript
+interface BulkReconcileResponse {
+  success: boolean;
+  message: string;
+  reconciled: number;  // Successfully matched
+  failed: number;      // Failed matches
+  errors: string[];    // Error details
+}
+```
+
+**Example**:
+```typescript
+import { bulkReconcile } from './services/bankReconciliationService';
+
+const result = await bulkReconcile({
+  matches: [
+    {
+      transactionId: 'trans-1',
+      voucherId: 'vouch-1',
+      similarity: 0.95,
+      suggested: true
+    },
+    {
+      transactionId: 'trans-2',
+      voucherId: 'vouch-2',
+      similarity: 0.88,
+      suggested: true
+    }
+  ]
+});
+
+console.log(`Reconciled: ${result.reconciled}`);
+```
+
+---
+
+### Bank Reconciliation Undo
+
+#### DELETE /api/bank-reconciliation/{reconciliationId}
+
+Undo a reconciliation transaction (reverse a match).
+
+**URL Parameters**:
+- `reconciliationId` (string): Reconciliation record ID to undo
+
+**Response**:
+```typescript
+{
+  success: boolean;
+  message: string;
+  transaction: BankTransaction;  // Updated transaction (no longer reconciled)
+  voucher: Voucher;              // Updated voucher (no longer matched)
+}
+```
+
+---
+
+## Authentication Endpoints
+
+### POST /api/auth/login
+
+Authenticate with email and password.
+
+**Request Body**:
+```typescript
+interface LoginRequest {
+  email: string;
+  password: string;
+  rememberMe?: boolean;  // Keep session longer
+}
+```
+
+**Response**:
+```typescript
+interface LoginResponse {
+  success: boolean;
+  message: string;
+  user: AuthUser;
+  accessToken?: string;  // May be in httpOnly cookie
+  refreshToken?: string; // May be in localStorage
+}
+
+interface AuthUser {
+  id: string;
+  email: string;
+  name: string;
+  role: 'admin' | 'user' | 'guest';
+  houses?: number[];
+  avatar?: string;
+  createdAt: string;
+}
+```
+
+**Example**:
+```typescript
+const response = await httpClient.post('/auth/login', {
+  email: 'user@example.com',
+  password: 'password123'
+});
+```
+
+---
+
+### POST /api/auth/logout
+
+Sign out and invalidate tokens.
+
+**Response**:
+```typescript
+{
+  success: boolean;
+  message: string;
+}
+```
+
+---
+
+### POST /api/auth/refresh
+
+Refresh the access token using refresh token.
+
+**Request Body**:
+```typescript
+{
+  refreshToken?: string;  // If not in localStorage
+}
+```
+
+**Response**:
+```typescript
+{
+  success: boolean;
+  accessToken: string;
+  refreshToken?: string;  // May return new refresh token
+}
+```
+
+---
+
+### GET /api/auth/me
+
+Get current authenticated user profile.
+
+**Response**:
+```typescript
+AuthUser  // Current user details
+```
+
+---
+
+### POST /api/auth/oauth-callback
+
+Handle OAuth callback after successful provider authentication.
+
+**Query Parameters**:
+- `code` (string): Authorization code from provider
+- `state` (string): State parameter for CSRF protection
+- `provider` (string): 'google' or 'facebook'
+
+**Response**:
+```typescript
+{
+  success: boolean;
+  user: AuthUser;
+  accessToken: string;
+  redirectUrl: string;  // URL to redirect to after login
+}
+```
+
+---
+
+## User Management Endpoints
+
+### GET /api/users
+
+Fetch all users (admin only).
+
+**Query Parameters** (optional):
+- `role` (string): Filter by role (admin, user, guest)
+- `status` (string): Filter by status (active, inactive)
+- `search` (string): Search by name or email
+
+**Response**:
+```typescript
+User[]
+
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: 'admin' | 'user' | 'guest';
+  houses: number[];
+  status: 'active' | 'inactive';
+  createdAt: string;
+  updatedAt: string;
+  avatar?: string;
+}
+```
+
+**Example**:
+```typescript
+const users = await httpClient.get('/users?role=admin');
+```
+
+---
+
+### GET /api/users/{userId}
+
+Get specific user details.
+
+**URL Parameters**:
+- `userId` (string): User ID
+
+**Response**: `User`
+
+---
+
+### POST /api/users
+
+Create a new user (admin only).
+
+**Request Body**:
+```typescript
+interface CreateUserRequest {
+  email: string;
+  name: string;
+  password: string;
+  role: 'admin' | 'user' | 'guest';
+  houseIds?: number[];
+  status?: 'active' | 'inactive';
+}
+```
+
+**Response**: Created `User`
+
+**Example**:
+```typescript
+const newUser = await httpClient.post('/users', {
+  email: 'newuser@example.com',
+  name: 'John Doe',
+  password: 'secure-password',
+  role: 'user',
+  houseIds: [1, 2, 3]
+});
+```
+
+---
+
+### PUT /api/users/{userId}
+
+Update user details (admin only).
+
+**URL Parameters**:
+- `userId` (string): User ID
+
+**Request Body**:
+```typescript
+interface UpdateUserRequest {
+  name?: string;
+  email?: string;
+  password?: string;  // Only if changing password
+  role?: 'admin' | 'user' | 'guest';
+  houseIds?: number[];
+  status?: 'active' | 'inactive';
+  avatar?: string;    // Avatar URL
+}
+```
+
+**Response**: Updated `User`
+
+---
+
+### DELETE /api/users/{userId}
+
+Delete a user (admin only).
+
+**URL Parameters**:
+- `userId` (string): User ID
+
+**Response**:
+```typescript
+{
+  success: boolean;
+  message: string;
+}
+```
+
+---
+
+### PUT /api/users/{userId}/assign-houses
+
+Assign houses to a user.
+
+**URL Parameters**:
+- `userId` (string): User ID
+
+**Request Body**:
+```typescript
+interface AssignHousesRequest {
+  houseIds: number[];  // Array of house IDs
+}
+```
+
+**Response**:
+```typescript
+{
+  success: boolean;
+  user: User;
+}
+```
+
+---
+
+## Historical Records Endpoints
+
+### POST /api/historical-records/upload
+
+Upload historical transaction or voucher data.
+
+**Query Parameters**:
+- `type` (string): 'transactions' or 'vouchers'
+
+**Request**:
+- Content-Type: `multipart/form-data`
+- Body: File as form data
+
+**Response**:
+```typescript
+interface UploadHistoricalResponse {
+  success: boolean;
+  message: string;
+  totalRecords: number;
+  importedRecords: number;
+  failedRecords: number;
+  errors: {
+    rowNumber: number;
+    error: string;
+  }[];
+  dateRange: {
+    start: string;
+    end: string;
+  };
+}
+```
+
+**Example**:
+```typescript
+const formData = new FormData();
+formData.append('file', file);
+
+const result = await httpClient.post(
+  '/historical-records/upload?type=transactions',
+  formData,
+  {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }
+);
+```
+
+---
+
+### GET /api/historical-records/uploads
+
+Get history of uploaded records.
+
+**Query Parameters** (optional):
+- `type` (string): 'transactions' or 'vouchers'
+- `limit` (number): Records per page
+- `offset` (number): Pagination offset
+
+**Response**:
+```typescript
+interface HistoricalUpload {
+  id: string;
+  fileName: string;
+  type: 'transactions' | 'vouchers';
+  uploadedAt: string;
+  totalRecords: number;
+  successCount: number;
+  failureCount: number;
+  uploadedBy: string;  // User ID
+  dateRange: {
+    start: string;
+    end: string;
+  };
+}
+
+HistoricalUpload[]
+```
+
+---
+
+### GET /api/historical-records/uploads/{uploadId}/errors
+
+Get detailed error log for a specific upload.
+
+**URL Parameters**:
+- `uploadId` (string): Upload ID
+
+**Response**:
+```typescript
+{
+  uploadId: string;
+  fileName: string;
+  errors: {
+    rowNumber: number;
+    data: object;      // The row data that failed
+    error: string;     // Error message
+  }[];
+}
+```
+
+---
+
+## Voucher Upload Endpoint
+
+### POST /api/vouchers/upload
+
+Upload voucher records from file.
+
+**Query Parameters**:
+- `source` (string, optional): Origin of vouchers (e.g., 'manual', 'import')
+
+**Request**:
+- Content-Type: `multipart/form-data`
+- Body: File as form data
+
+**Response**:
+```typescript
+interface VoucherUploadResponse {
+  success: boolean;
+  message: string;
+  totalVouchers: number;
+  uploadedVouchers: number;
+  failedVouchers: number;
+  errors: {
+    rowNumber: number;
+    error: string;
+  }[];
+  vouchers: Voucher[];  // Successfully created vouchers
+}
+```
+
+---
+
+## Data Types
+
+### Property Name Convention
+
+Important: The API uses **snake_case** property names:
+
+```typescript
+// ✅ Correct (matching API)
+interface Voucher {
+  authorization_number: string;
+  confirmation_code: string;
+  confirmation_status: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// ❌ Wrong (don't use camelCase)
+interface Voucher {
+  authorizationNumber: string;      // Wrong!
+  confirmationCode: string;         // Wrong!
+  confirmationStatus: boolean;      // Wrong!
+}
+```
+
+### Date Formats
+
+All dates use ISO 8601 format:
+
+```typescript
+// ✅ Correct
+{
+  date: '2025-01-15',           // ISO date
+  createdAt: '2025-01-15T14:30:00Z'  // ISO datetime
+}
+
+// ❌ Wrong
+{
+  date: '01/15/2025',           // Locale format
+  createdAt: 1705334400000      // Timestamp
+}
+```
+
+### Numeric Types
+
+- **Amounts**: Float/Decimal (e.g., `1500.50`)
+- **Counts**: Integer (e.g., `5`)
+- **Percentages**: 0.0 to 1.0 (e.g., `0.95` for 95%)
+
+## Error Handling
+
+### Response Format
+
+```typescript
+interface ApiError {
+  success: false;
+  message: string;
+  errors?: string[];
+  statusCode?: number;
+}
+```
+
+### HTTP Status Codes
+
+| Code | Meaning | Action |
+|------|---------|--------|
+| 200 | Success | Process response |
+| 400 | Bad Request | Check request format |
+| 401 | Unauthorized | Authentication issue |
+| 404 | Not Found | Resource doesn't exist |
+| 500 | Server Error | Retry or report |
+
+### Error Handling in Code
+
+```typescript
+try {
+  const vouchers = await getVouchers();
+  // Process vouchers
+} catch (error) {
+  if (error instanceof Error) {
+    console.error('Error:', error.message);
+    // Show error to user
+  }
+}
+```
+
+## HTTP Client
+
+### Configuration
+
+The HTTP client is configured in `src/utils/httpClient.ts`:
+
+```typescript
+import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
+
+const httpClient = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+```
+
+### Using the Client
+
+```typescript
+// GET request
+const response = await httpClient.get('/vouchers');
+
+// POST request
+const response = await httpClient.post('/vouchers', {
+  authorization_number: 'AUTH-123',
+  amount: 1500
+});
+
+// PUT request
+const response = await httpClient.put(`/vouchers/${id}`, {
+  amount: 2000
+});
+
+// DELETE request
+await httpClient.delete(`/vouchers/${id}`);
+```
+
+## Service Examples
+
+### voucherService.ts
+
+```typescript
+import { httpClient } from '../utils/httpClient';
+import type { Voucher, CreateVoucherRequest } from '../types/api.types';
+
+export const getVouchers = async () => {
+  const response = await httpClient.get('/vouchers');
+  return response.data;
+};
+
+export const getVoucherById = async (id: number) => {
+  const response = await httpClient.get(`/vouchers/${id}`);
+  return response.data;
+};
+
+export const createVoucher = async (data: CreateVoucherRequest) => {
+  const response = await httpClient.post('/vouchers', data);
+  return response.data;
+};
+```
+
+## Testing API Integration
+
+### Check API Status
+
+```typescript
+// API Status component checks connectivity
+// Green indicator = API running
+// Red indicator = API down
+```
+
+### Manual Testing
+
+```bash
+# Test API with curl
+curl -X GET http://localhost:3000/api/vouchers
+curl -X GET http://localhost:3000/api/transactions-bank
+```
+
+### Browser DevTools
+
+1. Open DevTools (F12)
+2. Go to Network tab
+3. Perform actions in app
+4. See all API requests and responses
+
+## Best Practices
+
+1. **Always use services** - Don't call API directly
+2. **Use TypeScript types** - Type all requests and responses
+3. **Handle errors** - Wrap API calls in try-catch
+4. **Use query hooks** - Let TanStack Query handle caching
+5. **Validate data** - Check API response matches types
+6. **Log for debugging** - Add console logs in services
+7. **Mock for testing** - Use MSW or similar for tests
+
+## Troubleshooting
+
+| Issue | Cause | Solution |
+|-------|-------|----------|
+| 404 errors | Wrong endpoint URL | Check `src/config/api.ts` |
+| CORS errors | Missing CORS headers | Configure backend CORS |
+| Timeout errors | API is slow or down | Check API is running |
+| Type mismatch | API response format changed | Update `api.types.ts` |
+
+---
+
+See [Hooks Guide](./HOOKS.md) for examples of using TanStack Query with these endpoints.

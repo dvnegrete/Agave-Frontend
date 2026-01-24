@@ -1,73 +1,71 @@
-# React + TypeScript + Vite
+# Agave Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern React 19 application for bank reconciliation and financial voucher management.
 
-Currently, two official plugins are available:
+## Quick Start
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```bash
+# Install dependencies
+npm install
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Start development server
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The application will be available at `http://localhost:5173`
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Requirements
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- Node.js v18+
+- Backend API running on `http://localhost:3000`
+- Environment: `.env` file with `VITE_API_BASE_URL=http://localhost:3000`
+
+## Documentation
+
+For detailed information about the project, please see the documentation in the `@docs/` directory:
+
+- **[Getting Started](@docs/SETUP.md)** - Setup and development environment
+- **[Architecture](@docs/ARCHITECTURE.md)** - Project structure and design patterns
+- **[Components](@docs/COMPONENTS.md)** - React component overview
+- **[Hooks](@docs/HOOKS.md)** - Custom hooks and TanStack Query patterns
+- **[API Integration](@docs/API_INTEGRATION.md)** - REST API endpoints and integration
+- **[TanStack Query](@docs/TANSTACK_QUERY.md)** - Server state management
+
+## Tech Stack
+
+- React 19.1.1
+- TypeScript 5.5.3
+- TanStack Query v5
+- Vite 5.4.0
+- Tailwind CSS 3.4.1
+- Axios 1.7.2
+
+## Available Scripts
+
+| Command | Purpose |
+|---------|---------|
+| `npm run dev` | Start development server with HMR |
+| `npm run build` | Build for production |
+| `npm run type-check` | Check TypeScript types |
+| `npm install` | Install dependencies |
+
+## Features
+
+- ✨ Voucher management (create, view, approve, delete)
+- 📤 Bank transaction file uploads (CSV/Excel)
+- 🔄 Automated and manual bank reconciliation
+- 📊 Comprehensive UI with tabbed interface
+- 🚀 Real-time API status monitoring
+- 💾 TanStack Query for smart caching and synchronization
+
+## Development
+
+1. Ensure backend API is running on `http://localhost:3000`
+2. Run `npm run dev`
+3. Open `http://localhost:5173`
+
+For more detailed setup instructions, see [Getting Started](@docs/SETUP.md).
+
+---
+
+**Need help?** Check the documentation in `@docs/` for comprehensive guides on all aspects of the project.

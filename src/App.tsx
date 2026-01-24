@@ -1,51 +1,47 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Home from './components/Home'
-import Login from './components/Login'
-import Footer from './components/Footer'
+import { BrowserRouter, Routes } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { AuthProvider } from './context/AuthContext'
+import { AlertProvider } from '@shared/context/AlertContext'
+// import { ApiStatus } from './components/ApiStatus'
+import { createAppRoutes } from './router/AppRoute'
+import { BaseLayout } from './layouts/BaseLayout'
 import './App.css'
 
-const imgAlt = "El Agave logo";
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+      staleTime: 5 * 60 * 1000, // 5 minutos
+    },
+  },
+})
 
-function Layout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="min-h-screen flex flex-col">
-      <div className='text-center'>
-        <div className="flex flex-col justify-center items-center md:flex-row md:justify-evenly p-8">
-          <h1 className='mt-6 text-3xl font-bold text-gray-900 md:text-4xl dark:text-white md:order-1'>
-            <a href="/" className='flex items-center'>
-              <span>Condominio El Agave</span>
-              <img
-                className="md:mt-0 mx-2"
-                src="/logo_el_agave.png"
-                alt={imgAlt}
-                width={60}
-                height={60}
-              />
-            </a>
-          </h1>
-          <img
-            className="rounded-full mt-3 md:mt-0"
-            src="/el-agave-1.png"
-            alt={imgAlt}
-            width={250}
-            height={250}
-          />
-        </div>
-      </div>
-      {children}
-      <Footer />
-    </div>
-  );
-}
+function App(): React.ReactNode {
+  window.addEventListener('error', (event: ErrorEvent): void => {
+    console.error('🚨 [Global Error]:', event.error);
+  });
 
-function App() {
+  window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent): void => {
+    console.error('🚨 [Unhandled Promise Rejection]:', event.reason);
+  });
+
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout><Home /></Layout>} />
-        <Route path="/login" element={<Layout><Login /></Layout>} />
-      </Routes>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <AlertProvider>
+          <AuthProvider>
+            {/* <ApiStatus /> */}
+            <Routes>
+              {createAppRoutes(BaseLayout)}
+            </Routes>
+          </AuthProvider>
+        </AlertProvider>
+      </BrowserRouter>
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   )
 }
 
