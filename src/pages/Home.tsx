@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { Modal, Button } from '@shared/ui';
 import { useAuth } from '@hooks/useAuth';
-import { LEGAL_TEXT } from '@shared/constants';
+import { LEGAL_TEXT, ROUTES } from '@shared/constants';
 
 export function Home() {
   const [showQuienesSomos, setShowQuienesSomos] = useState(false);
-  const [showAvisoPrivacidad, setShowAvisoPrivacidad] = useState(false);
   const { user } = useAuth();
 
   // Check if user is authenticated but has no access (no houses assigned)
@@ -86,7 +85,7 @@ export function Home() {
         <span className="text-xs text-foreground-tertiary">|</span>
 
         <button
-          onClick={() => setShowAvisoPrivacidad(true)}
+          onClick={() => window.location.href = ROUTES.PRIVACY_POLICY}
           className="text-xs text-foreground-secondary hover:text-primary underline transition-colors cursor-pointer"
         >
           Aviso de Privacidad
@@ -106,18 +105,6 @@ export function Home() {
         ))}
       </Modal>
 
-      {/* Modal Aviso de Privacidad */}
-      <Modal
-        isOpen={showAvisoPrivacidad}
-        onClose={() => setShowAvisoPrivacidad(false)}
-        title="🔒 Aviso de Privacidad"
-      >
-        {LEGAL_TEXT.PRIVACY_POLICY.split('\n\n').map((paragraph, index) => (
-          <p key={index} className={index === LEGAL_TEXT.PRIVACY_POLICY.split('\n\n').length - 1 ? 'text-xs italic mt-4 text-gray-500 dark:text-gray-500' : ''}>
-            {paragraph}
-          </p>
-        ))}
-      </Modal>
     </main>
   );
 }

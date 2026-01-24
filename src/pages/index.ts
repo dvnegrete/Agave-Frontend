@@ -2,6 +2,7 @@ export { AuthCallback } from './AuthCallback';
 export { EmailConfirmation } from './EmailConfirmation';
 export { Home } from './Home';
 export { Login } from './Login';
+export { PrivacyPolicyPage } from './PrivacyPolicyPage';
 export { Signup } from './Signup';
 export { VoucherList } from './VoucherList';
 export { VoucherUpload } from './VoucherUpload';
