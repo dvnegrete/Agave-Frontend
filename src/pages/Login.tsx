@@ -25,7 +25,7 @@ export function Login() {
   // };
 
   return (
-    <main className="flex min-h-full flex-col items-center justify-center bg-base">
+    <main className="flex flex-1 flex-col items-center justify-center bg-base">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-foreground mb-2">{LOGIN_UI_TEXTS.PAGE_TITLE}</h1>
