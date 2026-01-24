@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, FormInput, GoogleLoginButton, FacebookLoginButton } from '@/shared/ui';
+import { Button, FormInput, GoogleLoginButton } from '@/shared/ui';
 import { ROUTES, LOGIN_UI_TEXTS } from '@/shared';
 import { useLogin } from '@hooks/useLogin';
 
@@ -20,9 +20,9 @@ export function Login() {
     await handleOAuthLogin('google');
   };
 
-  const handleFacebookLogin = async (): Promise<void> => {
-    await handleOAuthLogin('facebook');
-  };
+  // const handleFacebookLogin = async (): Promise<void> => {
+  //   await handleOAuthLogin('facebook');
+  // };
 
   return (
     <main className="flex min-h-full flex-col items-center justify-center bg-base">
@@ -58,7 +58,7 @@ export function Login() {
           {/* Social Login Buttons */}
           <div className="flex flex-col gap-3 mb-6">
             <GoogleLoginButton onClick={handleGoogleLogin} isLoading={isLoading} />
-            <FacebookLoginButton onClick={handleFacebookLogin} isLoading={isLoading} />
+            {/* <FacebookLoginButton onClick={handleFacebookLogin} isLoading={isLoading} /> */}
           </div>
 
           <div className="py-6">
@@ -113,7 +113,7 @@ export function Login() {
           <Button
             onClick={() => navigate(ROUTES.SIGNUP)}
             variant="sameUi"
-            className="w-full mt-2 border-2 border-primary"
+            className="w-3/4 mt-2 border-2 border-primary"
           >
             {LOGIN_UI_TEXTS.SIGNUP_LINK}
           </Button>

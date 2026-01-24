@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { AuthProvider } from './context/AuthContext'
 import { AlertProvider } from '@shared/context/AlertContext'
-import { ApiStatus } from './components/ApiStatus'
+// import { ApiStatus } from './components/ApiStatus'
 import { createAppRoutes } from './router/AppRoute'
 import { BaseLayout } from './layouts/BaseLayout'
 import './App.css'
@@ -33,7 +33,7 @@ function App(): React.ReactNode {
       <BrowserRouter>
         <AlertProvider>
           <AuthProvider>
-            <ApiStatus />
+            {/* <ApiStatus /> */}
             <Routes>
               {createAppRoutes(BaseLayout)}
             </Routes>
