@@ -9,7 +9,7 @@ export function BaseLayout({ children, showMenu = true }: BaseLayoutProps): Reac
       {showMenu && <HamburgerMenu />}
       <div className='text-center'>
         <div className="flex flex-col justify-center items-center md:flex-row md:justify-evenly p-8 bg-base">
-          <h1 className='mt-6 text-3xl font-bold md:text-4xl md:order-1'>
+          <h1 className='mt-6 text-2xl font-bold md:text-3xlxl md:order-1'>
             <a href="/" className='flex items-center'>
               <span>Condominio El Agave</span>
               <img
@@ -25,8 +25,8 @@ export function BaseLayout({ children, showMenu = true }: BaseLayoutProps): Reac
             className="rounded-full mt-3 md:mt-0"
             src="/el-agave-1.png"
             alt={imgAlt}
-            width={250}
-            height={250}
+            width={100}
+            height={100}
           />
         </div>
       </div>
