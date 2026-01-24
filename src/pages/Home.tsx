@@ -14,7 +14,7 @@ export function Home() {
   const hasAccess = user && user.houses && user.houses.length > 0;
 
   return (
-    <main className="flex min-h-full flex-col items-center justify-between p-24">
+    <main className="flex flex-1 min-h-full flex-col items-center justify-between p-24">
       <h1 className="text-4xl font-bold">
         {isPendingApproval ? '👋 Bienvenido, ' + (user?.firstName || user?.email) : 'Bienvenido'}
       </h1>

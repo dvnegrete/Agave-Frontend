@@ -82,7 +82,7 @@ export function PaymentManagement() {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container flex-1 mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">💰 Gestión de Pagos</h1>
 
       {/* Tab Navigation */}

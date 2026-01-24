@@ -61,7 +61,7 @@ export function TransactionUpload() {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container flex-1 mx-auto p-4">
       <h1 className="text-2xl font-bold mb-6">
         Cargar Transacciones Bancarias
       </h1>

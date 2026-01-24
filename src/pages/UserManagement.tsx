@@ -60,7 +60,7 @@ export function UserManagement() {
   };
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container flex-1 mx-auto p-6">
       {/* Header */}
       <header className="mb-8">
         <h1 className="text-4xl font-bold text-foreground mb-2">👥 Administración de Usuarios</h1>
