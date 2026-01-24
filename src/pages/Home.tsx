@@ -84,12 +84,12 @@ export function Home() {
 
         <span className="text-xs text-foreground-tertiary">|</span>
 
-        <button
-          onClick={() => window.location.href = ROUTES.PRIVACY_POLICY}
+        <a
+          href={ROUTES.PRIVACY_POLICY}
           className="text-xs text-foreground-secondary hover:text-primary underline transition-colors cursor-pointer"
         >
           Aviso de Privacidad
-        </button>
+        </a>
       </div>
 
       {/* Modal Quiénes Somos */}
