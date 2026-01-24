@@ -1,13 +1,22 @@
 import React from 'react';
 
+type ModalMaxWidth = 'sm' | 'md' | 'lg';
+
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  maxWidth?: ModalMaxWidth;
 }
 
-export function Modal({ isOpen, onClose, title, children }: ModalProps) {
+const maxWidthClasses: Record<ModalMaxWidth, string> = {
+  sm: 'max-w-md',
+  md: 'max-w-lg',
+  lg: 'max-w-2xl',
+};
+
+export function Modal({ isOpen, onClose, title, children, maxWidth = 'lg' }: ModalProps) {
   if (!isOpen) return null;
 
   return (
@@ -16,7 +25,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
       onClick={onClose}
     >
       <div
-        className="bg-secondary rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+        className={`bg-secondary rounded-lg shadow-xl ${maxWidthClasses[maxWidth]} w-full max-h-[80vh] overflow-y-auto`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

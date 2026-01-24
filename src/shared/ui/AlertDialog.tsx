@@ -20,25 +20,25 @@ interface AlertDialogProps extends AlertConfig {
 
 const variantStyles: Record<AlertVariant, { bg: string; border: string; text: string; icon: string }> = {
   success: {
-    bg: 'bg-success/10',
+    bg: '',
     border: 'border-success',
     text: 'text-success',
     icon: '✅',
   },
   error: {
-    bg: 'bg-error/10',
+    bg: '',
     border: 'border-error',
     text: 'text-error',
     icon: '❌',
   },
   warning: {
-    bg: 'bg-warning/10',
+    bg: '',
     border: 'border-warning',
     text: 'text-warning',
     icon: '⚠️',
   },
   info: {
-    bg: 'bg-info/10',
+    bg: '',
     border: 'border-info',
     text: 'text-info',
     icon: 'ℹ️',
@@ -78,7 +78,7 @@ export function AlertDialog({
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-in fade-in"
+      className="fixed inset-0 flex items-center justify-center z-50 p-4 animate-in fade-in"
       role="dialog"
       aria-labelledby={`alert-title-${id}`}
       aria-describedby={`alert-message-${id}`}
@@ -121,7 +121,7 @@ export function AlertDialog({
             </button>
             <button
               onClick={handleConfirm}
-              className={`flex-1 px-4 py-2 rounded-lg text-white font-medium transition-colors
+              className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors
                 ${
                   variant === 'success'
                     ? 'bg-success hover:bg-success/80'

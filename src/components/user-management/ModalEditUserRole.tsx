@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Button } from '@shared/ui';
-import { USER_ROLES, ROLE_LABELS, ROLE_DESCRIPTIONS } from '@shared';
+import { Modal, ErrorAlert, ModalActions, InfoCard } from '@shared/ui';
+import { USER_ROLES, ROLE_LABELS, ROLE_DESCRIPTIONS, MODAL_MESSAGES } from '@shared';
 import type { User, Role } from '@/shared';
 
 interface ModalEditUserRoleProps {
@@ -26,7 +26,7 @@ export function ModalEditUserRole({ isOpen, user, onSave, onClose }: ModalEditUs
 
   const handleSave = async (): Promise<void> => {
     if (!selectedRole) {
-      setError('Por favor selecciona un rol');
+      setError(MODAL_MESSAGES.ERRORS.REQUIRED_ROLE);
       return;
     }
 
@@ -37,90 +37,73 @@ export function ModalEditUserRole({ isOpen, user, onSave, onClose }: ModalEditUs
       await onSave(user.id, { role: selectedRole });
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al actualizar el rol');
+      setError(err instanceof Error ? err.message : MODAL_MESSAGES.ERRORS.SAVE_FAILED);
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-secondary border-2 border-primary/20 rounded-lg p-6 max-w-md w-full shadow-xl">
-        {/* Header */}
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-foreground mb-2">👑 Cambiar Rol</h2>
-          <p className="text-sm text-foreground-secondary">
-            Cambia el rol para {user.name || 'este usuario'}
-          </p>
-        </div>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={MODAL_MESSAGES.EDIT_ROLE.TITLE}
+      maxWidth="sm"
+    >
+      <p className="text-sm text-foreground-secondary mb-6">
+        {MODAL_MESSAGES.EDIT_ROLE.DESCRIPTION} {user.name || 'este usuario'}
+      </p>
 
-        {/* User Info */}
-        <div className="bg-base rounded-lg p-4 mb-6 space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span className="text-foreground-secondary">Nombre:</span>
-            <span className="font-semibold text-foreground">{user.name || 'Sin nombre'}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-foreground-secondary">Email:</span>
-            <span className="font-semibold text-foreground">{user.email || 'Sin email'}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-foreground-secondary">Rol actual:</span>
-            <span className="font-semibold text-foreground capitalize">{user.role}</span>
-          </div>
-        </div>
+      <InfoCard
+        items={[
+          {
+            label: 'Nombre:',
+            value: user.name || 'Sin nombre',
+          },
+          {
+            label: 'Email:',
+            value: user.email || 'Sin email',
+          },
+          {
+            label: 'Rol actual:',
+            value: user.role,
+          },
+        ]}
+      />
 
-        {/* Error Message */}
-        {error && (
-          <div className="bg-error/20 border border-error text-error p-3 rounded mb-4 text-sm">
-            ❌ {error}
-          </div>
-        )}
+      <ErrorAlert message={error} />
 
-        {/* Role Selection */}
-        <div className="mb-6 space-y-2">
-          <label className="block text-sm font-semibold text-foreground mb-3">
-            Nuevo Rol *
-          </label>
-          {USER_ROLES.map((role) => (
-            <button
-              key={role}
-              onClick={() => setSelectedRole(role)}
-              className={`w-full p-3 rounded-lg border-2 text-left transition-all ${
-                selectedRole === role
-                  ? 'border-primary bg-primary/10 text-foreground'
-                  : 'border-base bg-base text-foreground-secondary hover:border-primary/50'
-              }`}
-            >
-              <div className="font-semibold">{ROLE_LABELS[role]}</div>
-              <div className="text-xs text-foreground-tertiary mt-1">
-                {ROLE_DESCRIPTIONS[role]}
-              </div>
-            </button>
-          ))}
-        </div>
-
-        {/* Actions */}
-        <div className="flex gap-3">
-          <Button
-            variant="sameUi"
-            onClick={onClose}
+      <div className="mb-6 space-y-2">
+        <label className="block text-sm font-semibold text-foreground mb-3">
+          Nuevo Rol *
+        </label>
+        {USER_ROLES.map((role) => (
+          <button
+            key={role}
+            onClick={() => setSelectedRole(role)}
             disabled={isSaving}
-            className="flex-1"
+            className={`w-full p-3 rounded-lg border-2 text-left transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+              selectedRole === role
+                ? 'border-primary bg-primary/10 text-foreground'
+                : 'border-base bg-base text-foreground-secondary hover:border-primary/50'
+            }`}
           >
-            Cancelar
-          </Button>
-          <Button
-            variant="primary"
-            onClick={handleSave}
-            isLoading={isSaving}
-            disabled={!selectedRole || selectedRole === user.role}
-            className="flex-1"
-          >
-            Guardar Cambios
-          </Button>
-        </div>
+            <div className="font-semibold">{ROLE_LABELS[role]}</div>
+            <div className="text-xs text-foreground-tertiary mt-1">
+              {ROLE_DESCRIPTIONS[role]}
+            </div>
+          </button>
+        ))}
       </div>
-    </div>
+
+      <ModalActions
+        onCancel={onClose}
+        onConfirm={handleSave}
+        cancelDisabled={isSaving}
+        confirmDisabled={!selectedRole || selectedRole === user.role}
+        isLoading={isSaving}
+        confirmText="Guardar Cambios"
+      />
+    </Modal>
   );
 }
