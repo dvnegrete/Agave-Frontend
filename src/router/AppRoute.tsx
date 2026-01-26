@@ -11,7 +11,6 @@ import {
   PaymentManagement,
   HistoricalRecordsUpload,
   UserManagement,
-  AuthCallback,
   EmailConfirmation,
 } from '@pages/index'
 import { ProtectedRoute } from '@components/index'
@@ -25,7 +24,6 @@ export const createAppRoutes = (Layout: (props: BaseLayoutProps) => React.ReactN
     <Route path={ROUTES.LOGIN} element={<Layout><Login /></Layout>} />
     <Route path={ROUTES.PRIVACY_POLICY} element={<Layout><PrivacyPolicyPage /></Layout>} />
     <Route path={ROUTES.SIGNUP} element={<Layout><Signup /></Layout>} />
-    <Route path="/auth/callback" element={<AuthCallback />} />
     <Route path={ROUTES.EMAIL_CONFIRMATION} element={<EmailConfirmation />} />
     <Route path={ROUTES.VOUCHER_UPLOAD} element={<Layout><VoucherUpload /></Layout>}
     />
