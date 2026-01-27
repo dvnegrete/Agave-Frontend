@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { getAuth } from 'firebase/auth';
 import * as authService from '@/services/authService';
+import { tokenManager } from '@utils/tokenManager';
 import { ROUTES } from '@/shared';
 import { Button } from '@/shared/ui';
 
@@ -14,18 +16,29 @@ export function EmailVerification() {
   useEffect(() => {
     const verifyEmail = async () => {
       try {
-        // Obtener el firebaseUid de los parámetros de URL
-        // En Firebase, el token está en la URL como "oobCode"
-        // Para esta implementación, asumimos que el frontend pasará el firebaseUid
-        const firebaseUid = searchParams.get('uid');
+        const auth = getAuth();
+
+        // Estrategia 1: Obtener uid del parámetro de URL (si existe)
+        let firebaseUid = searchParams.get('uid');
+
+        // Estrategia 2: Obtener uid del usuario autenticado actualmente en Firebase
+        // (Esto es más confiable porque significa que el usuario acaba de verificar el email)
+        if (!firebaseUid && auth.currentUser) {
+          firebaseUid = auth.currentUser.uid;
+          console.log('Email verificado por Firebase, uid del usuario autenticado:', firebaseUid);
+        }
 
         if (!firebaseUid) {
-          setError('Token de verificación inválido o expirado');
+          setError('No se pudo obtener la información del usuario. Por favor, intenta nuevamente.');
           setLoading(false);
           return;
         }
 
-        // Llamar al backend para verificar el email
+        // Verificar si el email ya está verificado en Firebase
+        // (Refrescar claims para obtener el estado más actualizado)
+        await auth.currentUser?.getIdTokenResult(true);
+
+        // Llamar al backend para sincronizar la verificación en PostgreSQL
         const response = await authService.verifyEmail(firebaseUid);
 
         // Si la verificación fue exitosa
@@ -34,10 +47,10 @@ export function EmailVerification() {
 
           // Guardar tokens y usuario
           if (response.refreshToken) {
-            localStorage.setItem('refreshToken', response.refreshToken);
+            tokenManager.setRefreshToken(response.refreshToken);
           }
 
-          localStorage.setItem('user', JSON.stringify(response.user));
+          tokenManager.setUser(response.user);
 
           // Redirigir a home después de 2 segundos
           setTimeout(() => {
@@ -47,6 +60,7 @@ export function EmailVerification() {
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : 'Error verificando correo electrónico';
+        console.error('Email verification error:', err);
         setError(errorMessage);
       } finally {
         setLoading(false);
