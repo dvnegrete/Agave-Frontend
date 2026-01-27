@@ -10,6 +10,7 @@ import {
   GoogleAuthProvider,
   FacebookAuthProvider,
   signOut as firebaseSignOut,
+  sendEmailVerification,
 } from 'firebase/auth';
 import { firebaseAuth } from '@config/firebase';
 import { httpClient } from '@utils/httpClient';
@@ -23,6 +24,7 @@ import type {
 
 /**
  * Sign up new user with email and password
+ * Envía email de verificación usando plantillas de Firebase
  */
 export const signUp = async (
   data: SignupRequest,
@@ -36,10 +38,19 @@ export const signUp = async (
       data.password,
     );
 
-    // 2. Obtener ID Token
+    // 2. Enviar email de verificación con plantilla de Firebase
+    // (Se envía automáticamente usando la plantilla configurada en Firebase Console)
+    try {
+      await sendEmailVerification(userCredential.user);
+    } catch (emailError) {
+      console.error('Failed to send verification email:', emailError);
+      // No fallar el signup si el email no se envía, pero loguear el error
+    }
+
+    // 3. Obtener ID Token
     const idToken = await userCredential.user.getIdToken();
 
-    // 3. Enviar al backend para crear en PostgreSQL y generar JWTs propios
+    // 4. Enviar al backend para crear en PostgreSQL y generar JWTs propios
     return httpClient.post<AuthResponse>(
       API_ENDPOINTS.authSignUp,
       {
@@ -212,17 +223,40 @@ export const verifyEmail = async (
 
 /**
  * Reenvía el email de verificación a un usuario
+ * Usa Firebase Client SDK para enviar el email automáticamente
  */
 export const resendVerificationEmail = async (
-  email: string,
   signal?: AbortSignal,
 ): Promise<{ message: string }> => {
   try {
-    return httpClient.post<{ message: string }>(
-      API_ENDPOINTS.authResendVerificationEmail,
-      { email },
-      { signal },
-    );
+    const user = firebaseAuth.currentUser;
+
+    if (!user) {
+      throw new Error('Usuario no autenticado');
+    }
+
+    if (!user.email) {
+      throw new Error('Usuario sin email');
+    }
+
+    // Firebase envía el email de verificación automáticamente
+    await sendEmailVerification(user);
+
+    // Notificar al backend (opcional, solo para auditoría)
+    try {
+      await httpClient.post<{ message: string }>(
+        API_ENDPOINTS.authResendVerificationEmail,
+        { email: user.email },
+        { signal },
+      );
+    } catch (err) {
+      // No fallar si el backend tiene problemas
+      console.error('Backend notification failed:', err);
+    }
+
+    return {
+      message: 'Email de verificación reenviado. Por favor, revisa tu bandeja de entrada.',
+    };
   } catch (err: unknown) {
     console.error('Resend verification email failed:', err);
     throw err;

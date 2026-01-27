@@ -85,32 +85,36 @@ export function EmailConfirmation() {
   }, [navigate]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-base">
-      <div className="w-full max-w-md">
-        <div className="bg-secondary border-2 border-primary/20 rounded-lg p-8 shadow-xl">
+    <main className="flex min-h-screen items-center justify-center bg-base">
+      <div className="w-full max-w-md px-4">
+        <div className="bg-secondary border-2 border-primary rounded-lg p-8 shadow-xl">
           {status === 'loading' && (
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary/30 border-t-primary mx-auto mb-4"></div>
               <p className="text-foreground">Confirmando tu correo electrónico...</p>
             </div>
           )}
 
           {status === 'success' && (
-            <div className="text-center">
-              <div className="text-6xl mb-4">✅</div>
-              <h1 className="text-2xl font-bold text-foreground mb-3">Correo Confirmado</h1>
-              <p className="text-foreground-secondary mb-2">{message}</p>
-              <p className="text-sm text-foreground-tertiary">
-                Te redireccionaremos al login en unos momentos...
-              </p>
+            <div className="text-center space-y-4">
+              <div className="text-6xl">✅</div>
+              <div>
+                <h1 className="text-2xl font-bold text-foreground mb-2">Correo Confirmado</h1>
+                <p className="text-foreground-secondary mb-2">{message}</p>
+                <p className="text-sm text-foreground-tertiary">
+                  Te redireccionaremos al login en unos momentos...
+                </p>
+              </div>
             </div>
           )}
 
           {status === 'error' && (
-            <div className="text-center">
-              <div className="text-6xl mb-4">❌</div>
-              <h1 className="text-2xl font-bold text-error mb-3">Error en la Confirmación</h1>
-              <p className="text-foreground-secondary mb-4">{message}</p>
+            <div className="text-center space-y-4">
+              <div className="text-6xl">❌</div>
+              <div>
+                <h1 className="text-2xl font-bold text-error mb-2">Error en la Confirmación</h1>
+                <p className="text-foreground-secondary mb-4">{message}</p>
+              </div>
               <Button
                 onClick={() => navigate(ROUTES.LOGIN)}
                 variant="primary"
@@ -122,6 +126,6 @@ export function EmailConfirmation() {
           )}
         </div>
       </div>
-    </div>
+    </main>
   );
 }

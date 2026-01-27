@@ -2,7 +2,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import * as authService from '@/services/authService';
 import { ROUTES } from '@/shared';
-import styles from './VerifyEmailPending.module.css';
+import { Button } from '@/shared/ui';
 
 interface LocationState {
   email?: string;
@@ -21,16 +21,28 @@ export function VerifyEmailPending() {
 
   if (!email) {
     return (
-      <div className={styles.container}>
-        <div className={styles.card}>
-          <div className={styles.errorIcon}>✕</div>
-          <h2>Email no especificado</h2>
-          <p>No se encontró el correo electrónico. Por favor, intenta registrarte nuevamente.</p>
-          <button onClick={() => navigate(ROUTES.SIGNUP)} className={styles.primaryButton}>
-            Volver al registro
-          </button>
+      <main className="flex min-h-screen items-center justify-center bg-base px-4">
+        <div className="w-full max-w-md">
+          <div className="bg-secondary border-2 border-primary rounded-lg p-8 shadow-xl text-center space-y-4">
+            <div className="flex justify-center">
+              <div className="flex items-center justify-center w-16 h-16 rounded-full bg-error/20">
+                <span className="text-3xl text-error">✕</span>
+              </div>
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-foreground mb-2">Email no especificado</h2>
+              <p className="text-foreground-secondary mb-6">No se encontró el correo electrónico. Por favor, intenta registrarte nuevamente.</p>
+            </div>
+            <Button
+              onClick={() => navigate(ROUTES.SIGNUP)}
+              variant="primary"
+              className="w-full justify-center"
+            >
+              Volver al registro
+            </Button>
+          </div>
         </div>
-      </div>
+      </main>
     );
   }
 
@@ -40,7 +52,8 @@ export function VerifyEmailPending() {
     setMessage(null);
 
     try {
-      const response = await authService.resendVerificationEmail(email);
+      // Firebase envía el email automáticamente
+      const response = await authService.resendVerificationEmail();
       setMessage(response.message);
     } catch (err) {
       const errorMessage =
@@ -52,54 +65,74 @@ export function VerifyEmailPending() {
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.card}>
-        <div className={styles.icon}>✉️</div>
-
-        <h2>Verifica tu correo electrónico</h2>
-
-        <p className={styles.description}>
-          Te hemos enviado un correo electrónico a <strong>{email}</strong> con un link de
-          verificación.
-        </p>
-
-        <div className={styles.steps}>
-          <div className={styles.step}>
-            <span className={styles.stepNumber}>1</span>
-            <p>Revisa tu bandeja de entrada</p>
+    <main className="flex min-h-screen items-center justify-center bg-base px-4">
+      <div className="w-full max-w-md">
+        <div className="bg-secondary border-2 border-primary rounded-lg p-8 shadow-xl">
+          <div className="text-center mb-6">
+            <div className="text-5xl mb-4">✉️</div>
+            <h2 className="text-2xl font-bold text-foreground mb-4">Verifica tu correo electrónico</h2>
+            <p className="text-foreground-secondary mb-6">
+              Te hemos enviado un correo electrónico a <strong className="text-foreground">{email}</strong> con un link de verificación.
+            </p>
           </div>
-          <div className={styles.step}>
-            <span className={styles.stepNumber}>2</span>
-            <p>Haz clic en el link de verificación</p>
+
+          <div className="space-y-4 mb-6">
+            <div className="flex gap-4 items-start">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-info font-bold flex-shrink-0 text-sm">
+                1
+              </div>
+              <p className="text-foreground-secondary pt-1">Revisa tu bandeja de entrada</p>
+            </div>
+            <div className="flex gap-4 items-start">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-info font-bold flex-shrink-0 text-sm">
+                2
+              </div>
+              <p className="text-foreground-secondary pt-1">Haz clic en el link de verificación</p>
+            </div>
+            <div className="flex gap-4 items-start">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-info font-bold flex-shrink-0 text-sm">
+                3
+              </div>
+              <p className="text-foreground-secondary pt-1">Tu cuenta estará lista para usar</p>
+            </div>
           </div>
-          <div className={styles.step}>
-            <span className={styles.stepNumber}>3</span>
-            <p>Tu cuenta estará lista para usar</p>
+
+          {message && (
+            <div className="border-l-4 border-success rounded px-4 py-3 mb-6">
+              <p className="text-success text-sm">{message}</p>
+            </div>
+          )}
+
+          {error && (
+            <div className="border-l-4 border-error rounded px-4 py-3 mb-6">
+              <p className="text-error text-sm">{error}</p>
+            </div>
+          )}
+
+          <div className="space-y-3 mb-6">
+            <Button
+              onClick={handleResendEmail}
+              disabled={loading}
+              variant="primary"
+              className="w-full justify-center"
+            >
+              {loading ? 'Reenviando...' : '¿No recibiste el email? Reenviar'}
+            </Button>
+
+            <Button
+              onClick={() => navigate(ROUTES.LOGIN)}
+              variant="sameUi"
+              className="w-full justify-center border-2 border-primary"
+            >
+              Volver al inicio de sesión
+            </Button>
           </div>
+
+          <p className="text-xs text-foreground-tertiary text-center">
+            Si no encuentras el email, revisa la carpeta de spam o correo no deseado.
+          </p>
         </div>
-
-        {message && <div className={styles.successMessage}>{message}</div>}
-
-        {error && <div className={styles.errorMessage}>{error}</div>}
-
-        <div className={styles.actions}>
-          <button
-            onClick={handleResendEmail}
-            disabled={loading}
-            className={styles.primaryButton}
-          >
-            {loading ? 'Reenviando...' : '¿No recibiste el email? Reenviar'}
-          </button>
-
-          <button onClick={() => navigate(ROUTES.LOGIN)} className={styles.secondaryButton}>
-            Volver al inicio de sesión
-          </button>
-        </div>
-
-        <p className={styles.spam}>
-          Si no encuentras el email, revisa la carpeta de spam o correo no deseado.
-        </p>
       </div>
-    </div>
+    </main>
   );
 }

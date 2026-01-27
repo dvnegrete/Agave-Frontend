@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import * as authService from '@/services/authService';
 import { ROUTES } from '@/shared';
-import styles from './EmailVerification.module.css';
+import { Button } from '@/shared/ui';
 
 export function EmailVerification() {
   const navigate = useNavigate();
@@ -57,34 +57,54 @@ export function EmailVerification() {
   }, [searchParams, navigate]);
 
   return (
-    <div className={styles.container}>
-      <div className={styles.card}>
-        {loading && (
-          <div className={styles.loading}>
-            <div className={styles.spinner}></div>
-            <p>Verificando tu correo electrónico...</p>
-          </div>
-        )}
+    <main className="flex min-h-screen items-center justify-center bg-base px-4">
+      <div className="w-full max-w-md">
+        <div className="bg-secondary border-2 border-primary rounded-lg p-8 shadow-xl">
+          {loading && (
+            <div className="text-center space-y-4">
+              <div className="flex justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary/30 border-t-primary"></div>
+              </div>
+              <p className="text-foreground">Verificando tu correo electrónico...</p>
+            </div>
+          )}
 
-        {success && !loading && (
-          <div className={styles.success}>
-            <div className={styles.successIcon}>✓</div>
-            <h2>Correo electrónico verificado</h2>
-            <p>Tu cuenta está lista. Serás redirigido al inicio en breve.</p>
-          </div>
-        )}
+          {success && !loading && (
+            <div className="text-center space-y-4">
+              <div className="flex justify-center">
+                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-success/20">
+                  <span className="text-3xl text-success">✓</span>
+                </div>
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-foreground mb-2">Correo electrónico verificado</h2>
+                <p className="text-foreground-secondary">Tu cuenta está lista. Serás redirigido al inicio en breve.</p>
+              </div>
+            </div>
+          )}
 
-        {error && !loading && (
-          <div className={styles.error}>
-            <div className={styles.errorIcon}>✕</div>
-            <h2>Error en la verificación</h2>
-            <p>{error}</p>
-            <button onClick={() => navigate(ROUTES.LOGIN)} className={styles.button}>
-              Volver al inicio de sesión
-            </button>
-          </div>
-        )}
+          {error && !loading && (
+            <div className="text-center space-y-4">
+              <div className="flex justify-center">
+                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-error/20">
+                  <span className="text-3xl text-error">✕</span>
+                </div>
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-error mb-2">Error en la verificación</h2>
+                <p className="text-foreground-secondary mb-6">{error}</p>
+              </div>
+              <Button
+                onClick={() => navigate(ROUTES.LOGIN)}
+                variant="primary"
+                className="w-full justify-center"
+              >
+                Volver al inicio de sesión
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </main>
   );
 }
