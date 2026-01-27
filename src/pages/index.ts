@@ -1,8 +1,10 @@
 export { EmailConfirmation } from './EmailConfirmation';
+export { EmailVerification } from './EmailVerification';
 export { Home } from './Home';
 export { Login } from './Login';
 export { PrivacyPolicyPage } from './PrivacyPolicyPage';
 export { Signup } from './Signup';
+export { VerifyEmailPending } from './VerifyEmailPending';
 export { VoucherList } from './VoucherList';
 export { VoucherUpload } from './VoucherUpload';
 export { TransactionUpload } from './TransactionUpload';

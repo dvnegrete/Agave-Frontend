@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAlert } from './useAlert';
 import * as authService from '@services/authService';
 import { tokenManager } from '@utils/tokenManager';
 import {
@@ -9,7 +8,6 @@ import {
   VALIDATION_MESSAGES,
   SIGNUP_VALIDATION_MESSAGES,
   SIGNUP_ERROR_MESSAGES,
-  SIGNUP_SUCCESS_MESSAGES,
 } from '@/shared';
 import type { SignupRequest } from '@/shared/types/auth.types';
 
@@ -105,7 +103,6 @@ export function useSignup(): UseSignupReturn {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const alert = useAlert();
 
   const handleSignup = async (formData: SignupFormData): Promise<void> => {
     setError(null);
@@ -134,8 +131,11 @@ export function useSignup(): UseSignupReturn {
       const response = await authService.signUp(signUpData);
 
       if (response.requiresEmailConfirmation) {
-        alert.success('Registro completado', SIGNUP_SUCCESS_MESSAGES.EMAIL_CONFIRMATION_FULL(formData.email));
-        navigate(ROUTES.LOGIN);
+        // Navegar a página de verificación de email pendiente
+        // Pasar email como state para mostrar confirmación
+        navigate(ROUTES.VERIFY_EMAIL_PENDING, {
+          state: { email: formData.email, message: response.message },
+        });
         return;
       }
 

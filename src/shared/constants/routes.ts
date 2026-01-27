@@ -3,6 +3,8 @@ export const ROUTES = {
     LOGIN: '/login',
     SIGNUP: '/registrarse',
     EMAIL_CONFIRMATION: '/confirmar-correo',
+    VERIFY_EMAIL_PENDING: '/verificar-correo-pendiente',
+    EMAIL_VERIFICATION: '/verificar-correo',
     PRIVACY_POLICY: '/aviso-de-privacidad',
     VOUCHER_UPLOAD: '/subir-comprobante',
     VOUCHER_LIST: '/comprobantes',

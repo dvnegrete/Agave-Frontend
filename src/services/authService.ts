@@ -189,3 +189,42 @@ export const signOut = async (signal?: AbortSignal): Promise<void> => {
     throw err;
   }
 };
+
+/**
+ * Verifica el email del usuario después del registro
+ * Se llama después de que el usuario hace click en el link del email
+ */
+export const verifyEmail = async (
+  firebaseUid: string,
+  signal?: AbortSignal,
+): Promise<AuthResponse> => {
+  try {
+    return httpClient.post<AuthResponse>(
+      API_ENDPOINTS.authVerifyEmail,
+      { firebaseUid },
+      { signal },
+    );
+  } catch (err: unknown) {
+    console.error('Email verification failed:', err);
+    throw err;
+  }
+};
+
+/**
+ * Reenvía el email de verificación a un usuario
+ */
+export const resendVerificationEmail = async (
+  email: string,
+  signal?: AbortSignal,
+): Promise<{ message: string }> => {
+  try {
+    return httpClient.post<{ message: string }>(
+      API_ENDPOINTS.authResendVerificationEmail,
+      { email },
+      { signal },
+    );
+  } catch (err: unknown) {
+    console.error('Resend verification email failed:', err);
+    throw err;
+  }
+};

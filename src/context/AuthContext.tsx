@@ -49,7 +49,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await authService.signIn({ email, password });
 
       // Backend automatically sets access_token in httpOnly cookie
-      tokenManager.setRefreshToken(response.refreshToken);
+      if (response.refreshToken) {
+        tokenManager.setRefreshToken(response.refreshToken);
+      }
       tokenManager.setUser(response.user);
 
       setUser(response.user);
@@ -69,7 +71,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await authService.loginWithOAuth(provider);
 
       // Backend automatically sets access_token in httpOnly cookie
-      tokenManager.setRefreshToken(response.refreshToken);
+      if (response.refreshToken) {
+        tokenManager.setRefreshToken(response.refreshToken);
+      }
       tokenManager.setUser(response.user);
 
       setUser(response.user);

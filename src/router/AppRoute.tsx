@@ -12,6 +12,8 @@ import {
   HistoricalRecordsUpload,
   UserManagement,
   EmailConfirmation,
+  EmailVerification,
+  VerifyEmailPending,
 } from '@pages/index'
 import { ProtectedRoute } from '@components/index'
 import { ROUTES } from '@/shared'
@@ -25,6 +27,8 @@ export const createAppRoutes = (Layout: (props: BaseLayoutProps) => React.ReactN
     <Route path={ROUTES.PRIVACY_POLICY} element={<Layout><PrivacyPolicyPage /></Layout>} />
     <Route path={ROUTES.SIGNUP} element={<Layout><Signup /></Layout>} />
     <Route path={ROUTES.EMAIL_CONFIRMATION} element={<EmailConfirmation />} />
+    <Route path={ROUTES.EMAIL_VERIFICATION} element={<EmailVerification />} />
+    <Route path={ROUTES.VERIFY_EMAIL_PENDING} element={<Layout><VerifyEmailPending /></Layout>} />
     <Route path={ROUTES.VOUCHER_UPLOAD} element={<Layout><VoucherUpload /></Layout>}
     />
 
