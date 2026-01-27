@@ -33,16 +33,22 @@ export function ModalEditActions({
 }: ModalEditActionsProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const handleDeleteUser = async (): Promise<void> => {
     setIsDeleting(true);
+    setDeleteError(null);
     try {
       await onDeleteUser();
       setShowDeleteConfirm(false);
       onClose();
     } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : 'Error desconocido al eliminar el usuario';
+      setDeleteError(errorMessage);
       console.error('Error deleting user:', err);
-      setShowDeleteConfirm(false);
     } finally {
       setIsDeleting(false);
     }
@@ -180,10 +186,19 @@ export function ModalEditActions({
               </p>
             </div>
 
+            {deleteError && (
+              <div className="border-l-4 border-error rounded px-4 py-3 mb-6">
+                <p className="text-error text-sm">{deleteError}</p>
+              </div>
+            )}
+
             <div className="flex gap-3 justify-end">
               <Button
                 variant="sameUi"
-                onClick={() => setShowDeleteConfirm(false)}
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  setDeleteError(null);
+                }}
                 disabled={isDeleting}
               >
                 Cancelar
