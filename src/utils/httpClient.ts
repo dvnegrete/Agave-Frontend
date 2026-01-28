@@ -40,10 +40,17 @@ class HttpClient {
       ...options?.headers,
     };
 
+    // Agregar Authorization header si existe accessToken
+    // Fallback para cuando cookies no se comparten entre dominios diferentes
+    const accessToken = tokenManager.getAccessToken();
+    if (accessToken) {
+      headers['Authorization'] = `Bearer ${accessToken}`;
+    }
+
     const config: RequestInit = {
       method,
       headers,
-      credentials: 'include', // Send cookies with every request
+      credentials: 'include',
       signal: options?.signal,
     };
 
@@ -137,7 +144,7 @@ class HttpClient {
       }
 
       // Call backend refresh endpoint
-      // Backend will automatically set new access_token cookie
+      // Backend will automatically set new access_token cookie AND return in response
       const response = await fetch(`${this.baseURL}/auth/refresh`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -149,8 +156,15 @@ class HttpClient {
         throw new Error(`Refresh failed with status ${response.status}`);
       }
 
+      const data = await response.json();
+
+      // Guardar nuevo accessToken si viene en la respuesta
+      // (Para usar en Authorization header si cookies no funcionan)
+      if (data.accessToken) {
+        tokenManager.setAccessToken(data.accessToken);
+      }
+
       // Notify all subscribers
-      // Note: We don't return an access token since it's in the httpOnly cookie now
       this.refreshSubscribers.forEach(cb => cb());
       this.refreshSubscribers = [];
 

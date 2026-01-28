@@ -48,7 +48,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await authService.signIn({ email, password });
 
-      // Backend automatically sets access_token in httpOnly cookie
+      // Backend establece access_token en httpOnly cookie Y retorna en response
+      // Guardar accessToken para enviar en Authorization header (fallback si cookies no funcionan)
+      if (response.accessToken) {
+        tokenManager.setAccessToken(response.accessToken);
+      }
       if (response.refreshToken) {
         tokenManager.setRefreshToken(response.refreshToken);
       }
@@ -70,7 +74,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await authService.loginWithOAuth(provider);
 
-      // Backend automatically sets access_token in httpOnly cookie
+      // Backend establece access_token en httpOnly cookie Y retorna en response
+      // Guardar accessToken para enviar en Authorization header (fallback si cookies no funcionan)
+      if (response.accessToken) {
+        tokenManager.setAccessToken(response.accessToken);
+      }
       if (response.refreshToken) {
         tokenManager.setRefreshToken(response.refreshToken);
       }
