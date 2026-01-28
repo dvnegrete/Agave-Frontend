@@ -13,6 +13,7 @@ class HttpClient {
   private refreshSubscribers: (() => void)[] = [];
   private requestCount: Map<string, number> = new Map();
   private readonly MAX_RETRIES_PER_ENDPOINT = 3;
+  private isRedirectingToLogin: boolean = false;
 
   constructor(baseURL: string) {
     this.baseURL = baseURL;
@@ -71,10 +72,15 @@ class HttpClient {
 
         // Prevent infinite 401 loops
         if (currentRetries >= this.MAX_RETRIES_PER_ENDPOINT) {
-          console.error(`Max retries (${this.MAX_RETRIES_PER_ENDPOINT}) exceeded, session expired`);
+          console.error(`Max retries (${this.MAX_RETRIES_PER_ENDPOINT}) exceeded for ${requestKey}, session expired`);
           this.requestCount.delete(requestKey);
-          tokenManager.clearAll();
-          window.location.href = '/login';
+
+          // Prevent multiple simultaneous redirects
+          if (!this.isRedirectingToLogin) {
+            this.isRedirectingToLogin = true;
+            tokenManager.clearAll();
+            window.location.href = '/login';
+          }
           throw new Error('Session expired. Please login again.');
         }
 
@@ -85,6 +91,13 @@ class HttpClient {
           return this.request<T>(endpoint, method, options, retryCount + 1);
         } else {
           console.error('Token refresh failed, session expired');
+
+          // Prevent multiple simultaneous redirects
+          if (!this.isRedirectingToLogin) {
+            this.isRedirectingToLogin = true;
+            tokenManager.clearAll();
+            window.location.href = '/login';
+          }
           throw new Error('Session expired. Please login again.');
         }
       }
@@ -175,9 +188,12 @@ class HttpClient {
       this.isRefreshing = false;
       this.refreshSubscribers = [];
 
-      // Clear tokens and redirect to login
-      tokenManager.clearAll();
-      window.location.href = '/login';
+      // Clear tokens and redirect to login (prevent multiple redirects)
+      if (!this.isRedirectingToLogin) {
+        this.isRedirectingToLogin = true;
+        tokenManager.clearAll();
+        window.location.href = '/login';
+      }
       return null;
     }
   }
