@@ -35,9 +35,9 @@ class HttpClient {
     this.requestCount.set(requestKey, currentRetries + 1);
 
     // Merge custom headers with default content-type
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...options?.headers,
+      ...(typeof options?.headers === 'object' && options?.headers !== null ? (options.headers as Record<string, string>) : {}),
     };
 
     // Agregar Authorization header si existe accessToken

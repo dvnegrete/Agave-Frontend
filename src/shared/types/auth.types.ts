@@ -15,7 +15,17 @@ export interface User {
 }
 
 export interface AuthResponse {
+  /**
+   * Access token para enviar en Authorization header
+   * Usado cuando cookies no funcionan (dominios diferentes)
+   */
+  accessToken?: string;
+
+  /**
+   * Refresh token para renovar el access token
+   */
   refreshToken?: string;
+
   user: User;
   requiresEmailConfirmation?: boolean;
   verificationSent?: boolean;
