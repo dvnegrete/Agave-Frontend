@@ -11,12 +11,25 @@ export interface User {
   role?: string;
   status?: string;
   houses?: number[];
+  emailVerified?: boolean;
 }
 
 export interface AuthResponse {
-  refreshToken: string;
+  /**
+   * Access token para enviar en Authorization header
+   * Usado cuando cookies no funcionan (dominios diferentes)
+   */
+  accessToken?: string;
+
+  /**
+   * Refresh token para renovar el access token
+   */
+  refreshToken?: string;
+
   user: User;
   requiresEmailConfirmation?: boolean;
+  verificationSent?: boolean;
+  message?: string;
 }
 
 export interface LoginRequest {

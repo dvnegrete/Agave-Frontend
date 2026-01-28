@@ -13,6 +13,7 @@ class HttpClient {
   private refreshSubscribers: (() => void)[] = [];
   private requestCount: Map<string, number> = new Map();
   private readonly MAX_RETRIES_PER_ENDPOINT = 3;
+  private isRedirectingToLogin: boolean = false;
 
   constructor(baseURL: string) {
     this.baseURL = baseURL;
@@ -35,15 +36,22 @@ class HttpClient {
     this.requestCount.set(requestKey, currentRetries + 1);
 
     // Merge custom headers with default content-type
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...options?.headers,
+      ...(typeof options?.headers === 'object' && options?.headers !== null ? (options.headers as Record<string, string>) : {}),
     };
+
+    // Agregar Authorization header si existe accessToken
+    // Fallback para cuando cookies no se comparten entre dominios diferentes
+    const accessToken = tokenManager.getAccessToken();
+    if (accessToken) {
+      headers['Authorization'] = `Bearer ${accessToken}`;
+    }
 
     const config: RequestInit = {
       method,
       headers,
-      credentials: 'include', // Send cookies with every request
+      credentials: 'include',
       signal: options?.signal,
     };
 
@@ -64,10 +72,15 @@ class HttpClient {
 
         // Prevent infinite 401 loops
         if (currentRetries >= this.MAX_RETRIES_PER_ENDPOINT) {
-          console.error(`Max retries (${this.MAX_RETRIES_PER_ENDPOINT}) exceeded, session expired`);
+          console.error(`Max retries (${this.MAX_RETRIES_PER_ENDPOINT}) exceeded for ${requestKey}, session expired`);
           this.requestCount.delete(requestKey);
-          tokenManager.clearAll();
-          window.location.href = '/login';
+
+          // Prevent multiple simultaneous redirects
+          if (!this.isRedirectingToLogin) {
+            this.isRedirectingToLogin = true;
+            tokenManager.clearAll();
+            window.location.href = '/login';
+          }
           throw new Error('Session expired. Please login again.');
         }
 
@@ -78,6 +91,13 @@ class HttpClient {
           return this.request<T>(endpoint, method, options, retryCount + 1);
         } else {
           console.error('Token refresh failed, session expired');
+
+          // Prevent multiple simultaneous redirects
+          if (!this.isRedirectingToLogin) {
+            this.isRedirectingToLogin = true;
+            tokenManager.clearAll();
+            window.location.href = '/login';
+          }
           throw new Error('Session expired. Please login again.');
         }
       }
@@ -137,7 +157,7 @@ class HttpClient {
       }
 
       // Call backend refresh endpoint
-      // Backend will automatically set new access_token cookie
+      // Backend will automatically set new access_token cookie AND return in response
       const response = await fetch(`${this.baseURL}/auth/refresh`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -149,8 +169,15 @@ class HttpClient {
         throw new Error(`Refresh failed with status ${response.status}`);
       }
 
+      const data = await response.json();
+
+      // Guardar nuevo accessToken si viene en la respuesta
+      // (Para usar en Authorization header si cookies no funcionan)
+      if (data.accessToken) {
+        tokenManager.setAccessToken(data.accessToken);
+      }
+
       // Notify all subscribers
-      // Note: We don't return an access token since it's in the httpOnly cookie now
       this.refreshSubscribers.forEach(cb => cb());
       this.refreshSubscribers = [];
 
@@ -161,9 +188,12 @@ class HttpClient {
       this.isRefreshing = false;
       this.refreshSubscribers = [];
 
-      // Clear tokens and redirect to login
-      tokenManager.clearAll();
-      window.location.href = '/login';
+      // Clear tokens and redirect to login (prevent multiple redirects)
+      if (!this.isRedirectingToLogin) {
+        this.isRedirectingToLogin = true;
+        tokenManager.clearAll();
+        window.location.href = '/login';
+      }
       return null;
     }
   }

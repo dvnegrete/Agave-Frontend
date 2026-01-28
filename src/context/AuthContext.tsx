@@ -48,8 +48,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await authService.signIn({ email, password });
 
-      // Backend automatically sets access_token in httpOnly cookie
-      tokenManager.setRefreshToken(response.refreshToken);
+      // Backend establece access_token en httpOnly cookie Y retorna en response
+      // Guardar accessToken para enviar en Authorization header (fallback si cookies no funcionan)
+      if (response.accessToken) {
+        tokenManager.setAccessToken(response.accessToken);
+      }
+      if (response.refreshToken) {
+        tokenManager.setRefreshToken(response.refreshToken);
+      }
       tokenManager.setUser(response.user);
 
       setUser(response.user);
@@ -62,17 +68,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   /**
    * Login with OAuth provider (Google, Facebook, etc.)
+   * Firebase Client SDK maneja el popup y callback automáticamente
    */
   const loginWithOAuth = useCallback(async (provider: 'google' | 'facebook') => {
     try {
-      const response = await authService.initOAuthFlow(provider);
-      // Redirect to OAuth provider - this takes user away from the app
-      window.location.href = response.url;
+      const response = await authService.loginWithOAuth(provider);
+
+      // Backend establece access_token en httpOnly cookie Y retorna en response
+      // Guardar accessToken para enviar en Authorization header (fallback si cookies no funcionan)
+      if (response.accessToken) {
+        tokenManager.setAccessToken(response.accessToken);
+      }
+      if (response.refreshToken) {
+        tokenManager.setRefreshToken(response.refreshToken);
+      }
+      tokenManager.setUser(response.user);
+
+      setUser(response.user);
+      navigate(ROUTES.HOME);
     } catch (error) {
       console.error('OAuth login failed:', error);
       throw error;
     }
-  }, []);
+  }, [navigate]);
 
   /**
    * Logout current user

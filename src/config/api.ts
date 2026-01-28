@@ -9,6 +9,8 @@ export const API_ENDPOINTS = {
   authRefresh: '/auth/refresh',
   authMe: '/auth/me',
   authSignOut: '/auth/signout',
+  authVerifyEmail: '/auth/verify-email',
+  authResendVerificationEmail: '/auth/resend-verification-email',
 
   // Vouchers
   vouchers: '/vouchers',
