@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, StatsCard, RoleBadge } from '@shared/ui';
 import { useDashboardMetrics } from '@hooks/useDashboardMetrics';
@@ -68,6 +69,7 @@ export function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { metrics, isLoading, error, refetch } = useDashboardMetrics();
+  const [isMetricsExpanded, setIsMetricsExpanded] = useState(true);
 
   // Filtrar funcionalidades disponibles según rol
   const availableFeatures = DASHBOARD_FEATURES.filter((feature) =>
@@ -123,63 +125,85 @@ export function Dashboard() {
       {/* Sección de Métricas */}
       {metrics && (
         <section className="space-y-3">
-          <h2 className="text-xl font-bold text-foreground">📈 Métricas del Sistema</h2>
+          {/* Header con botón de toggle en mobile */}
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold text-foreground">📈 Métricas del Sistema</h2>
+            {/* Botón visible solo en mobile */}
+            <button
+              onClick={() => setIsMetricsExpanded(!isMetricsExpanded)}
+              className="lg:hidden px-4 py-2 bg-primary text-white rounded-lg font-semibold transition-all duration-200 hover:shadow-lg"
+            >
+              {isMetricsExpanded ? '▼ Ocultar' : '▶ Mostrar'}
+            </button>
+          </div>
 
-          {/* Grid de métricas de Vouchers */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* Grid de métricas de Vouchers - Colapsable en mobile */}
+          <div
+            className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 transition-all duration-300 ${
+              isMetricsExpanded ? 'opacity-100 visible' : 'hidden lg:grid opacity-100'
+            }`}
+          >
             <StatsCard
-              label="Comprobantes Confirmados"
+              label="Confirmados"
               value={metrics.vouchers.confirmed}
               variant="success"
               icon="✓"
+              className="!p-3"
             />
             <StatsCard
-              label="Comprobantes Pendientes"
+              label="Pendientes"
               value={metrics.vouchers.pending}
               variant="warning"
               icon="⏳"
+              className="!p-3"
             />
             <StatsCard
-              label="Total de Comprobantes"
+              label="Total"
               value={metrics.vouchers.total}
               variant="primary"
               icon="📄"
+              className="!p-3"
             />
 
             {/* Métricas de Transacciones (admin/owner) */}
             {(user?.role === 'admin' || user?.role === 'owner') && (
               <>
                 <StatsCard
-                  label="Transacciones Totales"
+                  label="Trans. Total"
                   value={metrics.transactions.total}
                   variant="info"
                   icon="💳"
+                  className="!p-3"
                 />
                 <StatsCard
-                  label="Transacciones Reconciliadas"
+                  label="Reconciliadas"
                   value={metrics.transactions.reconciled}
                   variant="success"
                   icon="✓"
+                  className="!p-3"
                 />
                 <StatsCard
-                  label="Transacciones Pendientes"
+                  label="Pendientes"
                   value={metrics.transactions.pending}
                   variant="warning"
                   icon="⏳"
+                  className="!p-3"
                 />
 
                 {/* Métricas de Conciliación */}
                 <StatsCard
-                  label="Validaciones Manuales Requeridas"
+                  label="Validación Manual"
                   value={metrics.reconciliation.manualValidationRequired}
                   variant="warning"
                   icon="🔍"
+                  className="!p-3"
                 />
                 <StatsCard
-                  label="Depósitos No Reclamados"
+                  label="Sin Reclamar"
                   value={metrics.reconciliation.unclaimedDeposits}
                   variant="error"
                   icon="🚨"
+                  className="!p-3"
                 />
               </>
             )}
@@ -188,16 +212,18 @@ export function Dashboard() {
             {user?.role === 'admin' && metrics.users && (
               <>
                 <StatsCard
-                  label="Total de Usuarios"
+                  label="Total Usuarios"
                   value={metrics.users.total}
                   variant="primary"
                   icon="👥"
+                  className="!p-3"
                 />
                 <StatsCard
-                  label="Usuarios Activos"
+                  label="Activos"
                   value={metrics.users.active}
                   variant="success"
                   icon="✓"
+                  className="!p-3"
                 />
               </>
             )}
