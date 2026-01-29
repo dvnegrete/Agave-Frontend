@@ -4,6 +4,7 @@ import {
   Login,
   PrivacyPolicyPage,
   Signup,
+  Dashboard,
   VoucherList,
   VoucherUpload,
   TransactionUpload,
@@ -33,6 +34,14 @@ export const createAppRoutes = (Layout: (props: BaseLayoutProps) => React.ReactN
     />
 
     {/* Protected routes */}
+    <Route
+      path={ROUTES.DASHBOARD}
+      element={
+        <ProtectedRoute>
+          <Layout><Dashboard /></Layout>
+        </ProtectedRoute>
+      }
+    />
     <Route
       path={ROUTES.VOUCHER_LIST}
       element={

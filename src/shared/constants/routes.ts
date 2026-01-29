@@ -6,6 +6,7 @@ export const ROUTES = {
     VERIFY_EMAIL_PENDING: '/verificar-correo-pendiente',
     EMAIL_VERIFICATION: '/verificar-correo',
     PRIVACY_POLICY: '/aviso-de-privacidad',
+    DASHBOARD: '/dashboard',
     VOUCHER_UPLOAD: '/subir-comprobante',
     VOUCHER_LIST: '/comprobantes',
     TRANSACTION_UPLOAD: '/transacciones',
