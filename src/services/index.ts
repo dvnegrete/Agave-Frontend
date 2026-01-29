@@ -9,6 +9,7 @@ export * from './historicalRecordsService';
 export * from './voucherUploadService';
 export * from './userManagementService';
 export * from './dashboardService';
+export * from './warmupService';
 
 // Export types from shared/types (domain types)
 export * from '@shared';

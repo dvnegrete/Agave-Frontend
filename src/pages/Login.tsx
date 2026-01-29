@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, FormInput, GoogleLoginButton } from '@/shared/ui';
 import { ROUTES, LOGIN_UI_TEXTS } from '@/shared';
 import { useLogin } from '@hooks/useLogin';
+import { warmupBackend } from '@services/warmupService';
 
 export function Login() {
   const [email, setEmail] = useState('');
@@ -10,6 +11,13 @@ export function Login() {
   const navigate = useNavigate();
 
   const { isLoading, error, handleEmailLogin, handleOAuthLogin, setError } = useLogin();
+
+  // Warmup del backend cuando se carga la página de login
+  useEffect(() => {
+    warmupBackend().catch(() => {
+      // Ignorar errores silenciosamente
+    });
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
