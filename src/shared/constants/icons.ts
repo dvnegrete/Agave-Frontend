@@ -2,6 +2,7 @@ export const ICONS = {
     HOME: ' 🏠',
     LOGIN: '🔐',
     LOGOUT: '🚪',
+    DASHBOARD: '📊',
     VOUCHER_UPLOAD: '📤',
     VOUCHER_LIST: '📄',
     TRANSACTION_UPLOAD: '💰',

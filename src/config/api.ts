@@ -24,6 +24,8 @@ export const API_ENDPOINTS = {
 
   // Bank Reconciliation
   bankReconciliation: '/bank-reconciliation/reconcile',
+  bankReconciliationManualValidationStats: '/bank-reconciliation/manual-validation/stats',
+  bankReconciliationUnclaimedDeposits: '/bank-reconciliation/unclaimed-deposits',
 
   // Payment Management
   paymentManagement: '/payment-management',

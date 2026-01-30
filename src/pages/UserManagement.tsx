@@ -22,6 +22,7 @@ export function UserManagement() {
   const [modalType, setModalType] = useState<ModalType>(null);
   const [selectedHouseNumber, setSelectedHouseNumber] = useState<number | null>(null);
   const [showEditActionsModal, setShowEditActionsModal] = useState(false);
+  const [isStatsExpanded, setIsStatsExpanded] = useState(true);
 
   useEffect(() => {
     fetchUsers();
@@ -80,28 +81,46 @@ export function UserManagement() {
         </div>
       )}
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-base border-l-4 border-primary rounded-lg p-4">
-          <div className="text-foreground-secondary text-sm font-semibold">Total Usuarios</div>
-          <div className="text-3xl font-bold text-primary mt-2">{users.length}</div>
+      {/* Stats Cards - Colapsables en mobile */}
+      <div className="mb-8">
+        {/* Header con botón de toggle */}
+        <div className="flex items-center justify-between mb-4 lg:hidden">
+          <h2 className="text-lg font-semibold text-foreground">Resumen de Usuarios</h2>
+          <button
+            onClick={() => setIsStatsExpanded(!isStatsExpanded)}
+            className="px-4 py-2 bg-primary text-white rounded-lg font-semibold transition-all duration-200 hover:shadow-lg"
+          >
+            {isStatsExpanded ? '▼ Ocultar' : '▶ Mostrar'}
+          </button>
         </div>
-        <div className="bg-base border-l-4 border-success rounded-lg p-4">
-          <div className="text-foreground-secondary text-sm font-semibold">Activos</div>
-          <div className="text-3xl font-bold text-success mt-2">
-            {users.filter((u) => u.status === 'active').length}
+
+        {/* Grid de stats */}
+        <div
+          className={`grid grid-cols-2 md:grid-cols-4 gap-4 transition-all duration-300 ${
+            isStatsExpanded ? 'opacity-100 visible' : 'hidden lg:grid opacity-100'
+          }`}
+        >
+          <div className="bg-base border-l-4 border-primary rounded-lg p-4">
+            <div className="text-foreground-secondary text-sm font-semibold">Total Usuarios</div>
+            <div className="text-3xl font-bold text-primary mt-2">{users.length}</div>
           </div>
-        </div>
-        <div className="bg-base border-l-4 border-warning rounded-lg p-4">
-          <div className="text-foreground-secondary text-sm font-semibold">Suspendidos</div>
-          <div className="text-3xl font-bold text-warning mt-2">
-            {users.filter((u) => u.status === 'suspend').length}
+          <div className="bg-base border-l-4 border-success rounded-lg p-4">
+            <div className="text-foreground-secondary text-sm font-semibold">Activos</div>
+            <div className="text-3xl font-bold text-success mt-2">
+              {users.filter((u) => u.status === 'active').length}
+            </div>
           </div>
-        </div>
-        <div className="bg-base border-l-4 border-error rounded-lg p-4">
-          <div className="text-foreground-secondary text-sm font-semibold">Inactivos</div>
-          <div className="text-3xl font-bold text-error mt-2">
-            {users.filter((u) => u.status === 'inactive').length}
+          <div className="bg-base border-l-4 border-warning rounded-lg p-4">
+            <div className="text-foreground-secondary text-sm font-semibold">Suspendidos</div>
+            <div className="text-3xl font-bold text-warning mt-2">
+              {users.filter((u) => u.status === 'suspend').length}
+            </div>
+          </div>
+          <div className="bg-base border-l-4 border-error rounded-lg p-4">
+            <div className="text-foreground-secondary text-sm font-semibold">Inactivos</div>
+            <div className="text-3xl font-bold text-error mt-2">
+              {users.filter((u) => u.status === 'inactive').length}
+            </div>
           </div>
         </div>
       </div>

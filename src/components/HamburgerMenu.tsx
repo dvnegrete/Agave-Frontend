@@ -13,6 +13,14 @@ const menuItems: MenuItem[] = [
   },
 ];
 
+const authenticatedMenuItems: MenuItem[] = [
+  {
+    path: ROUTES.DASHBOARD,
+    label: LABELS.DASHBOARD,
+    icon: ICONS.DASHBOARD
+  },
+];
+
 const adminMenuItems: MenuItem[] = [
   {
     path: ROUTES.TRANSACTION_UPLOAD,
@@ -116,6 +124,30 @@ export function HamburgerMenu() {
                   </li>
                 );
               })}
+
+              {/* Authenticated User Menu Items */}
+              {user && (
+                <>
+                  {authenticatedMenuItems.map((item) => {
+                    const isActive = location.pathname === item.path;
+                    return (
+                      <li key={item.path}>
+                        <Link
+                          to={item.path}
+                          onClick={closeMenu}
+                          className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
+                            ? 'bg-primary font-bold shadow-sm'
+                            : 'text-foreground'
+                            }`}
+                        >
+                          <span className="text-xl">{item.icon}</span>
+                          <span>{item.label}</span>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </>
+              )}
 
               {/* Admin Menu Items */}
               {user?.role === 'admin' && (

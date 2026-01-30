@@ -2,6 +2,7 @@ export const LABELS = {
     HOME: 'Inicio',
     LOGIN: 'Iniciar Sesión',
     LOGOUT: 'Cerrar Sesión',
+    DASHBOARD: 'Dashboard',
     VOUCHER_UPLOAD: 'Subir Comprobante',
     VOUCHER_LIST: 'Comprobantes',
     TRANSACTION_UPLOAD: 'Transacciones Bancarias',

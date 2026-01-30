@@ -59,7 +59,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       tokenManager.setUser(response.user);
 
       setUser(response.user);
-      navigate(ROUTES.HOME);
+      navigate(ROUTES.DASHBOARD);
     } catch (error) {
       console.error('Login failed:', error);
       throw error;
@@ -85,7 +85,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       tokenManager.setUser(response.user);
 
       setUser(response.user);
-      navigate(ROUTES.HOME);
+      navigate(ROUTES.DASHBOARD);
     } catch (error) {
       console.error('OAuth login failed:', error);
       throw error;
