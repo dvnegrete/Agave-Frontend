@@ -99,7 +99,7 @@ export function ExpenseReport() {
               onClick={() => refetch()}
               disabled={loading}
               isLoading={loading}
-              variant="secondary"
+              variant="info"
             >
               🔄 Recargar
             </Button>
