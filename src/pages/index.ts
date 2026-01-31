@@ -14,3 +14,4 @@ export { PaymentManagement } from './PaymentManagement';
 export { HistoricalRecordsUpload } from './HistoricalRecordsUpload';
 export { UserManagement } from './UserManagement';
 export { ExpenseReport } from './ExpenseReport';
+export { MyHousePayments } from './MyHousePayments';

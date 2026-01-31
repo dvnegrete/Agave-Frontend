@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import type { User, AuthContextType } from '@/shared/types/auth.types';
 import { AuthContext } from './AuthContextStore';
 import { tokenManager } from '@utils/tokenManager';
@@ -19,6 +20,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const isAuthenticated = !!user;
 
@@ -124,8 +126,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     authService.signOut().catch(console.error);
     tokenManager.clearAll();
     setUser(null);
+    // Limpiar TODO el cache de React Query para evitar datos sensibles del usuario anterior
+    // Esto incluye: pagos, transacciones, balances, vouchers, conciliaciones, etc.
+    // Al iniciar sesión nuevamente, todas las consultas serán frescas desde el backend
+    queryClient.clear();
+    console.log('[Auth] Cache de React Query limpiado en logout');
     navigate(ROUTES.LOGIN);
-  }, [navigate]);
+  }, [navigate, queryClient]);
 
   /**
    * Update user data in context and localStorage

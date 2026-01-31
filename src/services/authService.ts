@@ -119,26 +119,13 @@ export const loginWithOAuth = async (
     const idToken = await userCredential.user.getIdToken();
 
     // 4. Enviar al backend
-    const response = await httpClient.post<{ refreshToken: string }>(
+    const response = await httpClient.post<AuthResponse>(
       API_ENDPOINTS.authOAuthCallback,
       { idToken },
       { signal },
     );
 
-    // 5. Extraer user info del refresh token JWT
-    const tokenParts = response.refreshToken.split('.');
-    const payload = JSON.parse(atob(tokenParts[1]));
-
-    return {
-      refreshToken: response.refreshToken,
-      user: {
-        id: payload.sub,
-        email: payload.email,
-        firstName: payload.firstName,
-        lastName: payload.lastName,
-        role: payload.role,
-      },
-    };
+    return response;
   } catch (err: unknown) {
     console.error('OAuth login failed:', err);
     throw err;

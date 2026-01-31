@@ -21,7 +21,7 @@ interface PaymentMovement extends HousePaymentTransaction {
 
 export function PaymentManagement() {
   const alert = useAlert();
-  const [activeTab, setActiveTab] = useState<ActiveTab>('periods');
+  const [activeTab, setActiveTab] = useState<ActiveTab>('unclaimed-deposits');
   const [selectedHouseId, setSelectedHouseId] = useState<number | null>(null);
   const [newYear, setNewYear] = useState<number>(new Date().getFullYear());
   const [newMonth, setNewMonth] = useState<number>(new Date().getMonth() + 1);
@@ -88,10 +88,10 @@ export function PaymentManagement() {
       {/* Tab Navigation */}
       <Tabs
         tabs={[
-          { id: 'periods', label: 'Períodos', icon: '📋', color: 'blue' },
-          { id: 'create-period', label: 'Crear Período', icon: '➕', color: 'blue' },
+          // { id: 'periods', label: 'Períodos', icon: '📋', color: 'blue' },
+          // { id: 'create-period', label: 'Crear Período', icon: '➕', color: 'blue' },
           { id: 'house-payments', label: 'Pagos por Casa', icon: '🏠', color: 'blue' },
-          { id: 'house-balance', label: 'Saldo de Casa', icon: '💵', color: 'blue' },
+          // { id: 'house-balance', label: 'Saldo de Casa', icon: '💵', color: 'blue' },
           { id: 'unclaimed-deposits', label: 'Depósitos No Reclamados', icon: '🏦', color: 'blue' },
         ] as TabItem[]}
         activeTab={activeTab}

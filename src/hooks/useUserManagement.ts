@@ -102,8 +102,15 @@ export const useUserManagement = (): UseUserManagementReturn => {
     setError(null);
     try {
       await assignHouse(userId, data);
-      // Refresh users to get updated house assignments
-      await fetchUsers();
+      // Actualizar el usuario en el estado local inmediatamente sin refetch completo
+      // Agregamos la nueva casa al array de casas del usuario
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.id === userId
+            ? { ...u, houses: [...u.houses, data.house_number] }
+            : u
+        )
+      );
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Error assigning house';
       setError(errorMessage);
@@ -118,8 +125,15 @@ export const useUserManagement = (): UseUserManagementReturn => {
     setError(null);
     try {
       await removeHouse(userId, houseNumber);
-      // Refresh users to get updated house assignments
-      await fetchUsers();
+      // Actualizar el usuario en el estado local inmediatamente sin refetch completo
+      // Removemos la casa del array de casas del usuario
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.id === userId
+            ? { ...u, houses: u.houses.filter((h) => h !== houseNumber) }
+            : u
+        )
+      );
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Error removing house';
       setError(errorMessage);
