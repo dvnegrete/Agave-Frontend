@@ -109,7 +109,7 @@ export function HistoricalRecordsUpload() {
       <Tabs
         tabs={[
           { id: 'upload', label: 'Subir Archivo', icon: '📁', color: 'blue' },
-          { id: 'history', label: 'Historial', icon: '📜', color: 'blue' },
+          // { id: 'history', label: 'Historial', icon: '📜', color: 'blue' },
         ] as TabItem[]}
         activeTab={activeTab}
         onTabChange={(tabId) => setActiveTab(tabId as ActiveTab)}
@@ -117,8 +117,8 @@ export function HistoricalRecordsUpload() {
 
       {/* Upload Tab */}
       {activeTab === 'upload' && (
-        <div className="bg-secondary shadow-lg rounded-lg border-4 border-primary/10 p-6">
-          <h2 className="text-2xl font-bold mb-4 text-foreground">📁 Subir Registros Históricos Conciliados</h2>
+        <div className="bg-secondary border-error  shadow-lg rounded-lg border-4 border-primary/10 p-6">
+          <h2 className="text-2xl font-bold mb-4 text-error">📁 Subir Registros Históricos Conciliados</h2>
 
           {/* Error Message */}
           {(error || uploadError) && (

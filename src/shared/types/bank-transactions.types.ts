@@ -46,8 +46,6 @@ export interface UploadTransactionsResponse {
 }
 
 export interface TransactionsBankQuery {
-  page?: number;
-  limit?: number;
   reconciled?: boolean;
   startDate?: string;
   endDate?: string;
@@ -56,6 +54,4 @@ export interface TransactionsBankQuery {
 export interface TransactionsBankResponse {
   transactions: BankTransaction[];
   total: number;
-  page: number;
-  limit: number;
 }

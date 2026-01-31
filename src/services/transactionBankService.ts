@@ -20,8 +20,6 @@ export const getTransactionsBank = async (
   try {
     const params = new URLSearchParams();
 
-    if (query?.page) params.append('page', query.page.toString());
-    if (query?.limit) params.append('limit', query.limit.toString());
     if (query?.reconciled !== undefined)
       params.append('reconciled', query.reconciled.toString());
     if (query?.startDate) params.append('startDate', query.startDate);

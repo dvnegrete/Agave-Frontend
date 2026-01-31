@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
-import {
-  type BankTransaction,
-  type TransactionsBankQuery,
-  type UploadTransactionsResponse,
-} from '@shared/types/bank-transactions.types'
+import { useState } from 'react';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import type {
+  BankTransaction,
+  TransactionsBankQuery,
+  TransactionsBankResponse,
+  UploadTransactionsResponse,
+} from '@shared/types/bank-transactions.types';
 import {
   getTransactionsBank,
   uploadTransactionsBank,
@@ -13,11 +15,6 @@ interface UseTransactionsBankReturn {
   transactions: BankTransaction[];
   loading: boolean;
   error: string | null;
-  total: number;
-  page: number;
-  limit: number;
-  setPage: (page: number) => void;
-  setLimit: (limit: number) => void;
   refetch: () => Promise<void>;
 }
 
@@ -30,98 +27,98 @@ interface UseUploadTransactionsReturn {
 }
 
 export const useTransactionsBank = (query?: TransactionsBankQuery): UseTransactionsBankReturn => {
-  const [transactions, setTransactions] = useState<BankTransaction[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(query?.page || 1);
-  const [limit, setLimit] = useState(query?.limit || 10);
+  // Generar una clave estable para la query
+  const queryKey = [
+    'transactions-bank',
+    {
+      startDate: query?.startDate,
+      endDate: query?.endDate,
+    },
+  ];
 
-  useEffect(() => {
-    const abortController = new AbortController();
-
-    const fetchTransactions = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await getTransactionsBank(
-          { ...query, page, limit },
-          abortController.signal
-        );
-        setTransactions(response.transactions);
-        setTotal(response.total);
-      } catch (err: unknown) {
-        if (err instanceof Error && err.name !== 'AbortError') {
-          setError(err.message);
-        }
-      } finally {
-        setLoading(false);
+  // Usar React Query para manejar la fetching, caché y actualizaciones
+  const {
+    data,
+    isLoading: loading,
+    error: queryError,
+    refetch: refetchQuery,
+  } = useQuery<TransactionsBankResponse>({
+    queryKey,
+    queryFn: async ({ signal }) => {
+      // Solo fetch si query tiene filtros válidos
+      if (!query?.startDate || !query?.endDate) {
+        return {
+          transactions: [],
+          total: 0,
+        };
       }
-    };
 
-    fetchTransactions();
+      return getTransactionsBank(
+        {
+          startDate: query.startDate,
+          endDate: query.endDate,
+        },
+        signal
+      );
+    },
+    // Solo ejecutar la query si tenemos filtros válidos
+    enabled: !!(query?.startDate && query?.endDate),
+    // Mantener datos en caché por 5 minutos
+    staleTime: 5 * 60 * 1000,
+    // No recargar automáticamente en cambios de tab
+    refetchOnWindowFocus: false,
+  });
 
-    return () => abortController.abort();
-  }, [query?.reconciled, query?.startDate, query?.endDate, page, limit]);
+  const error = queryError instanceof Error ? queryError.message : null;
+  const transactions = data?.transactions || [];
 
   const refetch = async (): Promise<void> => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await getTransactionsBank({ ...query, page, limit });
-      setTransactions(response.transactions);
-      setTotal(response.total);
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      }
-    } finally {
-      setLoading(false);
-    }
+    await refetchQuery();
   };
 
   return {
     transactions,
     loading,
     error,
-    total,
-    page,
-    limit,
-    setPage,
-    setLimit,
     refetch,
   };
 };
 
 export const useUploadTransactions = (): UseUploadTransactionsReturn => {
-  const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-  const [uploadResult, setUploadResult] =
-    useState<UploadTransactionsResponse | null>(null);
+  const [uploadResult, setUploadResult] = useState<UploadTransactionsResponse | null>(null);
 
-  const upload = async (file: File, bankName: string = 'Santander-2025'): Promise<UploadTransactionsResponse | undefined> => {
-    setUploading(true);
-    setUploadError(null);
-    setUploadResult(null);
-
-    try {
+  // Usar React Query mutation para manejar el upload
+  const {
+    mutateAsync: uploadMutation,
+    isPending: uploading,
+    error: mutationError,
+    reset: resetMutation,
+  } = useMutation<UploadTransactionsResponse, Error, { file: File; bankName: string }>({
+    mutationFn: async ({ file, bankName }) => {
       const result = await uploadTransactionsBank(file, bankName);
       setUploadResult(result);
       return result;
+    },
+  });
+
+  const upload = async (file: File, bankName: string = 'Santander-2025'): Promise<UploadTransactionsResponse | undefined> => {
+    try {
+      const result = await uploadMutation({ file, bankName });
+      return result;
     } catch (err: unknown) {
       if (err instanceof Error) {
-        setUploadError(err.message);
         throw err;
       }
-    } finally {
-      setUploading(false);
+      throw new Error('Error desconocido al cargar archivo');
     }
   };
 
   const reset = (): void => {
-    setUploadError(null);
     setUploadResult(null);
+    resetMutation();
   };
+
+  const uploadError = mutationError instanceof Error ? mutationError.message : null;
 
   return {
     upload,
