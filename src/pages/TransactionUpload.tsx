@@ -84,7 +84,7 @@ export function TransactionUpload() {
   const [dateFrom, setDateFrom] = useState<string>('');
   const [dateTo, setDateTo] = useState<string>('');
   const [bankFilter, setBankFilter] = useState<string>('');
-  const [activeTab, setActiveTab] = useState<string>('upload');
+  const [activeTab, setActiveTab] = useState<string>('view');
   const [filtersApplied, setFiltersApplied] = useState<boolean>(false);
 
   // Memoizar el objeto query para evitar re-renders innecesarios
@@ -170,17 +170,17 @@ export function TransactionUpload() {
 
   const tabs: TabItem[] = [
     {
-      id: 'upload',
-      label: 'Subir Transacciones',
-      icon: '📤',
-      color: 'blue',
-    },
-    {
       id: 'view',
       label: 'Ver Transacciones',
       icon: '📊',
       color: 'green',
       badge: filteredTransactions?.length || 0,
+    },
+    {
+      id: 'upload',
+      label: 'Subir Transacciones',
+      icon: '📤',
+      color: 'blue',
     },
     {
       id: 'history',

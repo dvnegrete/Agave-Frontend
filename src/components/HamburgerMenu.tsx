@@ -23,26 +23,6 @@ const authenticatedMenuItems: MenuItem[] = [
 
 const adminMenuItems: MenuItem[] = [
   {
-    path: ROUTES.TRANSACTION_UPLOAD,
-    label: LABELS.TRANSACTION_UPLOAD,
-    icon: ICONS.TRANSACTION_UPLOAD
-  },
-  {
-    path: ROUTES.VOUCHER_LIST,
-    label: LABELS.VOUCHER_LIST,
-    icon: ICONS.VOUCHER_LIST
-  },
-  {
-    path: ROUTES.BANK_RECONCILIATION,
-    label: LABELS.BANK_RECONCILIATION,
-    icon: ICONS.BANK_RECONCILIATION
-  },
-  {
-    path: ROUTES.PAYMENT_MANAGEMENT,
-    label: LABELS.PAYMENT_MANAGEMENT,
-    icon: ICONS.PAYMENT_MANAGEMENT
-  },
-  {
     path: ROUTES.USER_MANAGEMENT,
     label: LABELS.USER_MANAGEMENT,
     icon: ICONS.USER_MANAGEMENT
@@ -100,11 +80,11 @@ export function HamburgerMenu() {
         className={`fixed top-0 left-0 h-full w-64 bg-gray-200/100 dark:bg-gray-800/100 shadow-xl z-40 transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
       >
-        <div className="p-6">
+        <div className="p-6 h-full flex flex-col relative">
           <h2 className="text-2xl font-bold text-foreground mb-2">El Agave</h2>
           <p className="text-sm text-foreground-secondary mb-8">Sistema de Gestión</p>
 
-          <nav>
+          <nav className="pb-32">
             <ul className="space-y-2">
               {menuItems.map((item) => {
                 const isActive = location.pathname === item.path;

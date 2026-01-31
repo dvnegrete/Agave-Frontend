@@ -15,4 +15,5 @@ export const ROUTES = {
     HISTORICAL_RECORDS_UPLOAD: '/carga-de-registros-historicos',
     USER_MANAGEMENT: '/administracion-de-usuarios',
     EXPENSE_REPORT: '/informe-de-gastos',
+    MY_HOUSE_PAYMENTS: '/mis-pagos-casas',
 }

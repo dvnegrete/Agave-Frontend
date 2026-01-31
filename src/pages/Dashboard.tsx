@@ -16,43 +16,51 @@ interface DashboardFeature {
 
 const DASHBOARD_FEATURES: DashboardFeature[] = [
   {
+    id: 'expense-report',
+    title: 'Informe de Gastos',
+    description: 'Visualiza y analiza gastos por mes',
+    icon: '📊',
+    route: ROUTES.EXPENSE_REPORT,
+    roles: ['admin', 'owner'],
+  },
+  {
+    id: 'my-house-payments',
+    title: 'Mis Pagos',
+    description: 'Revisa los pagos y movimientos de tu casa',
+    icon: '🏠',
+    route: ROUTES.MY_HOUSE_PAYMENTS,
+    roles: ['admin', 'owner',],
+  },
+  {
     id: 'vouchers',
     title: 'Comprobantes',
     description: 'Gestiona comprobantes de mantenimiento',
     icon: '📄',
     route: ROUTES.VOUCHER_LIST,
-    roles: ['admin', 'owner', 'tenant'],
+    roles: ['admin'],
   },
   {
     id: 'transactions',
     title: 'Transacciones Bancarias',
-    description: 'Sube y monitorea transacciones bancarias',
+    description: 'Sube y revisa las transacciones bancarias',
     icon: '💳',
     route: ROUTES.TRANSACTION_UPLOAD,
-    roles: ['admin', 'owner'],
+    roles: ['admin'],
   },
   {
     id: 'reconciliation',
     title: 'Conciliación Bancaria',
-    description: 'Concilia transacciones con vouchers',
+    description: 'Concilia transacciones con vouchers automáticamente',
     icon: '⚖️',
     route: ROUTES.BANK_RECONCILIATION,
-    roles: ['admin', 'owner'],
+    roles: ['admin'],
   },
   {
     id: 'payments',
     title: 'Gestión de Pagos',
-    description: 'Administra pagos de propiedades',
+    description: 'Administra los pagos de las casa y los usuarios',
     icon: '💰',
     route: ROUTES.PAYMENT_MANAGEMENT,
-    roles: ['admin', 'owner'],
-  },
-  {
-    id: 'historical',
-    title: 'Registros Históricos',
-    description: 'Carga registros históricos de datos',
-    icon: '📚',
-    route: ROUTES.HISTORICAL_RECORDS_UPLOAD,
     roles: ['admin'],
   },
   {
@@ -123,7 +131,7 @@ export function Dashboard() {
       )}
 
       {/* Sección de Métricas */}
-      {metrics && (
+      {metrics && user?.role === 'admin' && (
         <section className="space-y-3">
           {/* Header con botón de toggle en mobile */}
           <div className="flex items-center justify-between">
@@ -143,13 +151,13 @@ export function Dashboard() {
               isMetricsExpanded ? 'opacity-100 visible' : 'hidden lg:grid opacity-100'
             }`}
           >
-            <StatsCard
+            {/* <StatsCard
               label="Confirmados"
               value={metrics.vouchers.confirmed}
               variant="success"
               icon="✓"
               className="!p-3"
-            />
+            /> */}
             <StatsCard
               label="Pendientes"
               value={metrics.vouchers.pending}
@@ -157,13 +165,13 @@ export function Dashboard() {
               icon="⏳"
               className="!p-3"
             />
-            <StatsCard
+            {/* <StatsCard
               label="Total"
               value={metrics.vouchers.total}
               variant="primary"
               icon="📄"
               className="!p-3"
-            />
+            /> */}
 
             {/* Métricas de Transacciones (admin/owner) */}
             {(user?.role === 'admin' || user?.role === 'owner') && (
@@ -176,14 +184,14 @@ export function Dashboard() {
                   className="!p-3"
                 />
                 <StatsCard
-                  label="Reconciliadas"
+                  label="Trans. Conciliadas"
                   value={metrics.transactions.reconciled}
                   variant="success"
                   icon="✓"
                   className="!p-3"
                 />
                 <StatsCard
-                  label="Pendientes"
+                  label="Trans. Pendientes"
                   value={metrics.transactions.pending}
                   variant="warning"
                   icon="⏳"
@@ -191,15 +199,15 @@ export function Dashboard() {
                 />
 
                 {/* Métricas de Conciliación */}
-                <StatsCard
+                {/* <StatsCard
                   label="Validación Manual"
                   value={metrics.reconciliation.manualValidationRequired}
                   variant="warning"
                   icon="🔍"
                   className="!p-3"
-                />
+                /> */}
                 <StatsCard
-                  label="Sin Reclamar"
+                  label="Trans. Sin Reclamar"
                   value={metrics.reconciliation.unclaimedDeposits}
                   variant="error"
                   icon="🚨"
@@ -218,13 +226,13 @@ export function Dashboard() {
                   icon="👥"
                   className="!p-3"
                 />
-                <StatsCard
+                {/* <StatsCard
                   label="Activos"
                   value={metrics.users.active}
                   variant="success"
                   icon="✓"
                   className="!p-3"
-                />
+                /> */}
               </>
             )}
           </div>

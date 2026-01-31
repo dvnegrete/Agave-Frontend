@@ -16,6 +16,7 @@ import {
   EmailVerification,
   VerifyEmailPending,
   ExpenseReport,
+  MyHousePayments,
 } from '@pages/index'
 import { ProtectedRoute } from '@components/index'
 import { ROUTES } from '@/shared'
@@ -96,6 +97,14 @@ export const createAppRoutes = (Layout: (props: BaseLayoutProps) => React.ReactN
       element={
         <ProtectedRoute>
           <Layout><ExpenseReport /></Layout>
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path={ROUTES.MY_HOUSE_PAYMENTS}
+      element={
+        <ProtectedRoute>
+          <Layout><MyHousePayments /></Layout>
         </ProtectedRoute>
       }
     />
