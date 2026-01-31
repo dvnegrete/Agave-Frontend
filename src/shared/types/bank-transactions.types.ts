@@ -55,3 +55,16 @@ export interface TransactionsBankResponse {
   transactions: BankTransaction[];
   total: number;
 }
+
+export interface ExpensesSummary {
+  totalExpenses: number;
+  count: number;
+  currencies: string[];
+  largestExpense: number;
+}
+
+export interface ExpensesByMonthResponse {
+  month: string;
+  expenses: UploadedTransaction[];
+  summary: ExpensesSummary;
+}

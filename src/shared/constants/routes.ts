@@ -14,4 +14,5 @@ export const ROUTES = {
     PAYMENT_MANAGEMENT: '/administracion-de-pagos',
     HISTORICAL_RECORDS_UPLOAD: '/carga-de-registros-historicos',
     USER_MANAGEMENT: '/administracion-de-usuarios',
+    EXPENSE_REPORT: '/informe-de-gastos',
 }
