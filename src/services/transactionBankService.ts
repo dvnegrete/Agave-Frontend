@@ -5,6 +5,7 @@ import type {
   TransactionsBankQuery,
   TransactionsBankResponse,
   UploadTransactionsResponse,
+  ExpensesByMonthResponse,
 } from '@shared/types/bank-transactions.types';
 import type {
   ApiResponse,
@@ -20,8 +21,6 @@ export const getTransactionsBank = async (
   try {
     const params = new URLSearchParams();
 
-    if (query?.page) params.append('page', query.page.toString());
-    if (query?.limit) params.append('limit', query.limit.toString());
     if (query?.reconciled !== undefined)
       params.append('reconciled', query.reconciled.toString());
     if (query?.startDate) params.append('startDate', query.startDate);
@@ -98,6 +97,24 @@ export const deleteTransactionBank = async (
     );
   } catch (err: unknown) {
     console.error('❌ [Service] Error in deleteTransactionBank:', err);
+    throw err;
+  }
+};
+
+/**
+ * Get expenses by month
+ * @param date - Date string or Date object (month and year are used from this date)
+ */
+export const getExpensesByMonth = async (
+  date: string | Date,
+  signal?: AbortSignal
+): Promise<ExpensesByMonthResponse> => {
+  try {
+    const dateString = typeof date === 'string' ? date : date.toISOString().split('T')[0];
+    const endpoint = `${API_ENDPOINTS.transactionsBankExpenses}?date=${dateString}`;
+    return httpClient.get<ExpensesByMonthResponse>(endpoint, { signal });
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in getExpensesByMonth:', err);
     throw err;
   }
 };

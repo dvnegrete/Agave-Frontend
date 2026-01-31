@@ -46,8 +46,6 @@ export interface UploadTransactionsResponse {
 }
 
 export interface TransactionsBankQuery {
-  page?: number;
-  limit?: number;
   reconciled?: boolean;
   startDate?: string;
   endDate?: string;
@@ -56,6 +54,17 @@ export interface TransactionsBankQuery {
 export interface TransactionsBankResponse {
   transactions: BankTransaction[];
   total: number;
-  page: number;
-  limit: number;
+}
+
+export interface ExpensesSummary {
+  totalExpenses: number;
+  count: number;
+  currencies: string[];
+  largestExpense: number;
+}
+
+export interface ExpensesByMonthResponse {
+  month: string;
+  expenses: UploadedTransaction[];
+  summary: ExpensesSummary;
 }

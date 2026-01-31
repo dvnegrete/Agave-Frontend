@@ -23,6 +23,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const isAuthenticated = !!user;
 
   /**
+   * Determina la ruta de redirección según el rol y estado del usuario
+   * - Tenant sin casas → HOME (mostrar mensaje de espera de confirmación)
+   * - Tenant con casas → DASHBOARD
+   * - Admin/Owner → DASHBOARD
+   */
+  const getRedirectRoute = (userData: User): string => {
+    // Tenant sin casas asignadas (en espera de confirmación)
+    if (userData.role === 'tenant' && (!userData.houses || userData.houses.length === 0)) {
+      return ROUTES.HOME;
+    }
+
+    // Todos los demás casos van al dashboard
+    // - Tenant con casas asignadas
+    // - Admin
+    // - Owner
+    return ROUTES.DASHBOARD;
+  };
+
+  /**
    * Initialize auth state from localStorage on mount
    * Check for refresh token to determine if user is authenticated
    * Access token is stored in httpOnly cookie by the backend
@@ -59,7 +78,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       tokenManager.setUser(response.user);
 
       setUser(response.user);
-      navigate(ROUTES.DASHBOARD);
+
+      // Redirigir según rol y estado del usuario
+      const redirectRoute = getRedirectRoute(response.user);
+      navigate(redirectRoute);
     } catch (error) {
       console.error('Login failed:', error);
       throw error;
@@ -85,7 +107,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       tokenManager.setUser(response.user);
 
       setUser(response.user);
-      navigate(ROUTES.DASHBOARD);
+
+      // Redirigir según rol y estado del usuario
+      const redirectRoute = getRedirectRoute(response.user);
+      navigate(redirectRoute);
     } catch (error) {
       console.error('OAuth login failed:', error);
       throw error;
