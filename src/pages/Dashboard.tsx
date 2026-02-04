@@ -3,75 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button, StatsCard, RoleBadge } from '@shared/ui';
 import { useDashboardMetrics } from '@hooks/useDashboardMetrics';
 import { useAuth } from '@hooks/useAuth';
-import { ROUTES } from '@shared/constants';
-
-interface DashboardFeature {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  route: string;
-  roles: Array<'admin' | 'owner' | 'tenant'>;
-}
-
-const DASHBOARD_FEATURES: DashboardFeature[] = [
-  {
-    id: 'expense-report',
-    title: 'Informe de Gastos',
-    description: 'Visualiza y analiza gastos por mes',
-    icon: '📊',
-    route: ROUTES.EXPENSE_REPORT,
-    roles: ['admin', 'owner'],
-  },
-  {
-    id: 'my-house-payments',
-    title: 'Mis Pagos',
-    description: 'Revisa los pagos y movimientos de tu casa',
-    icon: '🏠',
-    route: ROUTES.MY_HOUSE_PAYMENTS,
-    roles: ['admin', 'owner',],
-  },
-  {
-    id: 'vouchers',
-    title: 'Comprobantes',
-    description: 'Gestiona comprobantes de mantenimiento',
-    icon: '📄',
-    route: ROUTES.VOUCHER_LIST,
-    roles: ['admin'],
-  },
-  {
-    id: 'transactions',
-    title: 'Transacciones Bancarias',
-    description: 'Sube y revisa las transacciones bancarias',
-    icon: '💳',
-    route: ROUTES.TRANSACTION_UPLOAD,
-    roles: ['admin'],
-  },
-  {
-    id: 'reconciliation',
-    title: 'Conciliación Bancaria',
-    description: 'Concilia transacciones con vouchers automáticamente',
-    icon: '⚖️',
-    route: ROUTES.BANK_RECONCILIATION,
-    roles: ['admin'],
-  },
-  {
-    id: 'payments',
-    title: 'Gestión de Pagos',
-    description: 'Administra los pagos de las casa y los usuarios',
-    icon: '💰',
-    route: ROUTES.PAYMENT_MANAGEMENT,
-    roles: ['admin'],
-  },
-  {
-    id: 'users',
-    title: 'Administración de Usuarios',
-    description: 'Gestiona usuarios del sistema',
-    icon: '👥',
-    route: ROUTES.USER_MANAGEMENT,
-    roles: ['admin'],
-  },
-];
+import { DASHBOARD_FEATURES } from '@shared/constants';
 
 export function Dashboard() {
   const navigate = useNavigate();

@@ -4,8 +4,11 @@
  */
 
 import type { Role, Status } from '@shared/types/user-management.types';
+import { USER_ROLES_ARRAY, USER_STATUSES_ARRAY } from '@shared/types/user-management.types';
 
-export const USER_ROLES: Role[] = ['admin', 'owner', 'tenant'];
+// Re-export for convenience with proper types
+export const USER_ROLES: Role[] = [...USER_ROLES_ARRAY];
+export const USER_STATUSES: Status[] = [...USER_STATUSES_ARRAY];
 
 export const ROLE_LABELS: Record<Role, string> = {
   admin: '👑 Administrador',
@@ -18,8 +21,6 @@ export const ROLE_DESCRIPTIONS: Record<Role, string> = {
   owner: 'Puede gestionar sus propiedades',
   tenant: 'Acceso limitado a inquilinos',
 } as const;
-
-export const USER_STATUSES: Status[] = ['active', 'suspend', 'inactive'];
 
 export const STATUS_LABELS: Record<Status, { label: string; icon: string; description: string }> = {
   active: {

@@ -1,5 +1,6 @@
 export * from './banks'
 export * from './contact'
+export * from './dashboard'
 export * from './icons'
 export * from './labels'
 export * from './legal'

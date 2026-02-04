@@ -1,5 +1,9 @@
-export type Role = 'admin' | 'owner' | 'tenant';
-export type Status = 'active' | 'suspend' | 'inactive';
+// Single source of truth for roles and statuses
+export const USER_ROLES_ARRAY = ['admin', 'owner', 'tenant'] as const;
+export const USER_STATUSES_ARRAY = ['active', 'suspend', 'inactive'] as const;
+
+export type Role = typeof USER_ROLES_ARRAY[number];
+export type Status = typeof USER_STATUSES_ARRAY[number];
 
 export interface User {
   id: string;
