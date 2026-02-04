@@ -10,6 +10,7 @@ import {
   ModalRemoveHouse,
   ModalEditActions,
 } from '@components/index';
+import { ColumnSelector, type ColumnOption } from '@shared/ui';
 import type { User, ModalType } from '@/shared/types/user-management.types';
 
 export function UserManagement() {
@@ -30,6 +31,22 @@ export function UserManagement() {
   const [selectedHouse, setSelectedHouse] = useState<string>('');
   const [showOnlyNoHouse, setShowOnlyNoHouse] = useState(false);
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
+
+  // Column visibility state
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(['name', 'role', 'houses', 'actions']);
+  const [isColumnsExpanded, setIsColumnsExpanded] = useState(false);
+
+  // Available columns configuration
+  const availableColumns: ColumnOption[] = [
+    { id: 'name', label: 'Nombre' },
+    { id: 'email', label: 'Email' },
+    { id: 'phone', label: 'Teléfono' },
+    { id: 'role', label: 'Rol' },
+    { id: 'status', label: 'Estado' },
+    { id: 'observations', label: 'Observaciones' },
+    { id: 'houses', label: 'Casas Asignadas' },
+    { id: 'actions', label: 'Acciones' },
+  ];
 
   useEffect(() => {
     fetchUsers();
@@ -131,9 +148,8 @@ export function UserManagement() {
 
         {/* Grid de stats */}
         <div
-          className={`grid grid-cols-2 md:grid-cols-4 gap-4 transition-all duration-300 ${
-            isStatsExpanded ? 'opacity-100 visible' : 'hidden lg:grid opacity-100'
-          }`}
+          className={`grid grid-cols-2 md:grid-cols-4 gap-4 transition-all duration-300 ${isStatsExpanded ? 'opacity-100 visible' : 'hidden lg:grid opacity-100'
+            }`}
         >
           <div className="bg-base border-l-4 border-primary rounded-lg p-4">
             <div className="text-foreground-secondary text-sm font-semibold">Total Usuarios</div>
@@ -160,6 +176,15 @@ export function UserManagement() {
         </div>
       </div>
 
+      {/* Column Selector */}
+      <ColumnSelector
+        availableColumns={availableColumns}
+        visibleColumns={visibleColumns}
+        onVisibleColumnsChange={setVisibleColumns}
+        isExpanded={isColumnsExpanded}
+        onToggleExpand={setIsColumnsExpanded}
+      />
+
       {/* Filters Section */}
       <div className="bg-secondary border border-base rounded-lg mb-8 shadow-lg">
         {/* Header con botón de toggle en mobile */}
@@ -180,9 +205,8 @@ export function UserManagement() {
 
         {/* Grid de filtros */}
         <div
-          className={`transition-all duration-300 overflow-hidden ${
-            isFiltersExpanded ? 'opacity-100 visible' : 'hidden lg:grid opacity-100'
-          }`}
+          className={`transition-all duration-300 overflow-hidden ${isFiltersExpanded ? 'opacity-100 visible' : 'hidden lg:grid opacity-100'
+            }`}
         >
           <div className="p-6 pt-0 lg:pt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Search by Name */}
@@ -253,6 +277,7 @@ export function UserManagement() {
           onEdit={handleEdit}
           onAssignHouse={(user) => openModal('assign', user)}
           onRemoveHouse={(user, houseNumber) => openModal('remove', user, houseNumber)}
+          visibleColumnIds={visibleColumns}
         />
       </div>
 

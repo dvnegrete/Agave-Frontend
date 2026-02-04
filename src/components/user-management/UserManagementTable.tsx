@@ -8,6 +8,7 @@ interface UserManagementTableProps {
   onEdit: (user: User) => void;
   onAssignHouse: (user: User) => void;
   onRemoveHouse: (user: User, houseNumber: number) => void;
+  visibleColumnIds?: string[];
 }
 
 export function UserManagementTable({
@@ -15,8 +16,9 @@ export function UserManagementTable({
   loading,
   onEdit,
   onRemoveHouse,
+  visibleColumnIds = ['name', 'role', 'houses', 'actions'],
 }: UserManagementTableProps) {
-  const columns: TableColumn<User>[] = [
+  const allColumns: TableColumn<User>[] = [
     {
       id: 'name',
       header: 'Nombre',
@@ -125,6 +127,9 @@ export function UserManagementTable({
       ),
     },
   ];
+
+  // Filter columns based on visibleColumnIds
+  const columns = allColumns.filter((col) => visibleColumnIds.includes(col.id));
 
   if (loading) {
     return (
