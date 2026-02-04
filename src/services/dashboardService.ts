@@ -1,5 +1,6 @@
 import { httpClient } from '@utils/httpClient';
 import { API_ENDPOINTS } from '@config/api';
+import { isAdminOrOwner, isAdmin, isActive } from '@shared/utils/roleAndStatusHelpers';
 
 export interface VoucherMetrics {
   confirmed: number;
@@ -118,7 +119,7 @@ export const getDashboardMetrics = async (
     );
 
     // Transacciones: solo admin y owner
-    if (userRole === 'admin' || userRole === 'owner') {
+    if (userRole && isAdminOrOwner(userRole)) {
       promises.push(
         httpClient
           .get<TransactionSummaryResponse>(API_ENDPOINTS.transactionsBank, { signal })
@@ -134,7 +135,7 @@ export const getDashboardMetrics = async (
     }
 
     // Reconciliación: solo admin y owner
-    if (userRole === 'admin' || userRole === 'owner') {
+    if (userRole && isAdminOrOwner(userRole)) {
       promises.push(
         httpClient
           .get<ReconciliationStatsResponse>(
@@ -169,7 +170,7 @@ export const getDashboardMetrics = async (
     }
 
     // Usuarios: solo admin
-    if (userRole === 'admin') {
+    if (userRole && isAdmin(userRole)) {
       promises.push(
         httpClient
           .get<UserManagementResponse>(API_ENDPOINTS.userManagementUsers, { signal })
@@ -233,10 +234,10 @@ export const getDashboardMetrics = async (
         } else if (type === 'users') {
           const userData = data as UserManagementResponse;
           usersTotal = userData.total || (Array.isArray(userData.users) ? userData.users.length : 0) || 0;
-          // Contar solo usuarios activos (status === 'active')
+          // Contar solo usuarios activos
           usersActive =
             Array.isArray(userData.users)
-              ? userData.users.filter((u) => u.status === 'active').length
+              ? userData.users.filter((u) => u.status && isActive(u.status)).length
               : 0;
 
           console.log('👥 [Service] Datos de usuarios recibidos:', {
@@ -266,7 +267,7 @@ export const getDashboardMetrics = async (
     };
 
     // Solo agregar usuarios si el rol es admin
-    if (userRole === 'admin') {
+    if (userRole && isAdmin(userRole)) {
       metrics.users = {
         total: usersTotal,
         active: usersActive,

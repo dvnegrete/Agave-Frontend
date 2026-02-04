@@ -1,52 +1,89 @@
 import type { Role, Status } from '@shared/types/user-management.types';
 import { ROLE_LABELS, ROLE_DESCRIPTIONS, STATUS_LABELS } from '@shared/constants/user';
+import { USER_ROLES_ARRAY, USER_STATUSES_ARRAY } from '@shared/types/user-management.types';
+
+/**
+ * Type guard: Check if a value is a valid Role
+ */
+export function isValidRole(value: unknown): value is Role {
+  return typeof value === 'string' && USER_ROLES_ARRAY.includes(value as Role);
+}
+
+/**
+ * Type guard: Check if a value is a valid Status
+ */
+export function isValidStatus(value: unknown): value is Status {
+  return typeof value === 'string' && USER_STATUSES_ARRAY.includes(value as Status);
+}
 
 /**
  * Get label and icon for a role
  */
-export function getRoleLabel(role: Role): string {
-  return ROLE_LABELS[role];
+export function getRoleLabel(role: Role | string): string {
+  if (isValidRole(role)) {
+    return ROLE_LABELS[role];
+  }
+  return '';
 }
 
 /**
  * Get description for a role
  */
-export function getRoleDescription(role: Role): string {
-  return ROLE_DESCRIPTIONS[role];
+export function getRoleDescription(role: Role | string): string {
+  if (isValidRole(role)) {
+    return ROLE_DESCRIPTIONS[role];
+  }
+  return '';
 }
 
 /**
  * Get status configuration (label, icon, description)
  */
-export function getStatusConfig(status: Status) {
-  return STATUS_LABELS[status];
+export function getStatusConfig(status: Status | string) {
+  if (isValidStatus(status)) {
+    return STATUS_LABELS[status];
+  }
+  return STATUS_LABELS.active;
 }
 
 /**
  * Get status label
  */
-export function getStatusLabel(status: Status): string {
-  return STATUS_LABELS[status].label;
+export function getStatusLabel(status: Status | string): string {
+  if (isValidStatus(status)) {
+    return STATUS_LABELS[status].label;
+  }
+  return '';
 }
 
 /**
  * Get status icon
  */
-export function getStatusIcon(status: Status): string {
-  return STATUS_LABELS[status].icon;
+export function getStatusIcon(status: Status | string): string {
+  if (isValidStatus(status)) {
+    return STATUS_LABELS[status].icon;
+  }
+  return '';
 }
 
 /**
  * Get status description
  */
-export function getStatusDescription(status: Status): string {
-  return STATUS_LABELS[status].description;
+export function getStatusDescription(status: Status | string): string {
+  if (isValidStatus(status)) {
+    return STATUS_LABELS[status].description;
+  }
+  return '';
 }
 
 /**
  * Get badge color based on status
  */
-export function getStatusBadgeColor(status: Status): 'success' | 'warning' | 'error' {
+export function getStatusBadgeColor(status: Status | string): 'success' | 'warning' | 'error' {
+  if (!isValidStatus(status)) {
+    return 'error';
+  }
+
   switch (status) {
     case 'active':
       return 'success';
@@ -62,41 +99,41 @@ export function getStatusBadgeColor(status: Status): 'success' | 'warning' | 'er
 /**
  * Check if user has admin access
  */
-export function isAdmin(role: Role): boolean {
-  return role === 'admin';
+export function isAdmin(role: Role | string): boolean {
+  return isValidRole(role) && role === 'admin';
 }
 
 /**
  * Check if user has admin or owner access
  */
-export function isAdminOrOwner(role: Role): boolean {
-  return role === 'admin' || role === 'owner';
+export function isAdminOrOwner(role: Role | string): boolean {
+  return isValidRole(role) && (role === 'admin' || role === 'owner');
 }
 
 /**
  * Check if user is tenant
  */
-export function isTenant(role: Role): boolean {
-  return role === 'tenant';
+export function isTenant(role: Role | string): boolean {
+  return isValidRole(role) && role === 'tenant';
 }
 
 /**
  * Check if status is active
  */
-export function isActive(status: Status): boolean {
-  return status === 'active';
+export function isActive(status: Status | string): boolean {
+  return isValidStatus(status) && status === 'active';
 }
 
 /**
  * Check if status is suspended
  */
-export function isSuspended(status: Status): boolean {
-  return status === 'suspend';
+export function isSuspended(status: Status | string): boolean {
+  return isValidStatus(status) && status === 'suspend';
 }
 
 /**
  * Check if status is inactive
  */
-export function isInactive(status: Status): boolean {
-  return status === 'inactive';
+export function isInactive(status: Status | string): boolean {
+  return isValidStatus(status) && status === 'inactive';
 }

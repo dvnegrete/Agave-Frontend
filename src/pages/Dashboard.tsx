@@ -4,6 +4,7 @@ import { Button, StatsCard, RoleBadge } from '@shared/ui';
 import { useDashboardMetrics } from '@hooks/useDashboardMetrics';
 import { useAuth } from '@hooks/useAuth';
 import { DASHBOARD_FEATURES } from '@shared/constants';
+import { isAdmin, isAdminOrOwner } from '@shared/utils/roleAndStatusHelpers';
 
 export function Dashboard() {
   const navigate = useNavigate();
@@ -12,9 +13,10 @@ export function Dashboard() {
   const [isMetricsExpanded, setIsMetricsExpanded] = useState(true);
 
   // Filtrar funcionalidades disponibles según rol
-  const availableFeatures = DASHBOARD_FEATURES.filter((feature) =>
-    user?.role ? feature.roles.includes(user.role as 'admin' | 'owner' | 'tenant') : false
-  );
+  const availableFeatures = DASHBOARD_FEATURES.filter((feature) => {
+    if (!user?.role) return false;
+    return feature.roles.some((r) => r === user.role);
+  });
 
   // Mostrar spinner mientras carga
   if (isLoading) {
@@ -63,7 +65,7 @@ export function Dashboard() {
       )}
 
       {/* Sección de Métricas */}
-      {metrics && user?.role === 'admin' && (
+      {metrics && user?.role && isAdmin(user.role) && (
         <section className="space-y-3">
           {/* Header con botón de toggle en mobile */}
           <div className="flex items-center justify-between">
@@ -106,7 +108,7 @@ export function Dashboard() {
             /> */}
 
             {/* Métricas de Transacciones (admin/owner) */}
-            {(user?.role === 'admin' || user?.role === 'owner') && (
+            {user?.role && isAdminOrOwner(user.role) && (
               <>
                 <StatsCard
                   label="Trans. Total"
@@ -149,7 +151,7 @@ export function Dashboard() {
             )}
 
             {/* Métricas de Usuarios (solo admin) */}
-            {user?.role === 'admin' && metrics.users && (
+            {user?.role && isAdmin(user.role) && metrics.users && (
               <>
                 <StatsCard
                   label="Total Usuarios"

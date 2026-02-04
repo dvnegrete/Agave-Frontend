@@ -12,6 +12,8 @@ import {
 } from '@components/index';
 import { ColumnSelector, type ColumnOption } from '@shared/ui';
 import type { User, ModalType } from '@/shared/types/user-management.types';
+import { isAdmin, isActive, isSuspended, isInactive } from '@shared/utils/roleAndStatusHelpers';
+import { USER_ROLES, ROLE_LABELS } from '@shared/constants';
 
 export function UserManagement() {
   const { user: currentUser } = useAuth();
@@ -53,7 +55,7 @@ export function UserManagement() {
   }, []);
 
   // Check if current user is admin
-  if (currentUser?.role !== 'admin') {
+  if (!currentUser?.role || !isAdmin(currentUser.role)) {
     return (
       <div className="container mx-auto p-6">
         <div className="bg-error/20 border-2 border-error text-error rounded-lg p-6 text-center">
@@ -158,19 +160,19 @@ export function UserManagement() {
           <div className="bg-base border-l-4 border-success rounded-lg p-4">
             <div className="text-foreground-secondary text-sm font-semibold">Activos</div>
             <div className="text-3xl font-bold text-success mt-2">
-              {users.filter((u) => u.status === 'active').length}
+              {users.filter((u) => isActive(u.status)).length}
             </div>
           </div>
           <div className="bg-base border-l-4 border-warning rounded-lg p-4">
             <div className="text-foreground-secondary text-sm font-semibold">Suspendidos</div>
             <div className="text-3xl font-bold text-warning mt-2">
-              {users.filter((u) => u.status === 'suspend').length}
+              {users.filter((u) => isSuspended(u.status)).length}
             </div>
           </div>
           <div className="bg-base border-l-4 border-error rounded-lg p-4">
             <div className="text-foreground-secondary text-sm font-semibold">Inactivos</div>
             <div className="text-3xl font-bold text-error mt-2">
-              {users.filter((u) => u.status === 'inactive').length}
+              {users.filter((u) => isInactive(u.status)).length}
             </div>
           </div>
         </div>
@@ -230,9 +232,11 @@ export function UserManagement() {
                 className="px-3 py-2 bg-base border border-base rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 <option value="">Todos los roles</option>
-                <option value="admin">Admin</option>
-                <option value="owner">Propietario</option>
-                <option value="tenant">Arrendatario</option>
+                {USER_ROLES.map((role) => (
+                  <option key={role} value={role}>
+                    {ROLE_LABELS[role]}
+                  </option>
+                ))}
               </select>
             </div>
 

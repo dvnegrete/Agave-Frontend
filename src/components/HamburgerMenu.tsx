@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@hooks/useAuth';
 import type { MenuItem } from '@/shared';
 import { ICONS, LABELS, ROUTES } from '@/shared';
+import { isAdmin, isTenant } from '@shared/utils/roleAndStatusHelpers';
 
 const menuItems: MenuItem[] = [
   { path: '/', label: LABELS.HOME, icon: ICONS.HOME },
@@ -156,7 +157,7 @@ export function HamburgerMenu() {
               )}
 
               {/* Admin Menu Items */}
-              {user?.role === 'admin' && (
+              {user?.role && isAdmin(user.role) && (
                 <>
                   <li className="pt-2 mt-2 border-t border-base">
                     <p className="px-4 py-2 text-xs font-bold text-foreground-secondary uppercase tracking-wide">
@@ -195,7 +196,7 @@ export function HamburgerMenu() {
                   </p>
 
                   {/* Show pending message only for tenant role without houses */}
-                  {user.role === 'tenant' && (!user.houses || user.houses.length === 0) && (
+                  {user.role && isTenant(user.role) && (!user.houses || user.houses.length === 0) && (
                     <div className="w-full px-4 py-2 text-sm text-center bg-yellow-500/20 border border-yellow-500/50 text-yellow-600 dark:text-yellow-400 rounded-lg font-semibold mb-3">
                       ⏳ En espera de confirmación por parte de un administrador
                     </div>

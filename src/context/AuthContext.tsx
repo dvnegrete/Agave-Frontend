@@ -11,6 +11,7 @@ import { AuthContext } from './AuthContextStore';
 import { tokenManager } from '@utils/tokenManager';
 import * as authService from '@services/authService';
 import { ROUTES } from '@/shared';
+import { isTenant } from '@shared/utils/roleAndStatusHelpers';
 
 interface AuthProviderProps {
   children: React.ReactNode;
@@ -32,7 +33,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    */
   const getRedirectRoute = (userData: User): string => {
     // Tenant sin casas asignadas (en espera de confirmación)
-    if (userData.role === 'tenant' && (!userData.houses || userData.houses.length === 0)) {
+    if (userData.role && isTenant(userData.role) && (!userData.houses || userData.houses.length === 0)) {
       return ROUTES.HOME;
     }
 
