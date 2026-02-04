@@ -1,5 +1,3 @@
-import React from 'react';
-
 export interface ColumnOption {
   id: string;
   label: string;
