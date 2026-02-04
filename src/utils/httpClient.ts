@@ -69,11 +69,8 @@ class HttpClient {
 
       // Handle 401 Unauthorized - try to refresh token
       if (response.status === 401 && endpoint !== '/auth/refresh' && endpoint !== '/auth/signin' && endpoint !== '/auth/oauth/signin' && endpoint !== '/auth/oauth/callback') {
-        console.log(`[httpClient] 401 recibido para ${endpoint} (retry #${currentRetries}/${this.MAX_RETRIES_PER_ENDPOINT})`);
-
         // Prevent infinite 401 loops
         if (currentRetries >= this.MAX_RETRIES_PER_ENDPOINT) {
-          console.error(`[httpClient] ❌ Max retries (${this.MAX_RETRIES_PER_ENDPOINT}) exceeded for ${requestKey}, session expired`);
           this.requestCount.delete(requestKey);
 
           // Prevent multiple simultaneous redirects
@@ -85,16 +82,12 @@ class HttpClient {
           throw new Error('Session expired. Please login again.');
         }
 
-        console.log('[httpClient] Intentando refrescar token...');
         const newToken = await this.handleTokenRefresh();
         if (newToken) {
-          console.log('[httpClient] ✅ Token refrescado, reintentando request...');
           // Clear retry count on successful refresh and retry
           this.requestCount.delete(requestKey);
           return this.request<T>(endpoint, method, options, retryCount + 1);
         } else {
-          console.error('[httpClient] ❌ Token refresh failed, session expired');
-
           // Prevent multiple simultaneous redirects
           if (!this.isRedirectingToLogin) {
             this.isRedirectingToLogin = true;
@@ -142,7 +135,6 @@ class HttpClient {
    */
   private async handleTokenRefresh(): Promise<string | null> {
     if (this.isRefreshing) {
-      console.log('[handleTokenRefresh] ⏳ Refresh ya en progreso, esperando...');
       // Wait for ongoing refresh
       return new Promise((resolve) => {
         this.refreshSubscribers.push(() => {
@@ -152,18 +144,14 @@ class HttpClient {
     }
 
     this.isRefreshing = true;
-    console.log('[handleTokenRefresh] Iniciando refrescación de token...');
 
     try {
       const refreshToken = tokenManager.getRefreshToken();
-      console.log('[handleTokenRefresh] Refresh token del storage:', refreshToken ? '✅ Existe' : '❌ No existe');
 
       if (!refreshToken) {
-        console.warn('[handleTokenRefresh] ❌ No refresh token available - session has expired');
         throw new Error('No refresh token available');
       }
 
-      console.log('[handleTokenRefresh] POST /auth/refresh...');
       // Call backend refresh endpoint
       // Backend will automatically set new access_token cookie AND return in response
       const response = await fetch(`${this.baseURL}/auth/refresh`, {
@@ -173,15 +161,12 @@ class HttpClient {
         body: JSON.stringify({ refreshToken }),
       });
 
-      console.log('[handleTokenRefresh] Respuesta del backend:', response.status);
-
       if (!response.ok) {
         // Backend retorna 401 si el refresh token está expirado o inválido
         if (response.status === 401) {
           const errorData = await response.json().catch(() => ({}));
           const errorMessage = errorData.message || 'Token refresh failed';
 
-          console.error('[handleTokenRefresh] ❌ Refresh token invalid or expired:', errorMessage);
           throw new Error(`REFRESH_TOKEN_EXPIRED: ${errorMessage}`);
         }
 
@@ -189,12 +174,10 @@ class HttpClient {
       }
 
       const data = await response.json();
-      console.log('[handleTokenRefresh] Data del backend:', data);
 
       // Guardar nuevo accessToken si viene en la respuesta
       // (Para usar en Authorization header si cookies no funcionan)
       if (data.accessToken) {
-        console.log('[handleTokenRefresh] ✅ Guardando nuevo accessToken...');
         tokenManager.setAccessToken(data.accessToken);
       }
 
@@ -203,28 +186,14 @@ class HttpClient {
       this.refreshSubscribers = [];
 
       this.isRefreshing = false;
-      console.log('[handleTokenRefresh] ✅ Token refrescado exitosamente');
       return 'refreshed'; // Return truthy value to indicate success
     } catch (error) {
-      console.error('[handleTokenRefresh] ❌ Token refresh failed:', error);
       this.isRefreshing = false;
       this.refreshSubscribers = [];
-
-      // Detectar si es específicamente expiración del refresh token
-      const isRefreshTokenExpired =
-        error instanceof Error &&
-        (error.message.includes('REFRESH_TOKEN_EXPIRED') ||
-          error.message.includes('expirado') ||
-          error.message.includes('expired'));
-
-      if (isRefreshTokenExpired) {
-        console.warn('[handleTokenRefresh] ⚠️ Refresh token has expired. Redirecting to login.');
-      }
 
       // Clear tokens and redirect to login (prevent multiple redirects)
       if (!this.isRedirectingToLogin) {
         this.isRedirectingToLogin = true;
-        console.warn('[handleTokenRefresh] 🔄 Limpiando tokens y redirigiendo a login...');
         tokenManager.clearAll();
         window.location.href = '/login';
       }
