@@ -8,6 +8,8 @@ export { AlertDialog } from './AlertDialog';
 export type { AlertVariant, AlertConfig } from './AlertDialog';
 export { BankSelector } from './BankSelector';
 export { Button } from './Button';
+export { ColumnSelector } from './ColumnSelector';
+export type { ColumnOption } from './ColumnSelector';
 export { DateTimeCell } from './DateTimeCell';
 export { ErrorAlert } from './ErrorAlert';
 export { ExpandableTable } from './ExpandableTable';
