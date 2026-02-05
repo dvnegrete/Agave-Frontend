@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@hooks/useAuth';
 import type { MenuItem } from '@/shared';
 import { ICONS, LABELS, ROUTES } from '@/shared';
+import { isAdmin, isTenant } from '@shared/utils/roleAndStatusHelpers';
 
 const menuItems: MenuItem[] = [
   { path: '/', label: LABELS.HOME, icon: ICONS.HOME },
@@ -19,9 +20,34 @@ const authenticatedMenuItems: MenuItem[] = [
     label: LABELS.DASHBOARD,
     icon: ICONS.DASHBOARD
   },
+  {
+    path: ROUTES.EXPENSE_REPORT,
+    label: LABELS.EXPENSE_REPORT,
+    icon: ICONS.EXPENSE_REPORT
+  },
+  {
+    path: ROUTES.MY_HOUSE_PAYMENTS,
+    label: LABELS.MY_HOUSE_PAYMENTS,
+    icon: ICONS.MY_HOUSE_PAYMENTS
+  },
 ];
 
 const adminMenuItems: MenuItem[] = [
+  {
+    path: ROUTES.TRANSACTION_UPLOAD,
+    label: LABELS.TRANSACTION_UPLOAD,
+    icon: ICONS.TRANSACTION_UPLOAD
+  },
+  {
+    path: ROUTES.BANK_RECONCILIATION,
+    label: LABELS.BANK_RECONCILIATION,
+    icon: ICONS.BANK_RECONCILIATION
+  },
+  {
+    path: ROUTES.PAYMENT_MANAGEMENT,
+    label: LABELS.PAYMENT_MANAGEMENT,
+    icon: ICONS.PAYMENT_MANAGEMENT
+  },
   {
     path: ROUTES.USER_MANAGEMENT,
     label: LABELS.USER_MANAGEMENT,
@@ -84,9 +110,10 @@ export function HamburgerMenu() {
           <h2 className="text-2xl font-bold text-foreground mb-2">El Agave</h2>
           <p className="text-sm text-foreground-secondary mb-8">Sistema de Gestión</p>
 
-          <nav className="pb-32">
-            <ul className="space-y-2">
-              {menuItems.map((item) => {
+          <nav className="flex-1 overflow-y-auto pr-2">
+            <ul className="flex flex-col gap-y-2">
+              {/* Mostrar Inicio solo cuando no está autenticado */}
+              {!user && menuItems.map((item) => {
                 const isActive = location.pathname === item.path;
                 return (
                   <li key={item.path}>
@@ -130,7 +157,7 @@ export function HamburgerMenu() {
               )}
 
               {/* Admin Menu Items */}
-              {user?.role === 'admin' && (
+              {user?.role && isAdmin(user.role) && (
                 <>
                   <li className="pt-2 mt-2 border-t border-base">
                     <p className="px-4 py-2 text-xs font-bold text-foreground-secondary uppercase tracking-wide">
@@ -160,7 +187,7 @@ export function HamburgerMenu() {
             </ul>
           </nav>
 
-          <div className="absolute bottom-6 left-6 right-6">
+          <div className="bottom-6 left-6 right-6 bg-gray-200/100 dark:bg-gray-800/100">
             <div className="border-t border-base pt-4">
               {user && (
                 <>
@@ -169,7 +196,7 @@ export function HamburgerMenu() {
                   </p>
 
                   {/* Show pending message only for tenant role without houses */}
-                  {user.role === 'tenant' && (!user.houses || user.houses.length === 0) && (
+                  {user.role && isTenant(user.role) && (!user.houses || user.houses.length === 0) && (
                     <div className="w-full px-4 py-2 text-sm text-center bg-yellow-500/20 border border-yellow-500/50 text-yellow-600 dark:text-yellow-400 rounded-lg font-semibold mb-3">
                       ⏳ En espera de confirmación por parte de un administrador
                     </div>

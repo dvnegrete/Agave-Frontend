@@ -1,6 +1,7 @@
 import type { TableColumn } from '@shared/ui';
 import { RoleBadge, StatusBadge, Button, Table } from '@shared/ui';
 import type { User } from '@/shared';
+import { getStatusBadgeColor, getStatusLabel } from '@shared/utils/roleAndStatusHelpers';
 
 interface UserManagementTableProps {
   users: User[];
@@ -59,14 +60,8 @@ export function UserManagementTable({
       header: 'Estado',
       render: (user) => (
         <StatusBadge
-          status={
-            user.status === 'active'
-              ? 'success'
-              : user.status === 'suspend'
-                ? 'warning'
-                : 'error'
-          }
-          label={user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+          status={getStatusBadgeColor(user.status)}
+          label={getStatusLabel(user.status)}
         />
       ),
     },

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Modal, Button } from '@shared/ui';
 import { useAuth } from '@hooks/useAuth';
 import { LEGAL_TEXT, ROUTES } from '@shared/constants';
+import { isTenant } from '@shared/utils/roleAndStatusHelpers';
 
 export function Home() {
   const [showQuienesSomos, setShowQuienesSomos] = useState(false);
@@ -9,7 +10,7 @@ export function Home() {
 
   // Check if user is authenticated but has no access (no houses assigned)
   // Only show for tenant role - admin/owner don't need approval
-  const isPendingApproval = user && user.role === 'tenant' && (!user.houses || user.houses.length === 0);
+  const isPendingApproval = user && user.role && isTenant(user.role) && (!user.houses || user.houses.length === 0);
   // Check if user is authenticated and has access
   const hasAccess = user && user.houses && user.houses.length > 0;
 

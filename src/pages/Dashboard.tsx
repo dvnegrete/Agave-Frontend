@@ -3,75 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Button, StatsCard, RoleBadge } from '@shared/ui';
 import { useDashboardMetrics } from '@hooks/useDashboardMetrics';
 import { useAuth } from '@hooks/useAuth';
-import { ROUTES } from '@shared/constants';
-
-interface DashboardFeature {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  route: string;
-  roles: Array<'admin' | 'owner' | 'tenant'>;
-}
-
-const DASHBOARD_FEATURES: DashboardFeature[] = [
-  {
-    id: 'expense-report',
-    title: 'Informe de Gastos',
-    description: 'Visualiza y analiza gastos por mes',
-    icon: '📊',
-    route: ROUTES.EXPENSE_REPORT,
-    roles: ['admin', 'owner'],
-  },
-  {
-    id: 'my-house-payments',
-    title: 'Mis Pagos',
-    description: 'Revisa los pagos y movimientos de tu casa',
-    icon: '🏠',
-    route: ROUTES.MY_HOUSE_PAYMENTS,
-    roles: ['admin', 'owner',],
-  },
-  {
-    id: 'vouchers',
-    title: 'Comprobantes',
-    description: 'Gestiona comprobantes de mantenimiento',
-    icon: '📄',
-    route: ROUTES.VOUCHER_LIST,
-    roles: ['admin'],
-  },
-  {
-    id: 'transactions',
-    title: 'Transacciones Bancarias',
-    description: 'Sube y revisa las transacciones bancarias',
-    icon: '💳',
-    route: ROUTES.TRANSACTION_UPLOAD,
-    roles: ['admin'],
-  },
-  {
-    id: 'reconciliation',
-    title: 'Conciliación Bancaria',
-    description: 'Concilia transacciones con vouchers automáticamente',
-    icon: '⚖️',
-    route: ROUTES.BANK_RECONCILIATION,
-    roles: ['admin'],
-  },
-  {
-    id: 'payments',
-    title: 'Gestión de Pagos',
-    description: 'Administra los pagos de las casa y los usuarios',
-    icon: '💰',
-    route: ROUTES.PAYMENT_MANAGEMENT,
-    roles: ['admin'],
-  },
-  {
-    id: 'users',
-    title: 'Administración de Usuarios',
-    description: 'Gestiona usuarios del sistema',
-    icon: '👥',
-    route: ROUTES.USER_MANAGEMENT,
-    roles: ['admin'],
-  },
-];
+import { DASHBOARD_FEATURES } from '@shared/constants';
+import { isAdmin, isAdminOrOwner } from '@shared/utils/roleAndStatusHelpers';
 
 export function Dashboard() {
   const navigate = useNavigate();
@@ -80,9 +13,10 @@ export function Dashboard() {
   const [isMetricsExpanded, setIsMetricsExpanded] = useState(true);
 
   // Filtrar funcionalidades disponibles según rol
-  const availableFeatures = DASHBOARD_FEATURES.filter((feature) =>
-    user?.role ? feature.roles.includes(user.role as 'admin' | 'owner' | 'tenant') : false
-  );
+  const availableFeatures = DASHBOARD_FEATURES.filter((feature) => {
+    if (!user?.role) return false;
+    return feature.roles.some((r) => r === user.role);
+  });
 
   // Mostrar spinner mientras carga
   if (isLoading) {
@@ -131,7 +65,7 @@ export function Dashboard() {
       )}
 
       {/* Sección de Métricas */}
-      {metrics && user?.role === 'admin' && (
+      {metrics && user?.role && isAdmin(user.role) && (
         <section className="space-y-3">
           {/* Header con botón de toggle en mobile */}
           <div className="flex items-center justify-between">
@@ -174,7 +108,7 @@ export function Dashboard() {
             /> */}
 
             {/* Métricas de Transacciones (admin/owner) */}
-            {(user?.role === 'admin' || user?.role === 'owner') && (
+            {user?.role && isAdminOrOwner(user.role) && (
               <>
                 <StatsCard
                   label="Trans. Total"
@@ -217,7 +151,7 @@ export function Dashboard() {
             )}
 
             {/* Métricas de Usuarios (solo admin) */}
-            {user?.role === 'admin' && metrics.users && (
+            {user?.role && isAdmin(user.role) && metrics.users && (
               <>
                 <StatsCard
                   label="Total Usuarios"

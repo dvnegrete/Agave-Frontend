@@ -6,8 +6,10 @@ export const LABELS = {
     VOUCHER_UPLOAD: 'Subir Comprobante',
     VOUCHER_LIST: 'Comprobantes',
     TRANSACTION_UPLOAD: 'Transacciones Bancarias',
-    BANK_RECONCILIATION: 'Conciliación',
+    BANK_RECONCILIATION: 'Conciliación Bancaria',
     PAYMENT_MANAGEMENT: 'Gestión de Pagos',
     HISTORICAL_RECORDS_UPLOAD: 'Registros Históricos',
     USER_MANAGEMENT: 'Administración de Usuarios',
+    EXPENSE_REPORT: 'Informe de Gastos',
+    MY_HOUSE_PAYMENTS: 'Mis Pagos',
 }

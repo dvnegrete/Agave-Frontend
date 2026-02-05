@@ -69,10 +69,8 @@ class HttpClient {
 
       // Handle 401 Unauthorized - try to refresh token
       if (response.status === 401 && endpoint !== '/auth/refresh' && endpoint !== '/auth/signin' && endpoint !== '/auth/oauth/signin' && endpoint !== '/auth/oauth/callback') {
-
         // Prevent infinite 401 loops
         if (currentRetries >= this.MAX_RETRIES_PER_ENDPOINT) {
-          console.error(`Max retries (${this.MAX_RETRIES_PER_ENDPOINT}) exceeded for ${requestKey}, session expired`);
           this.requestCount.delete(requestKey);
 
           // Prevent multiple simultaneous redirects
@@ -90,8 +88,6 @@ class HttpClient {
           this.requestCount.delete(requestKey);
           return this.request<T>(endpoint, method, options, retryCount + 1);
         } else {
-          console.error('Token refresh failed, session expired');
-
           // Prevent multiple simultaneous redirects
           if (!this.isRedirectingToLogin) {
             this.isRedirectingToLogin = true;
@@ -166,6 +162,14 @@ class HttpClient {
       });
 
       if (!response.ok) {
+        // Backend retorna 401 si el refresh token está expirado o inválido
+        if (response.status === 401) {
+          const errorData = await response.json().catch(() => ({}));
+          const errorMessage = errorData.message || 'Token refresh failed';
+
+          throw new Error(`REFRESH_TOKEN_EXPIRED: ${errorMessage}`);
+        }
+
         throw new Error(`Refresh failed with status ${response.status}`);
       }
 
@@ -184,7 +188,6 @@ class HttpClient {
       this.isRefreshing = false;
       return 'refreshed'; // Return truthy value to indicate success
     } catch (error) {
-      console.error('Token refresh failed:', error);
       this.isRefreshing = false;
       this.refreshSubscribers = [];
 
