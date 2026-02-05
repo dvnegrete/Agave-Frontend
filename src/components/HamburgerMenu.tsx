@@ -111,7 +111,7 @@ export function HamburgerMenu() {
           <p className="text-sm text-foreground-secondary mb-8">Sistema de Gestión</p>
 
           <nav className="flex-1 overflow-y-auto pr-2">
-            <ul className="space-y-2">
+            <ul className="flex flex-col gap-y-2">
               {/* Mostrar Inicio solo cuando no está autenticado */}
               {!user && menuItems.map((item) => {
                 const isActive = location.pathname === item.path;
@@ -187,7 +187,7 @@ export function HamburgerMenu() {
             </ul>
           </nav>
 
-          <div className="absolute bottom-6 left-6 right-6 bg-gray-200/100 dark:bg-gray-800/100">
+          <div className="bottom-6 left-6 right-6 bg-gray-200/100 dark:bg-gray-800/100">
             <div className="border-t border-base pt-4">
               {user && (
                 <>
