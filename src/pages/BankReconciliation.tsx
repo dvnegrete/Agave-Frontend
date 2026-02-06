@@ -88,10 +88,10 @@ export function BankReconciliation() {
     return result as StartReconciliationResponse | undefined;
   };
 
-  const handleManualValidation = async (voucherId: number, transactionId: number): Promise<void> => {
+  const handleManualValidation = async (voucherId: number, transactionBankId: string): Promise<void> => {
     try {
       await reconcile({
-        transactionId: transactionId.toString(),
+        transactionId: transactionBankId,
         voucherId: voucherId.toString(),
       });
 
@@ -165,38 +165,32 @@ export function BankReconciliation() {
             <div className="space-y-4">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <StatsCard
-                  label="Total Vouchers"
-                  value={reconciliationResult.summary.totalVouchers}
+                  label="Total Procesados"
+                  value={reconciliationResult.summary.totalProcessed}
                   variant="primary"
-                  icon="📋"
-                />
-                <StatsCard
-                  label="Total Transacciones"
-                  value={reconciliationResult.summary.totalTransactions}
-                  variant="info"
-                  icon="💳"
+                  icon="📊"
                 />
                 <StatsCard
                   label="Conciliados"
-                  value={reconciliationResult.summary.matched}
+                  value={reconciliationResult.summary.conciliados}
                   variant="success"
                   icon="✅"
                 />
                 <StatsCard
-                  label="Pendientes"
-                  value={reconciliationResult.summary.pendingVouchers}
+                  label="Comprobantes Sin Fondos"
+                  value={reconciliationResult.summary.unfundedVouchers}
                   variant="warning"
                   icon="⏳"
                 />
                 <StatsCard
-                  label="Sobrantes"
-                  value={reconciliationResult.summary.surplusTransactions}
+                  label="Depósitos No Asociados"
+                  value={reconciliationResult.summary.unclaimedDeposits}
                   variant="warning"
                   icon="➕"
                 />
                 <StatsCard
                   label="Validación Manual"
-                  value={reconciliationResult.summary.manualValidationRequired}
+                  value={reconciliationResult.summary.requiresManualValidation}
                   variant="error"
                   icon="🔍"
                 />
@@ -301,10 +295,10 @@ export function BankReconciliation() {
             <Table
               columns={[
                 {
-                  id: 'transactionId',
+                  id: 'transactionBankId',
                   header: 'Transacción ID',
                   align: 'center',
-                  render: (item) => item.transactionId ?? 'N/A',
+                  render: (item) => item.transactionBankId ?? 'N/A',
                 },
                 {
                   id: 'amount',
@@ -336,20 +330,13 @@ export function BankReconciliation() {
               {reconciliationResult.manualValidationRequired.map((item, idx) => (
                 <ReconciliationCard
                   key={idx}
-                  voucherId={item.voucherId}
-                  amount={item.amount}
-                  date={item.date}
+                  transactionBankId={item.transactionBankId}
                   reason={item.reason}
                   possibleMatches={item.possibleMatches}
-                  onConciliate={(transactionId) => {
-                    if (item.voucherId) {
-                      handleManualValidation(item.voucherId, transactionId);
-                    } else {
-                      alert.error('Error', 'Datos incompletos para realizar la conciliación');
-                    }
+                  onConciliate={(voucherId) => {
+                    handleManualValidation(voucherId, item.transactionBankId);
                   }}
                   isProcessing={reconciling}
-                  formatDate={useFormatDate}
                 />
               ))}
               {reconciliationResult.manualValidationRequired.length === 0 && (

@@ -9,12 +9,11 @@ export interface StartReconciliationRequest {
 }
 
 export interface ReconciliationSummary {
-  totalVouchers: number;
-  totalTransactions: number;
-  matched: number;
-  pendingVouchers: number;
-  surplusTransactions: number;
-  manualValidationRequired: number;
+  totalProcessed: number;
+  conciliados: number;
+  unfundedVouchers: number;
+  unclaimedDeposits: number;
+  requiresManualValidation: number;
 }
 
 export const ConfidenceLevel = {
@@ -47,26 +46,23 @@ export interface PendingVoucher {
 }
 
 export interface SurplusTransaction {
-  transactionId: number;
+  transactionBankId: string;
   amount: number;
   date: string;
-  time: string; // Formato HH:MM:SS desde la API
+  time?: string; // Formato HH:MM:SS desde la API (opcional)
   reason: string;
+  requiresManualReview?: boolean;
+  houseNumber?: number;
 }
 
 export interface PossibleMatch {
-  transactionId: number;
-  amount: number;
-  date: string;
-  time?: string; // Formato HH:MM:SS desde la API (opcional)
-  matchScore: number;
+  voucherId: number;
+  similarity: number;
+  dateDifferenceHours?: number;
 }
 
 export interface ManualValidationCase {
-  voucherId: number;
-  amount: number;
-  date: string;
-  time?: string; // Formato HH:MM:SS desde la API (opcional)
+  transactionBankId: string;
   reason: string;
   possibleMatches: PossibleMatch[];
 }
