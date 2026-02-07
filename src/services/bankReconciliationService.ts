@@ -23,6 +23,11 @@ import type {
   UnfundedVouchersItem,
   MatchVoucherWithDepositRequest,
   MatchVoucherWithDepositResponse,
+  MatchSuggestionsResponse,
+  ApplyMatchSuggestionRequest,
+  ApplyMatchSuggestionResponse,
+  ApplyBatchRequest,
+  ApplyBatchResponse,
 } from '@shared/types/bank-reconciliation.types';
 
 /**
@@ -280,6 +285,63 @@ export const matchVoucherWithDeposit = async (
     );
   } catch (err: unknown) {
     console.error('Error in matchVoucherWithDeposit:', err);
+    throw err;
+  }
+};
+
+// ============ Match Suggestions (Cross-Matching) Endpoints ============
+
+/**
+ * Get cross-matching suggestions between unclaimed deposits and unfunded vouchers
+ */
+export const getMatchSuggestions = async (
+  signal?: AbortSignal
+): Promise<MatchSuggestionsResponse> => {
+  try {
+    return httpClient.get<MatchSuggestionsResponse>(
+      `${API_ENDPOINTS.bankReconciliation}/match-suggestions`,
+      { signal }
+    );
+  } catch (err: unknown) {
+    console.error('Error in getMatchSuggestions:', err);
+    throw err;
+  }
+};
+
+/**
+ * Apply a single cross-matching suggestion
+ */
+export const applyMatchSuggestion = async (
+  data: ApplyMatchSuggestionRequest,
+  signal?: AbortSignal
+): Promise<ApplyMatchSuggestionResponse> => {
+  try {
+    return httpClient.post<ApplyMatchSuggestionResponse>(
+      `${API_ENDPOINTS.bankReconciliation}/match-suggestions/apply`,
+      data,
+      { signal }
+    );
+  } catch (err: unknown) {
+    console.error('Error in applyMatchSuggestion:', err);
+    throw err;
+  }
+};
+
+/**
+ * Apply multiple cross-matching suggestions in batch
+ */
+export const applyBatchMatchSuggestions = async (
+  data: ApplyBatchRequest,
+  signal?: AbortSignal
+): Promise<ApplyBatchResponse> => {
+  try {
+    return httpClient.post<ApplyBatchResponse>(
+      `${API_ENDPOINTS.bankReconciliation}/match-suggestions/apply-batch`,
+      data,
+      { signal }
+    );
+  } catch (err: unknown) {
+    console.error('Error in applyBatchMatchSuggestions:', err);
     throw err;
   }
 };

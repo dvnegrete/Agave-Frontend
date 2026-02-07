@@ -14,6 +14,7 @@ export interface ReconciliationSummary {
   unfundedVouchers: number;
   unclaimedDeposits: number;
   requiresManualValidation: number;
+  crossMatched?: number;
 }
 
 export const ConfidenceLevel = {
@@ -73,6 +74,7 @@ export interface StartReconciliationResponse {
   unfundedVouchers: PendingVoucher[];
   unclaimedDeposits: SurplusTransaction[];
   manualValidationRequired: ManualValidationCase[];
+  crossMatched?: number;
 }
 
 export interface ReconcileRequest {
@@ -263,4 +265,60 @@ export interface MatchVoucherWithDepositResponse {
     status: 'confirmed';
   };
   matchedAt: string;
+}
+
+// ============ Match Suggestions (Cross-Matching) ============
+
+export interface MatchSuggestionItem {
+  transactionBankId: string;
+  voucherId: number;
+  amount: number;
+  depositDate: string;
+  depositTime: string | null;
+  voucherDate: string;
+  houseNumber: number | null;
+  confidence: 'high' | 'medium';
+  reason: string;
+}
+
+export interface MatchSuggestionsResponse {
+  totalSuggestions: number;
+  highConfidence: number;
+  mediumConfidence: number;
+  suggestions: MatchSuggestionItem[];
+}
+
+export interface ApplyMatchSuggestionRequest {
+  transactionBankId: string;
+  voucherId: number;
+  houseNumber: number;
+  adminNotes?: string;
+  [key: string]: unknown;
+}
+
+export interface ApplyMatchSuggestionResponse {
+  message: string;
+  reconciliation: {
+    transactionBankId: string;
+    voucherId: number;
+    houseNumber: number;
+    status: string;
+  };
+  appliedAt: string;
+}
+
+export interface ApplyBatchRequest {
+  suggestions: ApplyMatchSuggestionRequest[];
+  [key: string]: unknown;
+}
+
+export interface ApplyBatchResponse {
+  totalApplied: number;
+  totalFailed: number;
+  results: {
+    transactionBankId: string;
+    voucherId: number;
+    success: boolean;
+    error?: string;
+  }[];
 }

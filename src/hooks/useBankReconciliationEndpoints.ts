@@ -16,6 +16,11 @@ import type {
   MatchVoucherWithDepositRequest,
   MatchVoucherWithDepositResponse,
   PaginatedResponse,
+  MatchSuggestionsResponse,
+  ApplyMatchSuggestionRequest,
+  ApplyMatchSuggestionResponse,
+  ApplyBatchRequest,
+  ApplyBatchResponse,
 } from '@shared/types/bank-reconciliation.types';
 import {
   getManualValidationPending,
@@ -26,6 +31,9 @@ import {
   assignHouseToDeposit,
   getUnfundedVouchers,
   matchVoucherWithDeposit,
+  getMatchSuggestions,
+  applyMatchSuggestion,
+  applyBatchMatchSuggestions,
 } from '@services/bankReconciliationService';
 
 // Type aliases to ensure TypeScript recognizes all types as used
@@ -164,5 +172,59 @@ export const useUnfundedVouchersMutations = (): UseUnfundedVouchersMutationsRetu
       matchMutation.mutateAsync({ voucherId, data }),
     matching: matchMutation.isPending,
     error: matchMutation.error?.message || null,
+  };
+};
+
+// ============ Match Suggestions (Cross-Matching) Queries ============
+
+export const useMatchSuggestions = () => {
+  return useQuery<MatchSuggestionsResponse>({
+    queryKey: ['match-suggestions'],
+    queryFn: () => getMatchSuggestions(),
+    enabled: true,
+  });
+};
+
+// ============ Match Suggestions Mutations ============
+
+interface UseMatchSuggestionsMutationsReturn {
+  applySuggestion: (data: ApplyMatchSuggestionRequest) => Promise<ApplyMatchSuggestionResponse | undefined>;
+  applyBatch: (data: ApplyBatchRequest) => Promise<ApplyBatchResponse | undefined>;
+  applying: boolean;
+  applyingBatch: boolean;
+  error: string | null;
+}
+
+export const useMatchSuggestionsMutations = (): UseMatchSuggestionsMutationsReturn => {
+  const queryClient = useQueryClient();
+
+  const applyMutation = useMutation({
+    mutationFn: (data: ApplyMatchSuggestionRequest) =>
+      applyMatchSuggestion(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['match-suggestions'] });
+      queryClient.invalidateQueries({ queryKey: ['unclaimed-deposits'] });
+      queryClient.invalidateQueries({ queryKey: ['unfunded-vouchers'] });
+    },
+  });
+
+  const batchMutation = useMutation({
+    mutationFn: (data: ApplyBatchRequest) =>
+      applyBatchMatchSuggestions(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['match-suggestions'] });
+      queryClient.invalidateQueries({ queryKey: ['unclaimed-deposits'] });
+      queryClient.invalidateQueries({ queryKey: ['unfunded-vouchers'] });
+    },
+  });
+
+  return {
+    applySuggestion: (data: ApplyMatchSuggestionRequest) =>
+      applyMutation.mutateAsync(data),
+    applyBatch: (data: ApplyBatchRequest) =>
+      batchMutation.mutateAsync(data),
+    applying: applyMutation.isPending,
+    applyingBatch: batchMutation.isPending,
+    error: applyMutation.error?.message || batchMutation.error?.message || null,
   };
 };
