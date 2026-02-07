@@ -21,6 +21,11 @@ const authenticatedMenuItems: MenuItem[] = [
     icon: ICONS.DASHBOARD
   },
   {
+    path: ROUTES.VOUCHER_UPLOAD,
+    label: LABELS.VOUCHER_UPLOAD,
+    icon: ICONS.VOUCHER_UPLOAD
+  },
+  {
     path: ROUTES.EXPENSE_REPORT,
     label: LABELS.EXPENSE_REPORT,
     icon: ICONS.EXPENSE_REPORT
