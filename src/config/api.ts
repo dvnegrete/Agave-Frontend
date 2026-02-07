@@ -24,7 +24,7 @@ export const API_ENDPOINTS = {
   transactionsBankExpenses: '/transactions-bank/expenses',
 
   // Bank Reconciliation
-  bankReconciliation: '/bank-reconciliation/reconcile',
+  bankReconciliation: '/bank-reconciliation',
   bankReconciliationManualValidationStats: '/bank-reconciliation/manual-validation/stats',
   bankReconciliationUnclaimedDeposits: '/bank-reconciliation/unclaimed-deposits',
 

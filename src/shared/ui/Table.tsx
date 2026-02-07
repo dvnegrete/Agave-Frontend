@@ -26,11 +26,11 @@ export interface TableProps<T = unknown> {
 
 const headerVariantStyles: Record<string, string> = {
   default: 'bg-gray-200 dark:bg-gray-700',
-  primary: 'bg-primary/20',
-  success: 'bg-success/20',
-  warning: 'bg-warning/20',
-  error: 'bg-error/20',
-  info: 'bg-info/20',
+  primary: 'bg-primary',
+  success: 'bg-success',
+  warning: 'bg-warning',
+  error: 'bg-error',
+  info: 'bg-info',
 };
 
 const variantPadding: Record<string, string> = {

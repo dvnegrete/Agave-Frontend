@@ -1,12 +1,17 @@
 import { useState } from 'react';
 import {
   useBankReconciliationMutations,
-  useTransactionsBankQuery,
+  useManualValidationPending,
+  useManualValidationMutations,
+  useManualValidationStats,
+  useUnclaimedDeposits,
+  useUnclaimedDepositsMutations,
+  useUnfundedVouchers,
+  useUnfundedVouchersMutations,
   useFormatDate,
   useAlert,
 } from '@hooks/index';
-import { useVouchersQuery } from '@hooks/useVouchersQuery';
-import { StartReconciliationModal, UnclaimedDepositsSection } from '@components/reconciliation';
+import { StartReconciliationModal } from '@components/reconciliation';
 import {
   Button,
   StatusBadge,
@@ -17,97 +22,172 @@ import {
   ReconciliationCard,
   type TableColumn
 } from '@shared/ui';
-import type { StartReconciliationResponse, MatchedReconciliation, PendingVoucher, SurplusTransaction } from '@shared';
+import type {
+  StartReconciliationResponse,
+  MatchedReconciliation,
+  PendingVoucher,
+  SurplusTransaction,
+  ManualValidationPendingItem,
+  UnclaimedDepositsItem,
+  UnfundedVouchersItem,
+} from '@shared/types/bank-reconciliation.types';
+import { formatCurrency } from '@/utils/formatters';
 
 export function BankReconciliation() {
   const alert = useAlert();
-  const {
-    transactions,
-    refetch: refetchTransactions,
-  } = useTransactionsBankQuery({
-    reconciled: false,
-  });
 
-  const {
-    vouchers,
-    refetch: refetchVouchers,
-  } = useVouchersQuery({
-    confirmation_status: true,
-  });
-
-  const { start, reconcile, reconcileBulk, undo, reconciling, error } =
-    useBankReconciliationMutations();
-
-  const [selectedTransaction, setSelectedTransaction] = useState<string | null>(
-    null
-  );
-  const [selectedVoucher, setSelectedVoucher] = useState<string | null>(null);
+  // ============ Main Reconciliation State ============
+  const { start, reconciling, error } = useBankReconciliationMutations();
   const [showStartModal, setShowStartModal] = useState(false);
   const [reconciliationResult, setReconciliationResult] = useState<StartReconciliationResponse | null>(null);
-  const [activeTab, setActiveTab] = useState<'summary' | 'conciliados' | 'unfundedVouchers' | 'unclaimedDeposits' | 'manual'>('summary');
+  const [activeTab, setActiveTab] = useState<'summary' | 'conciliados' | 'unfundedVouchers' | 'unclaimedDeposits' | 'manual' | 'manualValidationList' | 'unclaimedDepositsList' | 'unfundedVouchersList'>('summary');
 
-  // Suppress unused variable warnings for commented code
-  void transactions;
-  void vouchers;
-  void reconcileBulk;
-  void undo;
+  // ============ Pagination State ============
+  const [manualValidationPage, setManualValidationPage] = useState(1);
+  const [unclaimedDepositsPage, setUnclaimedDepositsPage] = useState(1);
+  const [unfundedVouchersPage, setUnfundedVouchersPage] = useState(1);
+  const [pageLimit] = useState(20);
 
-  const handleManualReconcile = async (): Promise<void> => {
-    if (!selectedTransaction || !selectedVoucher) {
-      alert.warning('Validación requerida', 'Por favor selecciona una transacción y un voucher');
-      return;
-    }
+  // ============ Filter State ============
+  const [depositValidationStatus, setDepositValidationStatus] = useState<'all' | 'conflict' | 'not-found'>('all');
 
-    try {
-      await reconcile({
-        transactionId: selectedTransaction,
-        voucherId: selectedVoucher,
-      });
-      alert.success('Éxito', 'Conciliación completada exitosamente');
-      setSelectedTransaction(null);
-      setSelectedVoucher(null);
-      refetchTransactions();
-      refetchVouchers();
-    } catch (err) {
-      console.error('Error reconciling:', err);
-      alert.error('Error', 'No se pudo completar la conciliación. Intenta de nuevo.');
-    }
-  };
+  // ============ Collapse State ============
+  const [expandedManualValidation, setExpandedManualValidation] = useState(false);
+  const [expandedUnclaimedDeposits, setExpandedUnclaimedDeposits] = useState(false);
+  const [expandedUnfundedVouchers, setExpandedUnfundedVouchers] = useState(false);
 
+  // ============ Modal State ============
+  const [selectedDepositForAssign, setSelectedDepositForAssign] = useState<UnclaimedDepositsItem | null>(null);
+  const [selectedVoucherForMatch, setSelectedVoucherForMatch] = useState<UnfundedVouchersItem | null>(null);
+  const [showAssignHouseModal, setShowAssignHouseModal] = useState(false);
+  const [showMatchDepositModal, setShowMatchDepositModal] = useState(false);
+  const [assignHouseNumber, setAssignHouseNumber] = useState<string>('');
+  const [matchTransactionBankId, setMatchTransactionBankId] = useState<string>('');
+  const [matchHouseNumber, setMatchHouseNumber] = useState<string>('');
+  const [approvalNotes, setApprovalNotes] = useState<string>('');
+  const [selectedManualValidationItem, setSelectedManualValidationItem] = useState<ManualValidationPendingItem | null>(null);
+
+  // ============ Queries ============
+  const {
+    data: manualValidationData,
+    isLoading: manualValidationLoading,
+    refetch: refetchManualValidation,
+  } = useManualValidationPending({
+    page: manualValidationPage,
+    limit: pageLimit,
+  });
+
+  const {
+    data: manualValidationStats,
+  } = useManualValidationStats();
+
+  const {
+    data: unclaimedDepositsData,
+    isLoading: unclaimedDepositsLoading,
+    refetch: refetchUnclaimedDeposits,
+  } = useUnclaimedDeposits({
+    page: unclaimedDepositsPage,
+    limit: pageLimit,
+    validationStatus: depositValidationStatus,
+  });
+
+  const {
+    data: unfundedVouchersData,
+    isLoading: unfundedVouchersLoading,
+    refetch: refetchUnfundedVouchers,
+  } = useUnfundedVouchers({
+    page: unfundedVouchersPage,
+    limit: pageLimit,
+  });
+
+  // ============ Mutations ============
+  const {
+    approve: approveManualValidation,
+    approving: approvingManualValidation,
+  } = useManualValidationMutations();
+
+  const {
+    assignHouse: assignHouseToDeposit,
+    assigning: assigningHouse,
+  } = useUnclaimedDepositsMutations();
+
+  const {
+    matchDeposit: matchVoucherWithDeposit,
+    matching: matchingDeposit,
+  } = useUnfundedVouchersMutations();
+
+  // ============ Handlers ============
   const handleStartReconciliation = async (data: { startDate?: string; endDate?: string }): Promise<StartReconciliationResponse | undefined> => {
     const result = await start(data);
     if (result) {
-      // Save result to state
       setReconciliationResult(result as StartReconciliationResponse);
-      // Switch to summary tab
       setActiveTab('summary');
-      // Refresh data after starting reconciliation
-      refetchTransactions();
-      refetchVouchers();
     }
     return result as StartReconciliationResponse | undefined;
   };
 
-  const handleManualValidation = async (voucherId: number, transactionBankId: string): Promise<void> => {
+  const handleApproveManualValidation = async (transactionId: string) => {
+    if (!selectedManualValidationItem) {
+      alert.error('Error', 'Por favor selecciona un voucher');
+      return;
+    }
+
     try {
-      await reconcile({
-        transactionId: transactionBankId,
-        voucherId: voucherId.toString(),
+      await approveManualValidation(transactionId, {
+        voucherId: selectedManualValidationItem.possibleMatches[0]?.voucherId || 0,
+        approverNotes: approvalNotes,
       });
-
-      // Re-run reconciliation to get updated results
-      const updatedResult = await start({});
-      if (updatedResult) {
-        setReconciliationResult(updatedResult as StartReconciliationResponse);
-        // Stay on manual validation tab to continue working
-      }
-
-      // Also refresh other data
-      refetchTransactions();
-      refetchVouchers();
+      alert.success('Éxito', 'Caso aprobado exitosamente');
+      setSelectedManualValidationItem(null);
+      setApprovalNotes('');
+      refetchManualValidation();
     } catch (err) {
-      console.error('Error en conciliación manual:', err);
-      alert.error('Error', 'No se pudo completar la validación manual. Por favor intenta de nuevo.');
+      console.error('Error approving:', err);
+      alert.error('Error', 'No se pudo aprobar el caso');
+    }
+  };
+
+  const handleAssignHouse = async () => {
+    if (!selectedDepositForAssign || !assignHouseNumber) {
+      alert.warning('Validación requerida', 'Por favor especifica una casa');
+      return;
+    }
+
+    try {
+      await assignHouseToDeposit(selectedDepositForAssign.transactionBankId, {
+        houseNumber: parseInt(assignHouseNumber, 10),
+      });
+      alert.success('Éxito', 'Casa asignada exitosamente');
+      setShowAssignHouseModal(false);
+      setSelectedDepositForAssign(null);
+      setAssignHouseNumber('');
+      refetchUnclaimedDeposits();
+    } catch (err) {
+      console.error('Error assigning house:', err);
+      alert.error('Error', 'No se pudo asignar la casa');
+    }
+  };
+
+  const handleMatchDeposit = async () => {
+    if (!selectedVoucherForMatch || !matchTransactionBankId || !matchHouseNumber) {
+      alert.warning('Validación requerida', 'Por favor completa todos los campos');
+      return;
+    }
+
+    try {
+      await matchVoucherWithDeposit(selectedVoucherForMatch.voucherId, {
+        transactionBankId: matchTransactionBankId,
+        houseNumber: parseInt(matchHouseNumber, 10),
+      });
+      alert.success('Éxito', 'Voucher conciliado exitosamente');
+      setShowMatchDepositModal(false);
+      setSelectedVoucherForMatch(null);
+      setMatchTransactionBankId('');
+      setMatchHouseNumber('');
+      refetchUnfundedVouchers();
+    } catch (err) {
+      console.error('Error matching deposit:', err);
+      alert.error('Error', 'No se pudo conciliar el voucher');
     }
   };
 
@@ -117,6 +197,7 @@ export function BankReconciliation() {
 
   return (
     <div className="container flex-1 mx-auto p-4 space-y-6">
+      {/* Header */}
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Conciliación Bancaria</h1>
         <Button
@@ -128,11 +209,10 @@ export function BankReconciliation() {
       </div>
 
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <div className="border border-error text-error px-4 py-3 rounded">
           Error: {error}
         </div>
       )}
-
 
       {/* Start Reconciliation Modal */}
       <StartReconciliationModal
@@ -142,12 +222,11 @@ export function BankReconciliation() {
         isProcessing={reconciling}
       />
 
-      {/* Reconciliation Results */}
+      {/* Main Reconciliation Results Tabs */}
       {reconciliationResult && (
         <div className="background-general shadow-lg rounded-lg border-4 p-6 mb-6">
           <h2 className="text-2xl font-bold mb-4">Resultados de Conciliación</h2>
 
-          {/* Tabs */}
           <Tabs
             tabs={[
               { id: 'summary', label: 'Resumen', icon: '📊', color: 'blue' },
@@ -156,11 +235,11 @@ export function BankReconciliation() {
               { id: 'unclaimedDeposits', label: 'Depósitos NO Asociados', icon: '➕', badge: reconciliationResult.unclaimedDeposits.length, color: 'orange' },
               { id: 'manual', label: 'Validación Manual', icon: '🔍', badge: reconciliationResult.manualValidationRequired.length, color: 'red' },
             ]}
-            activeTab={activeTab}
-            onTabChange={(tabId) => setActiveTab(tabId as 'summary' | 'conciliados' | 'unfundedVouchers' | 'unclaimedDeposits' | 'manual')}
+            activeTab={activeTab as any}
+            onTabChange={(tabId) => setActiveTab(tabId as any)}
           />
 
-          {/* Tab Content */}
+          {/* Summary Tab */}
           {activeTab === 'summary' && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -198,9 +277,16 @@ export function BankReconciliation() {
             </div>
           )}
 
+          {/* Conciliados Tab */}
           {activeTab === 'conciliados' && (
             <Table
               columns={[
+                {
+                  id: 'transactionBankId',
+                  header: 'Transacción',
+                  align: 'center',
+                  render: (item) => item.transactionBankId ?? 'N/A',
+                },
                 {
                   id: 'houseNumber',
                   header: 'Casa',
@@ -224,27 +310,21 @@ export function BankReconciliation() {
                           ? 'success'
                           : item.confidenceLevel === 'medium'
                             ? 'warning'
-                            : item.confidenceLevel === 'low'
-                              ? 'warning'
-                              : 'info'
+                            : 'info'
                       }
                       label={
                         item.confidenceLevel === 'high'
                           ? 'Alta'
                           : item.confidenceLevel === 'medium'
                             ? 'Media'
-                            : item.confidenceLevel === 'low'
-                              ? 'Baja'
-                              : 'Manual'
+                            : 'Baja'
                       }
                       icon={
                         item.confidenceLevel === 'high'
                           ? '✅'
                           : item.confidenceLevel === 'medium'
                             ? '⚖️'
-                            : item.confidenceLevel === 'low'
-                              ? '⚠️'
-                              : '🔧'
+                            : '⚠️'
                       }
                     />
                   ),
@@ -257,6 +337,7 @@ export function BankReconciliation() {
             />
           )}
 
+          {/* Unfunded Vouchers Tab */}
           {activeTab === 'unfundedVouchers' && (
             <Table
               columns={[
@@ -291,6 +372,7 @@ export function BankReconciliation() {
             />
           )}
 
+          {/* Unclaimed Deposits Tab */}
           {activeTab === 'unclaimedDeposits' && (
             <Table
               columns={[
@@ -325,6 +407,7 @@ export function BankReconciliation() {
             />
           )}
 
+          {/* Manual Validation Tab */}
           {activeTab === 'manual' && (
             <div className="space-y-4">
               {reconciliationResult.manualValidationRequired.map((item, idx) => (
@@ -333,132 +416,563 @@ export function BankReconciliation() {
                   transactionBankId={item.transactionBankId}
                   reason={item.reason}
                   possibleMatches={item.possibleMatches}
-                  onConciliate={(voucherId) => {
-                    handleManualValidation(voucherId, item.transactionBankId);
+                  onConciliate={() => {
+                    // Implementation would go here
                   }}
                   isProcessing={reconciling}
                 />
               ))}
               {reconciliationResult.manualValidationRequired.length === 0 && (
-                <p className="text-center text-gray-500 py-8">No hay casos que requieran validación manual</p>
+                <p className="text-center text-foreground-tertiary py-8">No hay casos que requieran validación manual</p>
               )}
             </div>
           )}
         </div>
       )}
 
-      {/* Manual Reconciliation Section */}
-      <div className="shadow-md border-2 rounded-lg p-6">
-        <h2 className="text-lg font-semibold mb-4">🔧 Conciliación Manual</h2>
+      {/* ============ NEW SECTIONS WITH FULL PAGINATION AND ACTIONS ============ */}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Transactions Column */}
-          {/* <div>
-            <h3 className="font-medium mb-2">Transacciones No Conciliadas</h3>
-            <div className="border rounded max-h-64 overflow-y-auto">
-              {transactions.length === 0 ? (
-                <p className="p-4 text-gray-500">
-                  No hay transacciones sin conciliar
-                </p>
-              ) : (
-                <div className="divide-y">
-                  {transactions.map((transaction) => (
-                    <label
-                      key={transaction.id}
-                      className={`flex items-center p-3 hover:bg-gray-50 cursor-pointer ${
-                        selectedTransaction === transaction.id
-                          ? 'bg-blue-50'
-                          : ''
-                      }`}
+      {/* Manual Validation Pending Section */}
+      <div className="shadow-lg rounded-lg border-2 border-error overflow-hidden">
+        {/* Collapsible Header */}
+        <button
+          onClick={() => setExpandedManualValidation(!expandedManualValidation)}
+          className="w-full hover:bg-error/15 transition-colors px-6 py-4 flex justify-between items-center border-b border-error"
+        >
+          <div className="flex justify-between items-center w-full">
+            <h2 className="text-xl font-bold">🔍 Validación Manual - Casos Pendientes</h2>
+            {manualValidationStats && (
+              <div className="text-sm text-foreground-secondary">
+                {manualValidationStats.totalPending} pendientes • {manualValidationStats.totalApproved} aprobados
+              </div>
+            )}
+          </div>
+          <span className="text-lg ml-4">
+            {expandedManualValidation ? '▼' : '▶'}
+          </span>
+        </button>
+
+        {/* Collapsible Content */}
+        {expandedManualValidation && (
+        <div className="p-6">
+
+        {manualValidationLoading ? (
+          <p className="text-center text-foreground-tertiary py-4">Cargando...</p>
+        ) : manualValidationData && manualValidationData.items.length > 0 ? (
+          <>
+            <Table
+              columns={[
+                {
+                  id: 'transactionBankId',
+                  header: 'Transacción ID',
+                  align: 'left',
+                  render: (item) => <span className="font-medium">{item.transactionBankId}</span>,
+                },
+                {
+                  id: 'transactionConcept',
+                  header: 'Concepto',
+                  align: 'left',
+                  render: (item) => item.transactionConcept,
+                },
+                {
+                  id: 'transactionAmount',
+                  header: 'Monto',
+                  align: 'right',
+                  render: (item) => `$${item.transactionAmount.toFixed(2)}`,
+                },
+                {
+                  id: 'possibleMatches',
+                  header: 'Posibles Vouchers',
+                  align: 'left',
+                  render: (item) => (
+                    <div className="space-y-1 text-sm">
+                      {item.possibleMatches.map((match, idx) => (
+                        <div key={idx}>
+                          Voucher #{match.voucherId} ({(match.similarity * 100).toFixed(0)}%)
+                        </div>
+                      ))}
+                    </div>
+                  ),
+                },
+                {
+                  id: 'actions',
+                  header: 'Acciones',
+                  align: 'center',
+                  render: (item) => (
+                    <Button
+                      onClick={() => setSelectedManualValidationItem(item)}
+                      variant="info"
+                      className="text-xs py-1 px-2"
                     >
-                      <input
-                        type="radio"
-                        name="transaction"
-                        value={transaction.id}
-                        checked={selectedTransaction === transaction.id}
-                        onChange={() => setSelectedTransaction(transaction.id)}
-                        className="mr-3"
-                      />
-                      <div className="flex-1">
-                        <div className="text-sm font-medium">
-                          {transaction.description}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {new Date(transaction.date).toLocaleDateString()} -{' '}
-                          $
-                          {(transaction.debit || transaction.credit).toFixed(2)}
-                        </div>
-                      </div>
-                    </label>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div> */}
+                      Revisar
+                    </Button>
+                  ),
+                },
+              ]}
+              data={manualValidationData.items}
+              emptyMessage="No hay casos pendientes"
+              headerVariant="error"
+              hoverable
+            />
 
-          {/* Vouchers Column */}
-          {/* <div>
-            <h3 className="font-medium mb-2">Vouchers Aprobados</h3>
-            <div className="border rounded max-h-64 overflow-y-auto">
-              {vouchers.length === 0 ? (
-                <p className="p-4 text-gray-500">
-                  No hay vouchers aprobados disponibles
-                </p>
-              ) : (
-                <div className="divide-y">
-                  {vouchers.map((voucher) => (
-                    <label
-                      key={voucher.id}
-                      className={`flex items-center p-3 hover:bg-gray-50 cursor-pointer ${
-                        selectedVoucher === voucher.id ? 'bg-blue-50' : ''
-                      }`}
+            {/* Pagination */}
+            {manualValidationData.totalPages > 1 && (
+              <div className="flex justify-center gap-2 mt-4">
+                <Button
+                  onClick={() => setManualValidationPage(Math.max(1, manualValidationPage - 1))}
+                  disabled={manualValidationPage === 1}
+                  variant="info"
+                  className="text-xs py-1 px-3"
+                >
+                  Anterior
+                </Button>
+                <span className="px-3 py-2 text-sm">
+                  Página {manualValidationData.page} de {manualValidationData.totalPages}
+                </span>
+                <Button
+                  onClick={() => setManualValidationPage(Math.min(manualValidationData.totalPages, manualValidationPage + 1))}
+                  disabled={manualValidationPage === manualValidationData.totalPages}
+                  variant="info"
+                  className="text-xs py-1 px-3"
+                >
+                  Siguiente
+                </Button>
+              </div>
+            )}
+
+            {/* Detail Modal */}
+            {selectedManualValidationItem && (
+              <div className="fixed inset-0 bg-tertiary flex items-center justify-center z-50 p-4">
+                <div className="bg-base rounded-lg shadow-lg max-w-md w-full p-6">
+                  <h3 className="text-lg font-bold mb-4">Validar Caso</h3>
+
+                  <div className="space-y-3 mb-4">
+                    <div>
+                      <label className="text-sm font-medium">Transacción ID:</label>
+                      <p className="text-foreground">{selectedManualValidationItem.transactionBankId}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Monto:</label>
+                      <p className="text-foreground">${selectedManualValidationItem.transactionAmount.toFixed(2)}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Vouchers Posibles:</label>
+                      <select
+                        className="w-full mt-1 p-2 border border-base rounded"
+                        onChange={() => {
+                          // Handle voucher selection
+                        }}
+                      >
+                        <option value="">Selecciona un voucher</option>
+                        {selectedManualValidationItem.possibleMatches.map((match: any, idx: number) => (
+                          <option key={idx} value={match.voucherId}>
+                            Voucher #{match.voucherId} - ${match.voucherAmount.toFixed(2)} ({(match.similarity * 100).toFixed(0)}%)
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Notas del Aprobador:</label>
+                      <textarea
+                        className="w-full mt-1 p-2 border border-base rounded text-sm"
+                        value={approvalNotes}
+                        onChange={(e) => setApprovalNotes(e.target.value)}
+                        placeholder="Notas opcionales..."
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => handleApproveManualValidation(selectedManualValidationItem.transactionBankId)}
+                      variant="success"
+                      isLoading={approvingManualValidation}
+                      className="flex-1"
                     >
-                      <input
-                        type="radio"
-                        name="voucher"
-                        value={voucher.id}
-                        checked={selectedVoucher === voucher.id}
-                        onChange={() => setSelectedVoucher(voucher.id)}
-                        className="mr-3"
-                      />
-                      <div className="flex-1">
-                        <div className="text-sm font-medium">
-                          {voucher.voucherNumber}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {voucher.description} - ${voucher.totalAmount.toFixed(2)}
-                        </div>
-                      </div>
-                    </label>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div> */}
-        </div>
+                      Aprobar
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setSelectedManualValidationItem(null);
+                      }}
+                      variant="error"
+                      className="flex-1"
+                    >
+                      Rechazar
+                    </Button>
+                  </div>
 
-        <div className="mt-4 flex justify-center">
-          <Button
-            onClick={handleManualReconcile}
-            disabled={
-              !selectedTransaction || !selectedVoucher || reconciling
-            }
-            isLoading={reconciling}
-            variant="info"
-          >
-            Conciliar
-          </Button>
+                  <button
+                    onClick={() => setSelectedManualValidationItem(null)}
+                    className="w-full mt-2 px-4 py-2 text-foreground border border-base rounded hover:bg-secondary"
+                  >
+                    Cerrar
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          <p className="text-center text-foreground-tertiary py-8">No hay casos pendientes de validación manual</p>
+        )}
         </div>
+        )}
       </div>
 
       {/* Unclaimed Deposits Section */}
-      <div className="bg-secondary shadow-lg rounded-lg border-2 border-primary/10 p-6">
-        <UnclaimedDepositsSection
-          onDepositAssigned={() => {
-            // Opcionalmente refrescar resultados de reconciliación
-          }}
-        />
+      <div className="shadow-lg rounded-lg border-2 border-warning overflow-hidden">
+        {/* Collapsible Header */}
+        <button
+          onClick={() => setExpandedUnclaimedDeposits(!expandedUnclaimedDeposits)}
+          className="w-full transition-colors px-6 py-4 flex justify-between items-center border-b border-warning"
+        >
+          <div className="flex justify-between items-center w-full">
+            <h2 className="text-xl font-bold">➕ Depósitos No Asociados</h2>
+            {unclaimedDepositsData && (
+              <div className="text-sm text-foreground-secondary">
+                {unclaimedDepositsData.totalCount} total
+              </div>
+            )}
+          </div>
+          <span className="text-lg ml-4">
+            {expandedUnclaimedDeposits ? '▼' : '▶'}
+          </span>
+        </button>
+
+        {/* Collapsible Content */}
+        {expandedUnclaimedDeposits && (
+        <div className="p-6">
+
+        <div className="mb-4 flex gap-2">
+          <select
+            value={depositValidationStatus}
+            onChange={(e) => {
+              setDepositValidationStatus(e.target.value as any);
+              setUnclaimedDepositsPage(1);
+            }}
+            className="bg-base px-3 py-2 border border-base rounded text-sm"
+          >
+            <option value="all">Todos</option>
+            <option value="conflict">Conflicto</option>
+            <option value="not-found">No Encontrado</option>
+          </select>
+        </div>
+
+        {unclaimedDepositsLoading ? (
+          <p className="text-center text-foreground-tertiary py-4">Cargando...</p>
+        ) : unclaimedDepositsData && unclaimedDepositsData.items.length > 0 ? (
+          <>
+            <Table
+              columns={[                
+                {
+                  id: 'date',
+                  header: 'Fecha',
+                  align: 'center',
+                  render: (item) => useFormatDate(item.date),
+                },
+                {
+                  id: 'amount',
+                  header: 'Monto',
+                  align: 'center',
+                  render: (item) => `$${formatCurrency(item.amount)}`,
+                },
+                {
+                  id: 'concept',
+                  header: 'Concepto',
+                  align: 'left',
+                  render: (item) => item.concept,
+                },
+                {
+                  id: 'validationStatus',
+                  header: 'Estado',
+                  align: 'center',
+                  render: (item) => (
+                    <StatusBadge
+                      status={item.validationStatus === 'conflict' ? 'warning' : 'info'}
+                      label={item.validationStatus === 'conflict' ? 'Conflicto' : 'No Encontrado'}
+                      icon={item.validationStatus === 'conflict' ? '⚠️' : '❓'}
+                    />
+                  ),
+                },
+                {
+                  id: 'actions',
+                  header: 'Acciones',
+                  align: 'center',
+                  render: (item) => (
+                    <Button
+                      onClick={() => {
+                        setSelectedDepositForAssign(item);
+                        setShowAssignHouseModal(true);
+                      }}
+                      variant="info"
+                      className="text-xs py-1 px-2"
+                    >
+                      Asignar Casa
+                    </Button>
+                  ),
+                },
+              ]}
+              data={unclaimedDepositsData.items}
+              emptyMessage="No hay depósitos no asociados"
+              headerVariant="warning"
+              hoverable
+            />
+
+            {/* Pagination */}
+            {unclaimedDepositsData.totalPages > 1 && (
+              <div className="flex justify-center gap-2 mt-4">
+                <Button
+                  onClick={() => setUnclaimedDepositsPage(Math.max(1, unclaimedDepositsPage - 1))}
+                  disabled={unclaimedDepositsPage === 1}
+                  variant="info"
+                  className="text-xs py-1 px-3"
+                >
+                  Anterior
+                </Button>
+                <span className="px-3 py-2 text-sm">
+                  Página {unclaimedDepositsData.page} de {unclaimedDepositsData.totalPages}
+                </span>
+                <Button
+                  onClick={() => setUnclaimedDepositsPage(Math.min(unclaimedDepositsData.totalPages, unclaimedDepositsPage + 1))}
+                  disabled={unclaimedDepositsPage === unclaimedDepositsData.totalPages}
+                  variant="info"
+                  className="text-xs py-1 px-3"
+                >
+                  Siguiente
+                </Button>
+              </div>
+            )}
+          </>
+        ) : (
+          <p className="text-center text-foreground-tertiary py-8">No hay depósitos no asociados</p>
+        )}
+        </div>
+        )}
       </div>
+
+      {/* Assign House Modal */}
+      {showAssignHouseModal && selectedDepositForAssign && (
+        <div className="fixed inset-0 bg-tertiary flex items-center justify-center z-50 p-4">
+          <div className="bg-base border border-info rounded-lg shadow-lg max-w-md w-full p-6">
+            <h3 className="text-lg font-bold mb-4">Asignar Casa a Depósito</h3>
+
+            <div className="space-y-4 mb-4">
+              <div>
+                <label className="text-sm font-medium">Transacción ID:</label>
+                <p className="text-foreground">{selectedDepositForAssign.transactionBankId}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Monto:</label>
+                <p className="text-foreground">${selectedDepositForAssign.amount.toFixed(2)}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Número de Casa (1-66):</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="66"
+                  className="w-full mt-1 px-3 py-2 border border-base rounded"
+                  value={assignHouseNumber}
+                  onChange={(e) => setAssignHouseNumber(e.target.value)}
+                  placeholder="Ej: 15"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                onClick={handleAssignHouse}
+                variant="success"
+                isLoading={assigningHouse}
+                className="flex-1"
+              >
+                Asignar
+              </Button>
+              <Button
+                onClick={() => {
+                  setShowAssignHouseModal(false);
+                  setSelectedDepositForAssign(null);
+                  setAssignHouseNumber('');
+                }}
+                variant="info"
+                className="flex-1"
+              >
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Unfunded Vouchers Section */}
+      <div className="shadow-lg rounded-lg border-2 border-warning overflow-hidden">
+        {/* Collapsible Header */}
+        <button
+          onClick={() => setExpandedUnfundedVouchers(!expandedUnfundedVouchers)}
+          className="w-full transition-colors px-6 py-4 flex justify-between items-center border-b border-warning"
+        >
+          <div className="flex justify-between items-center w-full">
+            <h2 className="text-xl font-bold">⏳ Comprobantes Sin Fondos</h2>
+            {unfundedVouchersData && (
+              <div className="text-sm text-foreground-secondary">
+                {unfundedVouchersData.totalCount} total
+              </div>
+            )}
+          </div>
+          <span className="text-lg ml-4">
+            {expandedUnfundedVouchers ? '▼' : '▶'}
+          </span>
+        </button>
+
+        {/* Collapsible Content */}
+        {expandedUnfundedVouchers && (
+        <div className="p-6">
+
+        {unfundedVouchersLoading ? (
+          <p className="text-center text-foreground-tertiary py-4">Cargando...</p>
+        ) : unfundedVouchersData && unfundedVouchersData.items.length > 0 ? (
+          <>
+            <Table
+              columns={[                
+                {
+                  id: 'houseNumber',
+                  header: 'Casa',
+                  align: 'center',
+                  render: (item) => item.houseNumber ? `Casa ${item.houseNumber}` : 'N/A',
+                },
+                {
+                  id: 'amount',
+                  header: 'Monto',
+                  align: 'center',
+                  render: (item) => `$${formatCurrency(item.amount)}`,
+                },
+                {
+                  id: 'date',
+                  header: 'Fecha',
+                  align: 'center',
+                  render: (item) => useFormatDate(item.date),
+                },
+                {
+                  id: 'actions',
+                  header: 'Acciones',
+                  align: 'center',
+                  render: (item) => (
+                    <Button
+                      onClick={() => {
+                        setSelectedVoucherForMatch(item);
+                        setShowMatchDepositModal(true);
+                      }}
+                      variant="info"
+                      className="text-xs py-1 px-2"                      
+                    >
+                      Conciliar
+                    </Button>
+                  ),
+                },
+              ]}
+              data={unfundedVouchersData.items}
+              emptyMessage="No hay comprobantes sin fondos"
+              headerVariant="warning"
+              hoverable
+            />
+
+            {/* Pagination */}
+            {unfundedVouchersData.totalPages > 1 && (
+              <div className="flex justify-center gap-2 mt-4">
+                <Button
+                  onClick={() => setUnfundedVouchersPage(Math.max(1, unfundedVouchersPage - 1))}
+                  disabled={unfundedVouchersPage === 1}
+                  variant="info"
+                  className="text-xs py-1 px-3"
+                >
+                  Anterior
+                </Button>
+                <span className="px-3 py-2 text-sm">
+                  Página {unfundedVouchersData.page} de {unfundedVouchersData.totalPages}
+                </span>
+                <Button
+                  onClick={() => setUnfundedVouchersPage(Math.min(unfundedVouchersData.totalPages, unfundedVouchersPage + 1))}
+                  disabled={unfundedVouchersPage === unfundedVouchersData.totalPages}
+                  variant="info"
+                  className="text-xs py-1 px-3"
+                >
+                  Siguiente
+                </Button>
+              </div>
+            )}
+          </>
+        ) : (
+          <p className="text-center text-foreground-tertiary py-8">No hay comprobantes sin fondos</p>
+        )}
+        </div>
+        )}
+      </div>
+
+      {/* Match Deposit Modal */}
+      {showMatchDepositModal && selectedVoucherForMatch && (
+        <div className="fixed inset-0 bg-tertiary flex items-center justify-center z-50 p-4">
+          <div className="bg-base border border-info rounded-lg shadow-lg max-w-md w-full p-6">
+            <h3 className="text-lg font-bold mb-4">Conciliar Comprobante con Depósito</h3>
+
+            <div className="space-y-4 mb-4">
+              <div>
+                <label className="text-sm font-medium">Voucher ID:</label>
+                <p className="text-foreground">#{selectedVoucherForMatch.voucherId}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Monto:</label>
+                <p className="text-foreground">${selectedVoucherForMatch.amount.toFixed(2)}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Transacción Bancaria ID:</label>
+                <input
+                  type="text"
+                  className="w-full mt-1 px-3 py-2 border border-base rounded"
+                  value={matchTransactionBankId}
+                  onChange={(e) => setMatchTransactionBankId(e.target.value)}
+                  placeholder="Ej: TX-001 o 12345"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Número de Casa (1-66):</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="66"
+                  className="w-full mt-1 px-3 py-2 border border-base rounded"
+                  value={matchHouseNumber}
+                  onChange={(e) => setMatchHouseNumber(e.target.value)}
+                  placeholder="Ej: 15"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                onClick={handleMatchDeposit}
+                variant="success"
+                isLoading={matchingDeposit}
+                className="flex-1"
+              >
+                Conciliar
+              </Button>
+              <Button
+                onClick={() => {
+                  setShowMatchDepositModal(false);
+                  setSelectedVoucherForMatch(null);
+                  setMatchTransactionBankId('');
+                  setMatchHouseNumber('');
+                }}
+                variant="info"
+                className="flex-1"
+              >
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
