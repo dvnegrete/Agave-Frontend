@@ -34,6 +34,7 @@ export const API_ENDPOINTS = {
   paymentManagementConfig: '/payment-management/config',
   paymentManagementHousePayments: (houseId: number) => `/payment-management/houses/${houseId}/payments`,
   paymentManagementHouseBalance: (houseId: number) => `/payment-management/houses/${houseId}/balance`,
+  paymentManagementHouseStatus: (houseId: number) => `/payment-management/houses/${houseId}/status`,
 
   // User Management
   userManagementUsers: '/user-management/users',

@@ -68,6 +68,11 @@ export type {
 
 // Payment management types
 export type {
+  HouseStatus,
+  PeriodPaymentStatus,
+  ConceptBreakdown,
+  PeriodPaymentDetail,
+  EnrichedHouseBalance,
   PeriodResponseDto,
   CreatePeriodDto,
   PeriodConfigResponseDto,

@@ -7,6 +7,7 @@ import {
   getPaymentHistory,
   getPaymentsByPeriod,
   getHouseBalance,
+  getHouseStatus,
 } from '@services/paymentManagementService';
 import type {
   CreatePeriodDto,
@@ -14,6 +15,7 @@ import type {
   PeriodResponseDto,
   PaymentHistoryResponseDTO,
   HouseBalanceDTO,
+  EnrichedHouseBalance,
 } from '@shared';
 
 // Query Keys
@@ -31,6 +33,8 @@ export const paymentManagementKeys = {
   balances: () => [...paymentManagementKeys.all, 'balances'] as const,
   houseBalance: (houseId: number) =>
     [...paymentManagementKeys.balances(), houseId] as const,
+  houseStatus: (houseId: number) =>
+    [...paymentManagementKeys.balances(), 'status', houseId] as const,
 };
 
 interface UsePeriodsQueryReturn {
@@ -72,6 +76,14 @@ interface UsePaymentsByPeriodQueryReturn {
 
 interface UseHouseBalanceQueryReturn {
   balance: HouseBalanceDTO | null;
+  isLoading: boolean;
+  isFetching: boolean;
+  error: string | null;
+  refetch: () => Promise<void>;
+}
+
+interface UseHouseStatusQueryReturn {
+  houseStatus: EnrichedHouseBalance | null;
   isLoading: boolean;
   isFetching: boolean;
   error: string | null;
@@ -237,6 +249,33 @@ export const useHouseBalanceQuery = (houseId: number | null): UseHouseBalanceQue
 
   return {
     balance: data || null,
+    isLoading,
+    isFetching,
+    error: error?.message || null,
+    refetch: async () => {
+      await refetch();
+    },
+  };
+};
+
+/**
+ * Hook para obtener estado enriquecido de una casa (desglose por períodos, conceptos, penalidades)
+ */
+export const useHouseStatusQuery = (houseId: number | null): UseHouseStatusQueryReturn => {
+  const { data, isLoading, error, refetch, isFetching } = useQuery({
+    queryKey: houseId
+      ? paymentManagementKeys.houseStatus(houseId)
+      : ['house-status-disabled'],
+    queryFn: async ({ signal }) => {
+      if (!houseId) return null;
+      return await getHouseStatus(houseId, signal);
+    },
+    enabled: !!houseId,
+    staleTime: 3 * 60 * 1000, // 3 minutes
+  });
+
+  return {
+    houseStatus: data || null,
     isLoading,
     isFetching,
     error: error?.message || null,

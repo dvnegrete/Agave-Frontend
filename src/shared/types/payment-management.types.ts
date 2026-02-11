@@ -1,5 +1,51 @@
 // Payment Management Types
 
+// House Balance Status (from backend enums)
+export type HouseStatus = 'morosa' | 'al_dia' | 'saldo_a_favor';
+export type PeriodPaymentStatus = 'paid' | 'partial' | 'unpaid';
+
+export interface ConceptBreakdown {
+  concept_type: string;
+  expected_amount: number;
+  paid_amount: number;
+  pending_amount: number;
+}
+
+export interface PeriodPaymentDetail {
+  period_id: number;
+  year: number;
+  month: number;
+  display_name: string;
+  expected_total: number;
+  paid_total: number;
+  pending_total: number;
+  penalty_amount: number;
+  status: PeriodPaymentStatus;
+  concepts: ConceptBreakdown[];
+  is_overdue: boolean;
+}
+
+export interface EnrichedHouseBalance {
+  house_id: number;
+  house_number: number;
+  status: HouseStatus;
+  total_debt: number;
+  credit_balance: number;
+  accumulated_cents: number;
+  unpaid_periods: PeriodPaymentDetail[];
+  paid_periods: PeriodPaymentDetail[];
+  current_period: PeriodPaymentDetail | null;
+  next_due_date: string | null;
+  deadline_message: string | null;
+  total_unpaid_periods: number;
+  summary: {
+    total_expected: number;
+    total_paid: number;
+    total_pending: number;
+    total_penalties: number;
+  };
+}
+
 // Period Types
 export interface PeriodResponseDto {
   id: number;

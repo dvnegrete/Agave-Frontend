@@ -6,6 +6,7 @@ import type {
   CreatePeriodConfigDto,
   PaymentHistoryResponseDTO,
   HouseBalanceDTO,
+  EnrichedHouseBalance,
 } from '@shared/types/payment-management.types';
 
 const API_BASE = '/payment-management';
@@ -154,6 +155,26 @@ export const getHouseBalance = async (
     return response;
   } catch (err: unknown) {
     console.error('❌ [Service] Error in getHouseBalance:', err);
+    throw err;
+  }
+};
+
+/**
+ * Obtener estado enriquecido de una casa (desglose por períodos, conceptos, penalidades)
+ * @param houseId - Número de la casa
+ */
+export const getHouseStatus = async (
+  houseId: number,
+  signal?: AbortSignal
+): Promise<EnrichedHouseBalance> => {
+  try {
+    const response = await httpClient.get<EnrichedHouseBalance>(
+      `${API_BASE}/houses/${houseId}/status`,
+      { signal }
+    );
+    return response;
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in getHouseStatus:', err);
     throw err;
   }
 };
