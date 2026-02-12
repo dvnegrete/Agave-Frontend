@@ -92,6 +92,8 @@ export type {
   ActiveTab as PaymentActiveTab,
   BalanceStatusVariant,
   PaymentMovement,
+  BackfillRecordResult,
+  BackfillAllocationsResponse,
 } from './payment-management.types';
 
 // Historical records types

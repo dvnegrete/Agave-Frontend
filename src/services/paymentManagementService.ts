@@ -7,6 +7,7 @@ import type {
   PaymentHistoryResponseDTO,
   HouseBalanceDTO,
   EnrichedHouseBalance,
+  BackfillAllocationsResponse,
 } from '@shared/types/payment-management.types';
 
 const API_BASE = '/payment-management';
@@ -175,6 +176,28 @@ export const getHouseStatus = async (
     return response;
   } catch (err: unknown) {
     console.error('❌ [Service] Error in getHouseStatus:', err);
+    throw err;
+  }
+};
+
+/**
+ * Realizar backfill de asignaciones de pagos (idempotente)
+ * @param houseNumber - Número de casa opcional (1-66). Sin param procesa todas.
+ */
+export const backfillAllocations = async (
+  houseNumber?: number,
+  signal?: AbortSignal
+): Promise<BackfillAllocationsResponse> => {
+  try {
+    const params = houseNumber ? `?houseNumber=${houseNumber}` : '';
+    const response = await httpClient.post<BackfillAllocationsResponse>(
+      `${API_BASE}/backfill-allocations${params}`,
+      {},
+      { signal }
+    );
+    return response;
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in backfillAllocations:', err);
     throw err;
   }
 };

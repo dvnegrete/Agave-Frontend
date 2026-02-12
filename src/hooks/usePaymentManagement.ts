@@ -8,6 +8,7 @@ import {
   getPaymentsByPeriod,
   getHouseBalance,
   getHouseStatus,
+  backfillAllocations,
 } from '@services/paymentManagementService';
 import type {
   CreatePeriodDto,
@@ -16,6 +17,7 @@ import type {
   PaymentHistoryResponseDTO,
   HouseBalanceDTO,
   EnrichedHouseBalance,
+  BackfillAllocationsResponse,
 } from '@shared';
 
 // Query Keys
@@ -282,5 +284,36 @@ export const useHouseStatusQuery = (houseId: number | null): UseHouseStatusQuery
     refetch: async () => {
       await refetch();
     },
+  };
+};
+
+interface UseBackfillAllocationsMutationReturn {
+  backfill: (houseNumber?: number) => Promise<BackfillAllocationsResponse>;
+  isPending: boolean;
+  error: string | null;
+  data: BackfillAllocationsResponse | null;
+}
+
+/**
+ * Hook para realizar backfill de asignaciones de pagos
+ */
+export const useBackfillAllocationsMutation = (): UseBackfillAllocationsMutationReturn => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: (houseNumber?: number) => backfillAllocations(houseNumber),
+    onSuccess: () => {
+      // Invalidar balances y status de todas las casas
+      queryClient.invalidateQueries({
+        queryKey: paymentManagementKeys.balances(),
+      });
+    },
+  });
+
+  return {
+    backfill: mutation.mutateAsync,
+    isPending: mutation.isPending,
+    error: mutation.error?.message || null,
+    data: mutation.data || null,
   };
 };

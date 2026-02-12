@@ -203,6 +203,26 @@ export interface PaymentManagementQuery {
   [key: string]: unknown;
 }
 
+// Backfill Allocations Types
+export interface BackfillRecordResult {
+  record_id: number;
+  house_number: number;
+  transaction_date: string;
+  period_year: number;
+  period_month: number;
+  amount: number;
+  status: 'processed' | 'skipped' | 'failed';
+  error?: string;
+}
+
+export interface BackfillAllocationsResponse {
+  total_records_found: number;
+  processed: number;
+  skipped: number;
+  failed: number;
+  results: BackfillRecordResult[];
+}
+
 // Component UI Types
 export type ActiveTab = 'periods' | 'create-period' | 'house-payments' | 'house-balance' | 'unclaimed-deposits';
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { usePeriodsQuery, usePeriodMutations, usePaymentHistoryQuery, useHouseStatusQuery, usePeriodConfigMutations } from '@hooks/usePaymentManagement';
+import { usePeriodsQuery, usePeriodMutations, usePaymentHistoryQuery, useHouseStatusQuery, usePeriodConfigMutations, useBackfillAllocationsMutation } from '@hooks/usePaymentManagement';
 import { useFormatDate } from '@hooks/useFormatDate';
 import { useAlert } from '@hooks/useAlert';
 import { Button } from '@shared/ui';
@@ -9,7 +9,7 @@ import { StatsCard } from '@shared/ui';
 import { Table, type TableColumn } from '@shared/ui';
 import { ExpandableTable } from '@shared/ui';
 import { UnclaimedDepositsSection } from '@components/reconciliation';
-import type { HousePaymentTransaction, UnreconciledVoucher, PeriodResponseDto, PeriodPaymentDetail, ConceptBreakdown, HouseStatus } from '@shared';
+import type { HousePaymentTransaction, UnreconciledVoucher, PeriodResponseDto, PeriodPaymentDetail, ConceptBreakdown, HouseStatus, BackfillRecordResult } from '@shared';
 import type { ActiveTab } from '@/shared/types/payment-management.types';
 
 interface PaymentMovement extends HousePaymentTransaction {
@@ -31,6 +31,8 @@ export function PaymentManagement() {
     extraordinary_fee: 0,
     due_day: 15,
   });
+  const [backfillHouseNumber, setBackfillHouseNumber] = useState<number | undefined>(undefined);
+  const [showBackfillResults, setShowBackfillResults] = useState(false);
 
   // Queries and Mutations
   const { periods, isLoading: periodsLoading, error: periodsError } = usePeriodsQuery();
@@ -38,6 +40,7 @@ export function PaymentManagement() {
   const { createConfig, isLoading: configMutating } = usePeriodConfigMutations();
   const { history: paymentHistory, isLoading: historyLoading } = usePaymentHistoryQuery(selectedHouseId);
   const { houseStatus, isLoading: statusLoading, error: statusError } = useHouseStatusQuery(selectedHouseId);
+  const { backfill, isPending: backfillPending, data: backfillData, error: backfillError } = useBackfillAllocationsMutation();
 
   // Handlers
   const handleCreatePeriod = async (): Promise<void> => {
@@ -64,6 +67,17 @@ export function PaymentManagement() {
     } catch (err) {
       console.error('Error creating config:', err);
       alert.error('Error', 'No se pudo crear la configuración. Intenta de nuevo.');
+    }
+  };
+
+  const handleBackfillAllocations = async (): Promise<void> => {
+    try {
+      await backfill(backfillHouseNumber);
+      setShowBackfillResults(true);
+      alert.success('Éxito', 'Backfill completado exitosamente');
+    } catch (err) {
+      console.error('Error backfilling allocations:', err);
+      alert.error('Error', 'No se pudo completar el backfill. Intenta de nuevo.');
     }
   };
 
@@ -343,7 +357,108 @@ export function PaymentManagement() {
       {/* Pagos por Casa Tab */}
       {activeTab === 'house-payments' && (
         <div className="bg-secondary shadow-lg rounded-lg border-4 border-primary/10 p-6">
-          <h2 className="text-2xl font-bold mb-4">🏠 Registros de Pagos por Casa</h2>
+          <h2 className="text-2xl font-bold mb-6">🏠 Registros de Pagos por Casa</h2>
+
+          {/* Backfill Allocations Section */}
+          <details className="group mb-6 bg-tertiary rounded-lg border border-base p-4">
+            <summary className="cursor-pointer font-semibold text-foreground flex items-center gap-2 list-none">
+              <span className="transition-transform group-open:rotate-90">▶</span>
+              🔄 Backfill de Asignaciones de Pagos
+            </summary>
+            <div className="mt-4 space-y-4">
+              <p className="text-sm text-foreground-secondary">
+                Sincronizar asignaciones de pagos pendientes. Operación idempotente y segura.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-2">
+                    Número de Casa (Opcional, 1-66)
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="66"
+                    value={backfillHouseNumber || ''}
+                    onChange={(e) =>
+                      setBackfillHouseNumber(e.target.value ? parseInt(e.target.value) : undefined)
+                    }
+                    placeholder="Dejar vacío para procesar todas las casas"
+                    disabled={backfillPending}
+                    className="w-full px-4 py-2 bg-base border-2 border-base rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed text-foreground placeholder-foreground-tertiary transition-all duration-200"
+                  />
+                </div>
+              </div>
+              <Button
+                onClick={handleBackfillAllocations}
+                disabled={backfillPending}
+                isLoading={backfillPending}
+                variant="info"
+              >
+                {backfillPending ? 'Procesando...' : 'Ejecutar Backfill'}
+              </Button>
+
+              {backfillError && (
+                <div className="bg-error/10 border-l-4 border-error rounded-lg p-3 flex items-start gap-2">
+                  <span className="text-error text-lg">❌</span>
+                  <div className="flex-1">
+                    <p className="text-error font-semibold text-sm">Error al ejecutar backfill</p>
+                    <p className="text-error text-xs mt-1">{backfillError}</p>
+                  </div>
+                </div>
+              )}
+
+              {showBackfillResults && backfillData && (
+                <div className="bg-success/10 border-l-4 border-success rounded-lg p-4 space-y-2">
+                  <p className="text-success font-semibold">✅ Backfill Completado</p>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div>
+                      <p className="text-foreground-secondary">Total Encontrados</p>
+                      <p className="font-bold text-foreground">{backfillData.total_records_found}</p>
+                    </div>
+                    <div>
+                      <p className="text-foreground-secondary">Procesados</p>
+                      <p className="font-bold text-success">{backfillData.processed}</p>
+                    </div>
+                    <div>
+                      <p className="text-foreground-secondary">Omitidos</p>
+                      <p className="font-bold text-info">{backfillData.skipped}</p>
+                    </div>
+                    <div>
+                      <p className="text-foreground-secondary">Errores</p>
+                      <p className="font-bold text-error">{backfillData.failed}</p>
+                    </div>
+                  </div>
+                  {backfillData.results.length > 0 && (
+                    <details className="mt-2">
+                      <summary className="cursor-pointer text-xs font-semibold text-foreground">
+                        Ver detalles ({backfillData.results.length})
+                      </summary>
+                      <div className="mt-2 bg-secondary rounded p-2 max-h-48 overflow-y-auto space-y-1">
+                        {backfillData.results.map((result: BackfillRecordResult, idx: number) => (
+                          <div
+                            key={idx}
+                            className={`text-xs p-2 rounded ${
+                              result.status === 'processed'
+                                ? 'bg-success/20 text-success'
+                                : result.status === 'skipped'
+                                  ? 'bg-info/20 text-info'
+                                  : 'bg-error/20 text-error'
+                            }`}
+                          >
+                            <p>Casa #{result.house_number} - {result.status.toUpperCase()}</p>
+                            <p className="text-xs opacity-75">
+                              {result.period_year}-{String(result.period_month).padStart(2, '0')} - ${result.amount.toFixed(2)}
+                            </p>
+                            {result.error && <p className="text-xs opacity-75">Error: {result.error}</p>}
+                          </div>
+                        ))}
+                      </div>
+                    </details>
+                  )}
+                </div>
+              )}
+            </div>
+          </details>
 
           <div className="mb-6">
             <label className="block text-sm font-semibold text-foreground mb-2">
