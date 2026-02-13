@@ -136,42 +136,42 @@ export function PeriodChargesEditor() {
     {
       key: 'maintenance_amount',
       header: 'Mantenimiento',
-      align: 'right' as const,
+      align: 'center' as const,
       render: (row) => formatCurrency(row.maintenance_amount),
     },
     {
       key: 'water_amount',
       header: 'Agua',
-      align: 'right' as const,
+      align: 'center' as const,
       render: (row) => (
         <span className={!row.water_active ? 'text-foreground/40' : ''}>
-          {row.water_active ? formatCurrency(row.water_amount) : 'Inactivo'}
+          {row.water_active ? formatCurrency(row.water_amount) : '-'}
         </span>
       ),
     },
     {
       key: 'extraordinary_fee_amount',
       header: 'Cuota Extra.',
-      align: 'right' as const,
+      align: 'center' as const,
       render: (row) => (
         <span className={!row.extraordinary_fee_active ? 'text-foreground/40' : ''}>
           {row.extraordinary_fee_active
             ? formatCurrency(row.extraordinary_fee_amount)
-            : 'Inactivo'}
+            : '-'}
         </span>
       ),
     },
-    {
-      key: 'has_allocations',
-      header: 'Pagos',
-      align: 'center' as const,
-      render: (row) =>
-        row.has_allocations ? (
-          <StatusBadge status="success" label="Con pagos" />
-        ) : (
-          <StatusBadge status="pending" label="Sin pagos" />
-        ),
-    },
+    // {
+    //   key: 'has_allocations',
+    //   header: 'Pagos',
+    //   align: 'center' as const,
+    //   render: (row) =>
+    //     row.has_allocations ? (
+    //       <StatusBadge status="success" label="Con pagos" />
+    //     ) : (
+    //       <StatusBadge status="pending" label="Sin pagos" />
+    //     ),
+    // },
   ];
 
   const periodsInRange = (() => {
@@ -190,7 +190,7 @@ export function PeriodChargesEditor() {
         </h2>
 
         {error && (
-          <div className="bg-error/10 border-l-4 border-error rounded-lg p-4 mb-4">
+          <div className="border-l-4 border-error rounded-lg p-4 mb-4">
             <p className="text-error font-semibold">Error al cargar</p>
             <p className="text-error text-sm">{error}</p>
           </div>
@@ -367,7 +367,7 @@ export function PeriodChargesEditor() {
         </div>
 
         {formError && (
-          <div className="bg-error/10 border-l-4 border-error rounded-lg p-4 mt-4">
+          <div className=" border-l-4 border-error rounded-lg p-4 mt-4">
             <p className="text-error text-sm">{formError}</p>
           </div>
         )}
@@ -424,7 +424,7 @@ export function PeriodChargesEditor() {
 
       {/* Resultado del batch update */}
       {batchResult && !showReprocessPrompt && !reprocessResult && (
-        <div className="bg-success/10 border-l-4 border-success rounded-lg p-4">
+        <div className=" border-l-4 border-success rounded-lg p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-success font-semibold">Cargos actualizados</p>
@@ -444,7 +444,7 @@ export function PeriodChargesEditor() {
 
       {/* Prompt para reprocesar */}
       {showReprocessPrompt && (
-        <div className="bg-warning/10 border-l-4 border-warning rounded-lg p-4">
+        <div className="border-l-4 border-warning rounded-lg p-4">
           <div className="flex items-start gap-3">
             <span className="text-warning text-xl mt-0.5">!</span>
             <div className="flex-1">
@@ -482,7 +482,7 @@ export function PeriodChargesEditor() {
       {/* Resultado del reprocess */}
       {reprocessResult && (
         <div className="space-y-4">
-          <div className="bg-info/10 border-l-4 border-info rounded-lg p-4">
+          <div className="border-l-4 border-info rounded-lg p-4">
             <div className="flex items-center justify-between mb-3">
               <p className="text-info font-semibold">
                 Reprocesamiento completado

@@ -163,23 +163,23 @@ export function PaymentManagement() {
           ) : (
             <Table
               columns={[
+                // {
+                //   id: 'period_name',
+                //   header: 'Período',
+                //   align: 'left',
+                //   render: (period) => period.period_config_id,
+                // },
                 {
-                  id: 'period_name',
-                  header: 'Período',
-                  align: 'left',
-                  render: (period) => period.period_config_id,
+                  id: 'month',
+                  header: 'Mes',
+                  align: 'center',
+                  render: (period) => period.month,
                 },
                 {
                   id: 'year',
                   header: 'Año',
                   align: 'center',
                   render: (period) => period.year,
-                },
-                {
-                  id: 'month',
-                  header: 'Mes',
-                  align: 'center',
-                  render: (period) => period.month,
                 },
                 {
                   id: 'start_date',
@@ -193,12 +193,12 @@ export function PaymentManagement() {
                   align: 'center',
                   render: (period) => useFormatDate(period.end_date),
                 },
-                {
-                  id: 'created_at',
-                  header: 'Creado',
-                  align: 'center',
-                  render: (period) => useFormatDate(period.created_at),
-                },
+                // {
+                //   id: 'created_at',
+                //   header: 'Creado',
+                //   align: 'center',
+                //   render: (period) => useFormatDate(period.created_at),
+                // },
               ] as TableColumn<PeriodResponseDto>[]}
               data={periods}
               emptyMessage="No hay períodos registrados"

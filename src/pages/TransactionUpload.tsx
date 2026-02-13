@@ -92,9 +92,9 @@ export function TransactionUpload() {
     () =>
       filtersApplied
         ? {
-            startDate: dateFrom,
-            endDate: dateTo,
-          }
+          startDate: dateFrom,
+          endDate: dateTo,
+        }
         : undefined,
     [filtersApplied, dateFrom, dateTo]
   );
