@@ -8,6 +8,10 @@ import type {
   HouseBalanceDTO,
   EnrichedHouseBalance,
   BackfillAllocationsResponse,
+  PeriodChargeSummary,
+  BatchUpdatePeriodChargesRequest,
+  BatchUpdateResult,
+  ReprocessResult,
 } from '@shared/types/payment-management.types';
 
 const API_BASE = '/payment-management';
@@ -198,6 +202,63 @@ export const backfillAllocations = async (
     return response;
   } catch (err: unknown) {
     console.error('❌ [Service] Error in backfillAllocations:', err);
+    throw err;
+  }
+};
+
+/**
+ * Obtener resumen de cargos por período (montos de mantenimiento, agua, cuota extra)
+ */
+export const getPeriodChargesSummary = async (
+  signal?: AbortSignal
+): Promise<PeriodChargeSummary[]> => {
+  try {
+    const response = await httpClient.get<PeriodChargeSummary[]>(
+      `${API_BASE}/period-charges`,
+      { signal }
+    );
+    return Array.isArray(response) ? response : [];
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in getPeriodChargesSummary:', err);
+    throw err;
+  }
+};
+
+/**
+ * Actualizar cargos en batch para un rango de períodos
+ */
+export const batchUpdatePeriodCharges = async (
+  data: BatchUpdatePeriodChargesRequest,
+  signal?: AbortSignal
+): Promise<BatchUpdateResult> => {
+  try {
+    const response = await httpClient.post<BatchUpdateResult>(
+      `${API_BASE}/period-charges/batch-update`,
+      data,
+      { signal }
+    );
+    return response;
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in batchUpdatePeriodCharges:', err);
+    throw err;
+  }
+};
+
+/**
+ * Reprocesar todas las asignaciones de pago (nuclear)
+ */
+export const reprocessAllocations = async (
+  signal?: AbortSignal
+): Promise<ReprocessResult> => {
+  try {
+    const response = await httpClient.post<ReprocessResult>(
+      `${API_BASE}/reprocess-allocations`,
+      {},
+      { signal }
+    );
+    return response;
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in reprocessAllocations:', err);
     throw err;
   }
 };

@@ -9,6 +9,7 @@ import { StatsCard } from '@shared/ui';
 import { Table, type TableColumn } from '@shared/ui';
 import { ExpandableTable } from '@shared/ui';
 import { UnclaimedDepositsSection } from '@components/reconciliation';
+import { PeriodChargesEditor } from '@components/payment-management/PeriodChargesEditor';
 import type { HousePaymentTransaction, UnreconciledVoucher, PeriodResponseDto, PeriodPaymentDetail, ConceptBreakdown, HouseStatus, BackfillRecordResult } from '@shared';
 import type { ActiveTab } from '@/shared/types/payment-management.types';
 
@@ -131,11 +132,12 @@ export function PaymentManagement() {
       {/* Tab Navigation */}
       <Tabs
         tabs={[
-          // { id: 'periods', label: 'Períodos', icon: '📋', color: 'blue' },
-          // { id: 'create-period', label: 'Crear Período', icon: '➕', color: 'blue' },
+          { id: 'periods', label: 'Períodos', icon: '📋', color: 'blue' },
+          { id: 'create-period', label: 'Crear Período', icon: '➕', color: 'blue' },
           { id: 'house-payments', label: 'Pagos por Casa', icon: '🏠', color: 'blue' },
           { id: 'house-balance', label: 'Estado de Cuenta', icon: '💵', color: 'blue' },
           { id: 'unclaimed-deposits', label: 'Depósitos No Reclamados', icon: '🏦', color: 'blue' },
+          { id: 'period-charges', label: 'Configurar Períodos', icon: '⚙️', color: 'blue' },
         ] as TabItem[]}
         activeTab={activeTab}
         onTabChange={(tabId) => setActiveTab(tabId as ActiveTab)}
@@ -398,22 +400,22 @@ export function PaymentManagement() {
               </Button>
 
               {backfillError && (
-                <div className="bg-error/10 border-l-4 border-error rounded-lg p-3 flex items-start gap-2">
+                <div className="bg-error border-l-4 border-error rounded-lg p-3 flex items-start gap-2">
                   <span className="text-error text-lg">❌</span>
                   <div className="flex-1">
-                    <p className="text-error font-semibold text-sm">Error al ejecutar backfill</p>
-                    <p className="text-error text-xs mt-1">{backfillError}</p>
+                    <p className="font-semibold text-sm">Error al ejecutar backfill</p>
+                    <p className="text-xs mt-1">{backfillError}</p>
                   </div>
                 </div>
               )}
 
               {showBackfillResults && backfillData && (
-                <div className="bg-success/10 border-l-4 border-success rounded-lg p-4 space-y-2">
-                  <p className="text-success font-semibold">✅ Backfill Completado</p>
+                <div className="border-l-4 border-success rounded-lg p-4 space-y-2">
+                  <p className="font-semibold text-success">✅ Backfill Completado</p>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div>
                       <p className="text-foreground-secondary">Total Encontrados</p>
-                      <p className="font-bold text-foreground">{backfillData.total_records_found}</p>
+                      <p className="font-bold text-success">{backfillData.total_records_found}</p>
                     </div>
                     <div>
                       <p className="text-foreground-secondary">Procesados</p>
@@ -421,7 +423,7 @@ export function PaymentManagement() {
                     </div>
                     <div>
                       <p className="text-foreground-secondary">Omitidos</p>
-                      <p className="font-bold text-info">{backfillData.skipped}</p>
+                      <p className="font-bold text-success">{backfillData.skipped}</p>
                     </div>
                     <div>
                       <p className="text-foreground-secondary">Errores</p>
@@ -439,10 +441,10 @@ export function PaymentManagement() {
                             key={idx}
                             className={`text-xs p-2 rounded ${
                               result.status === 'processed'
-                                ? 'bg-success/20 text-success'
+                                ? 'text-success'
                                 : result.status === 'skipped'
-                                  ? 'bg-info/20 text-info'
-                                  : 'bg-error/20 text-error'
+                                  ? 'text-info'
+                                  : 'text-error'
                             }`}
                           >
                             <p>Casa #{result.house_number} - {result.status.toUpperCase()}</p>
@@ -740,12 +742,13 @@ export function PaymentManagement() {
                   icon="⚠️"
                 />
                 <StatsCard
-                  label="Centavos Acum."
+                  label="Centavos Acumlados"
                   value={`$${houseStatus.accumulated_cents.toFixed(2)}`}
                   variant="info"
                   icon="🪙"
                 />
               </div>
+                <p>Nota: Los centavos acumulados pasaran automaticamente a Crédito al sumar $50.00</p>
 
               {/* Períodos Pendientes */}
               {houseStatus.unpaid_periods.length > 0 && (
@@ -947,6 +950,10 @@ export function PaymentManagement() {
             }}
           />
         </div>
+      )}
+
+      {activeTab === 'period-charges' && (
+        <PeriodChargesEditor />
       )}
     </div>
   );

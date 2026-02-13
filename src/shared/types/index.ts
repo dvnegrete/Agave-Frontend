@@ -94,6 +94,10 @@ export type {
   PaymentMovement,
   BackfillRecordResult,
   BackfillAllocationsResponse,
+  PeriodChargeSummary,
+  BatchUpdatePeriodChargesRequest,
+  BatchUpdateResult,
+  ReprocessResult,
 } from './payment-management.types';
 
 // Historical records types

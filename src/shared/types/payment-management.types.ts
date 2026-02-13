@@ -223,8 +223,52 @@ export interface BackfillAllocationsResponse {
   results: BackfillRecordResult[];
 }
 
+// Period Charges Editor Types
+export interface PeriodChargeSummary {
+  period_id: number;
+  year: number;
+  month: number;
+  display_name: string;
+  maintenance_amount: number;
+  water_amount: number | null;
+  extraordinary_fee_amount: number | null;
+  water_active: boolean;
+  extraordinary_fee_active: boolean;
+  has_allocations: boolean;
+}
+
+export interface BatchUpdatePeriodChargesRequest {
+  start_year: number;
+  start_month: number;
+  end_year: number;
+  end_month: number;
+  amounts: {
+    maintenance_amount: number;
+    water_amount?: number;
+    extraordinary_fee_amount?: number;
+  };
+}
+
+export interface BatchUpdateResult {
+  periods_affected: number;
+  periods_created: number;
+  charges_updated: number;
+  has_retroactive_changes: boolean;
+}
+
+export interface ReprocessResult {
+  allocations_deleted: number;
+  balances_reset: number;
+  backfill_result: {
+    total_records_found: number;
+    processed: number;
+    skipped: number;
+    failed: number;
+  };
+}
+
 // Component UI Types
-export type ActiveTab = 'periods' | 'create-period' | 'house-payments' | 'house-balance' | 'unclaimed-deposits';
+export type ActiveTab = 'periods' | 'create-period' | 'house-payments' | 'house-balance' | 'unclaimed-deposits' | 'period-charges';
 
 // Balance Status Variants
 export type BalanceStatusVariant = 'success' | 'info' | 'error' | 'warning';
