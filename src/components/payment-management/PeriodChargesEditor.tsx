@@ -124,6 +124,12 @@ export function PeriodChargesEditor() {
     }
   };
 
+  const totalChargesForPeriod = (period: PeriodChargeSummary): number => {
+    const extraFewAmount = period.extraordinary_fee_active && period.extraordinary_fee_amount ? period.extraordinary_fee_amount : 0;
+    const waterAmount = period.water_active && period.water_amount ? period.water_amount : 0;
+    return period.maintenance_amount + extraFewAmount + waterAmount;
+  }
+
   // Table columns
   const columns: TableColumn<PeriodChargeSummary>[] = [
     {
@@ -160,6 +166,17 @@ export function PeriodChargesEditor() {
             : '-'}
         </span>
       ),
+    },
+    {
+      key: 'total',
+      header: 'Total',
+      align: 'center' as const,
+      render: (row) => (
+        <span className={!row.extraordinary_fee_active ? 'text-foreground/40' : ''}>
+          {formatCurrency(totalChargesForPeriod(row))}
+        </span>
+      )
+
     },
     // {
     //   key: 'has_allocations',
