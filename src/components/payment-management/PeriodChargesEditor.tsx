@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Table, StatusBadge, StatsCard } from '@shared/ui';
+import { Button, Table, StatsCard } from '@shared/ui';
 import type { TableColumn } from '@shared/ui';
 import {
   usePeriodChargesQuery,
@@ -133,20 +133,20 @@ export function PeriodChargesEditor() {
   // Table columns
   const columns: TableColumn<PeriodChargeSummary>[] = [
     {
-      key: 'display_name',
+      id: 'display_name',
       header: 'Periodo',
       render: (row) => (
         <span className="font-medium">{row.display_name}</span>
       ),
     },
     {
-      key: 'maintenance_amount',
+      id: 'maintenance_amount',
       header: 'Mantenimiento',
       align: 'center' as const,
       render: (row) => formatCurrency(row.maintenance_amount),
     },
     {
-      key: 'water_amount',
+      id: 'water_amount',
       header: 'Agua',
       align: 'center' as const,
       render: (row) => (
@@ -156,7 +156,7 @@ export function PeriodChargesEditor() {
       ),
     },
     {
-      key: 'extraordinary_fee_amount',
+      id: 'extraordinary_fee_amount',
       header: 'Cuota Extra.',
       align: 'center' as const,
       render: (row) => (
@@ -168,7 +168,7 @@ export function PeriodChargesEditor() {
       ),
     },
     {
-      key: 'total',
+      id: 'total',
       header: 'Total',
       align: 'center' as const,
       render: (row) => (
