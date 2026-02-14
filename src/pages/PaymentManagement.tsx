@@ -911,6 +911,60 @@ export function PaymentManagement() {
                 </details>
               )}
 
+              {/* Períodos Próximos */}
+              {houseStatus.upcoming_periods && houseStatus.upcoming_periods.length > 0 && (
+                <details className="group">
+                  <summary className="cursor-pointer text-lg font-bold mb-3 text-foreground list-none flex items-center gap-2">
+                    <span className="transition-transform group-open:rotate-90">▶</span>
+                    📅 Períodos Próximos ({houseStatus.upcoming_periods.length})
+                  </summary>
+                  <div className="mt-3">
+                    <Table<PeriodPaymentDetail>
+                      columns={[
+                        {
+                          id: 'display_name',
+                          header: 'Período',
+                          align: 'left',
+                          render: (period) => <span className="font-semibold">{period.display_name}</span>,
+                        },
+                        {
+                          id: 'expected_total',
+                          header: 'Esperado',
+                          align: 'center',
+                          render: (period) => `$${period.expected_total.toFixed(2)}`,
+                        },
+                        {
+                          id: 'pending_total',
+                          header: 'Pendiente',
+                          align: 'center',
+                          render: (period) => `$${period.pending_total.toFixed(2)}`,
+                          className: 'text-foreground-secondary font-semibold',
+                        },
+                        {
+                          id: 'status',
+                          header: 'Estado',
+                          align: 'center',
+                          render: () => (
+                            <StatusBadge status="info" label="Próximo" icon="📅" />
+                          ),
+                        },
+                      ]}
+                      data={houseStatus.upcoming_periods}
+                      emptyMessage="No hay períodos próximos"
+                      hoverable
+                    />
+                  </div>
+                </details>
+              )}
+
+              {/* Información de Cobertura Bancaria */}
+              {houseStatus.bank_coverage_date && (
+                <div className="bg-info/10 border border-info rounded-lg p-3 text-sm text-foreground">
+                  <p className="font-semibold">📊 Cobertura Bancaria:</p>
+                  <p className="text-foreground-secondary">Datos bancarios hasta: <span className="font-mono">{houseStatus.bank_coverage_date}</span></p>
+                </div>
+              )}
+
               {/* Resumen */}
               <div className="bg-tertiary rounded-lg border border-base p-4">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
