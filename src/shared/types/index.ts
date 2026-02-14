@@ -98,6 +98,14 @@ export type {
   BatchUpdatePeriodChargesRequest,
   BatchUpdateResult,
   ReprocessResult,
+  InitialBalanceRequest,
+  InitialBalanceResponse,
+  CreditApplicationResult,
+  CreditAllocationDetail,
+  CondonePenaltyResponse,
+  AdjustChargeRequest,
+  AdjustChargeResponse,
+  ReverseChargeResponse,
 } from './payment-management.types';
 
 // Historical records types

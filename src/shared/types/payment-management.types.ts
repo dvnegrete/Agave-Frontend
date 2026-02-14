@@ -4,6 +4,74 @@
 export type HouseStatus = 'morosa' | 'al_dia' | 'saldo_a_favor';
 export type PeriodPaymentStatus = 'paid' | 'partial' | 'unpaid';
 
+// Admin Operations Types
+export interface InitialBalanceRequest {
+  amount: number;
+  reason?: string;
+  [key: string]: unknown;
+}
+
+export interface InitialBalanceResponse {
+  house_id: number;
+  house_number: number;
+  amount_added: number;
+  reason: string;
+  credit_distribution: CreditApplicationResult;
+  balance_after: {
+    credit_balance: number;
+  };
+}
+
+export interface CreditApplicationResult {
+  house_id: number;
+  credit_before: number;
+  credit_after: number;
+  total_applied: number;
+  allocations_created: CreditAllocationDetail[];
+  periods_covered: number;
+  periods_partially_covered: number;
+}
+
+export interface CreditAllocationDetail {
+  period_id: number;
+  concept_type: string;
+  allocated_amount: number;
+  expected_amount: number;
+  is_complete: boolean;
+}
+
+export interface CondonePenaltyResponse {
+  houseId: number;
+  periodId: number;
+  condonedAmount: number;
+  message: string;
+}
+
+export interface AdjustChargeRequest {
+  new_amount: number;
+  [key: string]: unknown;
+}
+
+export interface AdjustChargeResponse {
+  chargeId: number;
+  houseId: number;
+  periodId: number;
+  conceptType: string;
+  previousAmount: number;
+  newAmount: number;
+  difference: number;
+  isPaid: boolean;
+}
+
+export interface ReverseChargeResponse {
+  chargeId: number;
+  houseId: number;
+  periodId: number;
+  conceptType: string;
+  removedAmount: number;
+  message: string;
+}
+
 export interface ConceptBreakdown {
   concept_type: string;
   expected_amount: number;
@@ -247,6 +315,7 @@ export interface BatchUpdatePeriodChargesRequest {
     water_amount?: number;
     extraordinary_fee_amount?: number;
   };
+  [key: string]: unknown;
 }
 
 export interface BatchUpdateResult {
@@ -268,7 +337,7 @@ export interface ReprocessResult {
 }
 
 // Component UI Types
-export type ActiveTab = 'periods' | 'create-period' | 'house-payments' | 'house-balance' | 'unclaimed-deposits' | 'period-charges';
+export type ActiveTab = 'periods' | 'create-period' | 'house-payments' | 'house-balance' | 'unclaimed-deposits' | 'period-charges' | 'admin-operations';
 
 // Balance Status Variants
 export type BalanceStatusVariant = 'success' | 'info' | 'error' | 'warning';

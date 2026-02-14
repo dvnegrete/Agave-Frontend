@@ -12,6 +12,10 @@ import {
   getPeriodChargesSummary,
   batchUpdatePeriodCharges,
   reprocessAllocations,
+  setInitialBalance,
+  condonePenalty,
+  adjustCharge,
+  reverseCharge,
 } from '@services/paymentManagementService';
 import type {
   CreatePeriodDto,
@@ -25,6 +29,12 @@ import type {
   BatchUpdatePeriodChargesRequest,
   BatchUpdateResult,
   ReprocessResult,
+  InitialBalanceRequest,
+  InitialBalanceResponse,
+  CondonePenaltyResponse,
+  AdjustChargeRequest,
+  AdjustChargeResponse,
+  ReverseChargeResponse,
 } from '@shared';
 
 // Query Keys
@@ -415,6 +425,148 @@ export const useReprocessAllocationsMutation = (): UseReprocessAllocationsMutati
 
   return {
     reprocess: mutation.mutateAsync,
+    isPending: mutation.isPending,
+    data: mutation.data || null,
+    error: mutation.error?.message || null,
+  };
+};
+
+// ──────────────────────────────────────────────
+// ADMIN: Hooks para operaciones de ajuste y crédito inicial
+// ──────────────────────────────────────────────
+
+interface UseInitialBalanceMutationReturn {
+  setBalance: (houseId: number, data: InitialBalanceRequest) => Promise<InitialBalanceResponse>;
+  isPending: boolean;
+  data: InitialBalanceResponse | null;
+  error: string | null;
+}
+
+/**
+ * Hook para asignar crédito/saldo inicial a una casa
+ */
+export const useInitialBalanceMutation = (): UseInitialBalanceMutationReturn => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: ({ houseId, data }: { houseId: number; data: InitialBalanceRequest }) =>
+      setInitialBalance(houseId, data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: paymentManagementKeys.houseBalance(variables.houseId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: paymentManagementKeys.houseStatus(variables.houseId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: paymentManagementKeys.paymentHistory(variables.houseId),
+      });
+    },
+  });
+
+  return {
+    setBalance: (houseId, data) => mutation.mutateAsync({ houseId, data }),
+    isPending: mutation.isPending,
+    data: mutation.data || null,
+    error: mutation.error?.message || null,
+  };
+};
+
+interface UseCondonePenaltyMutationReturn {
+  condone: (houseId: number, periodId: number) => Promise<CondonePenaltyResponse>;
+  isPending: boolean;
+  data: CondonePenaltyResponse | null;
+  error: string | null;
+}
+
+/**
+ * Hook para condonar penalidad
+ */
+export const useCondonePenaltyMutation = (): UseCondonePenaltyMutationReturn => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: ({ houseId, periodId }: { houseId: number; periodId: number }) =>
+      condonePenalty(houseId, periodId),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: paymentManagementKeys.houseStatus(variables.houseId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: paymentManagementKeys.periodCharges(),
+      });
+    },
+  });
+
+  return {
+    condone: (houseId, periodId) => mutation.mutateAsync({ houseId, periodId }),
+    isPending: mutation.isPending,
+    data: mutation.data || null,
+    error: mutation.error?.message || null,
+  };
+};
+
+interface UseAdjustChargeMutationReturn {
+  adjust: (chargeId: number, data: AdjustChargeRequest) => Promise<AdjustChargeResponse>;
+  isPending: boolean;
+  data: AdjustChargeResponse | null;
+  error: string | null;
+}
+
+/**
+ * Hook para ajustar monto de un cargo
+ */
+export const useAdjustChargeMutation = (): UseAdjustChargeMutationReturn => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: ({ chargeId, data }: { chargeId: number; data: AdjustChargeRequest }) =>
+      adjustCharge(chargeId, data),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({
+        queryKey: paymentManagementKeys.houseStatus(response.houseId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: paymentManagementKeys.periodCharges(),
+      });
+    },
+  });
+
+  return {
+    adjust: (chargeId, data) => mutation.mutateAsync({ chargeId, data }),
+    isPending: mutation.isPending,
+    data: mutation.data || null,
+    error: mutation.error?.message || null,
+  };
+};
+
+interface UseReverseChargeMutationReturn {
+  reverse: (chargeId: number) => Promise<ReverseChargeResponse>;
+  isPending: boolean;
+  data: ReverseChargeResponse | null;
+  error: string | null;
+}
+
+/**
+ * Hook para reversar un cargo
+ */
+export const useReverseChargeMutation = (): UseReverseChargeMutationReturn => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: (chargeId: number) => reverseCharge(chargeId),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({
+        queryKey: paymentManagementKeys.houseStatus(response.houseId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: paymentManagementKeys.periodCharges(),
+      });
+    },
+  });
+
+  return {
+    reverse: mutation.mutateAsync,
     isPending: mutation.isPending,
     data: mutation.data || null,
     error: mutation.error?.message || null,

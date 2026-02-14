@@ -12,6 +12,12 @@ import type {
   BatchUpdatePeriodChargesRequest,
   BatchUpdateResult,
   ReprocessResult,
+  InitialBalanceRequest,
+  InitialBalanceResponse,
+  CondonePenaltyResponse,
+  AdjustChargeRequest,
+  AdjustChargeResponse,
+  ReverseChargeResponse,
 } from '@shared/types/payment-management.types';
 
 const API_BASE = '/payment-management';
@@ -259,6 +265,93 @@ export const reprocessAllocations = async (
     return response;
   } catch (err: unknown) {
     console.error('❌ [Service] Error in reprocessAllocations:', err);
+    throw err;
+  }
+};
+
+// ──────────────────────────────────────────────
+// ADMIN: Operaciones de ajuste y crédito inicial
+// ──────────────────────────────────────────────
+
+/**
+ * Asignar crédito/saldo inicial a una casa
+ * El crédito se distribuye automáticamente en FIFO cubriendo períodos impagos
+ */
+export const setInitialBalance = async (
+  houseId: number,
+  data: InitialBalanceRequest,
+  signal?: AbortSignal
+): Promise<InitialBalanceResponse> => {
+  try {
+    const response = await httpClient.post<InitialBalanceResponse>(
+      `${API_BASE}/houses/${houseId}/initial-balance`,
+      data,
+      { signal }
+    );
+    return response;
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in setInitialBalance:', err);
+    throw err;
+  }
+};
+
+/**
+ * Condonar penalidad de una casa en un período
+ */
+export const condonePenalty = async (
+  houseId: number,
+  periodId: number,
+  signal?: AbortSignal
+): Promise<CondonePenaltyResponse> => {
+  try {
+    const response = await httpClient.post<CondonePenaltyResponse>(
+      `${API_BASE}/houses/${houseId}/periods/${periodId}/condone-penalty`,
+      {},
+      { signal }
+    );
+    return response;
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in condonePenalty:', err);
+    throw err;
+  }
+};
+
+/**
+ * Ajustar el monto de un cargo existente
+ */
+export const adjustCharge = async (
+  chargeId: number,
+  data: AdjustChargeRequest,
+  signal?: AbortSignal
+): Promise<AdjustChargeResponse> => {
+  try {
+    const response = await httpClient.patch<AdjustChargeResponse>(
+      `${API_BASE}/charges/${chargeId}/adjust`,
+      data,
+      { signal }
+    );
+    return response;
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in adjustCharge:', err);
+    throw err;
+  }
+};
+
+/**
+ * Reversar (eliminar) un cargo que nunca fue pagado
+ */
+export const reverseCharge = async (
+  chargeId: number,
+  signal?: AbortSignal
+): Promise<ReverseChargeResponse> => {
+  try {
+    const response = await httpClient.delete<ReverseChargeResponse>(
+      `${API_BASE}/charges/${chargeId}/reverse`,
+      { signal }
+    );
+    return response;
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in reverseCharge:', err);
     throw err;
   }
 };

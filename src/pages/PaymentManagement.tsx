@@ -9,7 +9,7 @@ import { StatsCard } from '@shared/ui';
 import { Table, type TableColumn } from '@shared/ui';
 import { ExpandableTable } from '@shared/ui';
 import { UnclaimedDepositsSection } from '@components/reconciliation';
-import { PeriodChargesEditor } from '@components/payment-management/PeriodChargesEditor';
+import { PeriodChargesEditor, AdminOperations } from '@components/payment-management';
 import type { HousePaymentTransaction, UnreconciledVoucher, PeriodResponseDto, PeriodPaymentDetail, ConceptBreakdown, HouseStatus, BackfillRecordResult } from '@shared';
 import type { ActiveTab } from '@/shared/types/payment-management.types';
 
@@ -138,6 +138,7 @@ export function PaymentManagement() {
           { id: 'house-balance', label: 'Estado de Cuenta', icon: '💵', color: 'blue' },
           { id: 'unclaimed-deposits', label: 'Depósitos No Reclamados', icon: '🏦', color: 'blue' },
           { id: 'period-charges', label: 'Configurar Períodos', icon: '⚙️', color: 'blue' },
+          { id: 'admin-operations', label: 'Operaciones Admin', icon: '🔧', color: 'orange' },
         ] as TabItem[]}
         activeTab={activeTab}
         onTabChange={(tabId) => setActiveTab(tabId as ActiveTab)}
@@ -954,6 +955,10 @@ export function PaymentManagement() {
 
       {activeTab === 'period-charges' && (
         <PeriodChargesEditor />
+      )}
+
+      {activeTab === 'admin-operations' && (
+        <AdminOperations />
       )}
     </div>
   );
