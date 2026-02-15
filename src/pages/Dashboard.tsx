@@ -55,7 +55,7 @@ export function Dashboard() {
 
       {/* Error Banner */}
       {error && (
-        <div className="bg-error/20 border-l-4 border-error rounded-lg p-4 flex gap-3">
+        <div className="border-l-4 border-error rounded-lg p-4 flex gap-3">
           <span className="text-xl">⚠️</span>
           <div>
             <h3 className="font-semibold text-error">Error al cargar métricas</h3>

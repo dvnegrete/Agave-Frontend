@@ -140,7 +140,7 @@ export function UnclaimedDepositsSection({ onDepositAssigned }: UnclaimedDeposit
         <h3 className="text-lg font-semibold flex items-center gap-2">
           <span>🏦 Depósitos No Reclamados</span>
           {data && (
-            <span className="bg-warning/20 text-warning px-3 py-1 rounded-full text-sm font-bold">
+            <span className="text-warning px-3 py-1 rounded-full text-sm font-bold">
               {data.totalCount}
             </span>
           )}

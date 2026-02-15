@@ -238,7 +238,7 @@ export function TransactionUpload() {
 
             {/* Upload Error */}
             {uploadError && (
-              <div className="mt-4 bg-error/10 border border-error text-error px-4 py-3 rounded">
+              <div className="mt-4 border border-error text-error px-4 py-3 rounded">
                 Error: {uploadError}
               </div>
             )}
@@ -296,7 +296,7 @@ export function TransactionUpload() {
                   <h4 className="text-sm font-semibold text-error mb-2">
                     Errores ({uploadResult.errors.length}):
                   </h4>
-                  <div className="bg-error/10 border border-error rounded p-3 max-h-32 overflow-y-auto">
+                  <div className="border border-error rounded p-3 max-h-32 overflow-y-auto">
                     <ul className="space-y-1 text-xs text-error">
                       {uploadResult.errors.map((err, idx) => (
                         <li key={idx}>• {typeof err === 'string' ? err : JSON.stringify(err)}</li>
@@ -390,7 +390,7 @@ export function TransactionUpload() {
 
             {/* Error Message */}
             {error && (
-              <div className="mt-4 bg-error/10 border border-error text-error px-4 py-3 rounded text-sm">
+              <div className="mt-4 border border-error text-error px-4 py-3 rounded text-sm">
                 {error}
               </div>
             )}

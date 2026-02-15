@@ -148,7 +148,7 @@ export function ModalEditActions({
           <button
             onClick={() => setShowDeleteConfirm(true)}
             disabled={isDeleting}
-            className="w-full px-4 py-4 rounded-lg border-2 transition-all text-left bg-error/20 hover:bg-error/30 border-error disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full px-4 py-4 rounded-lg border-2 transition-all text-left border-error disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <div className="flex items-start gap-4">
               <span className="text-3xl flex-shrink-0">🗑️</span>

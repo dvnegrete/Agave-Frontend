@@ -768,7 +768,7 @@ export function PaymentManagement() {
                           <div className="flex items-center gap-2">
                             <span className="font-semibold">{period.display_name}</span>
                             {period.is_overdue && (
-                              <span className="text-xs bg-error/20 text-error px-2 py-0.5 rounded-full font-bold">Vencido</span>
+                              <span className="text-xs text-error px-2 py-0.5 rounded-full font-bold">Vencido</span>
                             )}
                           </div>
                         ),
@@ -959,7 +959,7 @@ export function PaymentManagement() {
 
               {/* Información de Cobertura Bancaria */}
               {houseStatus.bank_coverage_date && (
-                <div className="bg-info/10 border border-info rounded-lg p-3 text-sm text-foreground">
+                <div className="border border-info rounded-lg p-3 text-sm text-foreground">
                   <p className="font-semibold">📊 Cobertura Bancaria:</p>
                   <p className="text-foreground-secondary">Datos bancarios hasta: <span className="font-mono">{houseStatus.bank_coverage_date}</span></p>
                 </div>
