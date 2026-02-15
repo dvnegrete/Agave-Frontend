@@ -556,8 +556,8 @@ export function PaymentManagement() {
                 const renderMovementType = (movement: PaymentMovement): React.ReactNode => (
                   <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${
                     movement.type === 'transaction'
-                      ? 'bg-info/20 text-info'
-                      : 'bg-warning/20 text-warning'
+                      ? 'text-info'
+                      : 'text-warning'
                   }`}>
                     {movement.type === 'transaction' ? '🏦 Transacción Bancaria' : '📋 Comprobante'}
                   </span>
