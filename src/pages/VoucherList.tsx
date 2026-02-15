@@ -104,7 +104,7 @@ export function VoucherList() {
 
   if (error) {
     return (
-      <div className="bg-error/20 border border-error text-error px-4 py-3 rounded">
+      <div className="border border-error text-error px-4 py-3 rounded">
         Error: {error}
       </div>
     );
@@ -225,7 +225,7 @@ export function VoucherList() {
       )}
 
       {error && (
-        <div className="bg-error/20 border border-error text-error px-4 py-3 rounded">
+        <div className="border border-error text-error px-4 py-3 rounded">
           Error: {error}
         </div>
       )}

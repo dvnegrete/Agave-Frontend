@@ -150,7 +150,7 @@ export function PaymentManagement() {
           <h2 className="text-2xl font-bold mb-4 text-foreground">📋 Períodos de Facturación</h2>
 
           {periodsError && (
-            <div className="bg-error/10 border-l-4 border-error rounded-lg p-4 mb-4 flex items-start gap-3">
+            <div className="border-l-4 border-error rounded-lg p-4 mb-4 flex items-start gap-3">
               <span className="text-error text-xl">❌</span>
               <div className="flex-1">
                 <p className="text-error font-semibold">Error al cargar</p>
@@ -694,7 +694,7 @@ export function PaymentManagement() {
           )}
 
           {statusError && (
-            <div className="bg-error/10 border-l-4 border-error rounded-lg p-4 mb-4 flex items-start gap-3">
+            <div className="border-l-4 border-error rounded-lg p-4 mb-4 flex items-start gap-3">
               <span className="text-error text-xl">❌</span>
               <div className="flex-1">
                 <p className="text-error font-semibold">Error al cargar</p>
