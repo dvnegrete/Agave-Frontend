@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUploadTransactions, useTransactionsBank } from '@hooks/useTransactionsBank';
+import { useUploadTransactions, useTransactionsBank, useLastProcessedTransaction } from '@hooks/useTransactionsBank';
 import { useFormatDate } from '@hooks/useFormatDate';
 import { useAlert } from '@hooks/useAlert';
 import {
@@ -73,6 +73,7 @@ export function TransactionUpload() {
   const navigate = useNavigate();
   const alert = useAlert();
   const { upload, uploading, uploadResult, uploadError, reset } = useUploadTransactions();
+  const { lastTransaction, loading: lastTxLoading, error: lastTxError, refetch: refetchLastTx } = useLastProcessedTransaction();
 
   // Upload state
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -370,7 +371,7 @@ export function TransactionUpload() {
             </div>
 
             {/* Filter Actions */}
-            <div className="flex gap-3">
+            <div className="flex gap-3 mb-4">
               <Button
                 onClick={handleApplyFilters}
                 disabled={loading}
@@ -386,7 +387,47 @@ export function TransactionUpload() {
               >
                 ↺ Limpiar
               </Button>
+              <Button
+                onClick={() => refetchLastTx()}
+                disabled={lastTxLoading}
+                isLoading={lastTxLoading}
+                variant="sameUi"
+              >
+                📥 Última Transacción
+              </Button>
             </div>
+
+            {/* Last Processed Transaction Display */}
+            {lastTransaction && (
+              <div className="bg-tertiary p-4 rounded mb-4 border-l-4 border-success">
+                <p className="text-sm font-semibold text-foreground mb-2">Última transacción procesada:</p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                  <div>
+                    <span className="text-foreground-secondary">Fecha:</span>
+                    <p className="font-semibold">{useFormatDate(String(lastTransaction.date))}</p>
+                  </div>
+                  <div>
+                    <span className="text-foreground-secondary">Hora:</span>
+                    <p className="font-semibold">{String(lastTransaction.time || '—')}</p>
+                  </div>
+                  <div>
+                    <span className="text-foreground-secondary">Monto:</span>
+                    <p className="font-semibold text-success">${Number(lastTransaction.amount).toFixed(2)} {String(lastTransaction.currency)}</p>
+                  </div>
+                  <div>
+                    <span className="text-foreground-secondary">Banco:</span>
+                    <p className="font-semibold">{String(lastTransaction.bank_name || '—')}</p>
+                  </div>
+                </div>
+                <p className="text-xs text-foreground-secondary mt-2">{String(lastTransaction.concept)}</p>
+              </div>
+            )}
+
+            {lastTxError && (
+              <div className="mt-4 border border-error text-error px-4 py-3 rounded text-sm">
+                {lastTxError}
+              </div>
+            )}
 
             {/* Error Message */}
             {error && (

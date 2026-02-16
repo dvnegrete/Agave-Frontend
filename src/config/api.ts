@@ -22,6 +22,7 @@ export const API_ENDPOINTS = {
   transactionsBankUpload: '/transactions-bank/upload',
   transactionsBank: '/transactions-bank',
   transactionsBankExpenses: '/transactions-bank/expenses',
+  transactionsBankLastProcessed: '/transactions-bank/last-processed',
 
   // Bank Reconciliation
   bankReconciliation: '/bank-reconciliation',
