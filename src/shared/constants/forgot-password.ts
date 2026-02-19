@@ -12,7 +12,7 @@ export const FORGOT_PASSWORD_UI_TEXTS = {
   BACK_TO_LOGIN: 'Volver al inicio de sesión',
   SUCCESS_TITLE: 'Revisa tu correo',
   SUCCESS_DESCRIPTION:
-    'Si el correo está registrado, recibirás un enlace de recuperación en tu bandeja de entrada.',
+    'Si el correo está registrado, recibirás un enlace de recuperación en tu bandeja de entrada. Revisa la carpeta de spam si no lo ves en unos minutos.',
   ERROR_TITLE: 'Error',
 } as const;
 
