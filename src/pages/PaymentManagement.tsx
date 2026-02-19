@@ -10,7 +10,7 @@ import { Table, type TableColumn } from '@shared/ui';
 import { ExpandableTable } from '@shared/ui';
 import { UnclaimedDepositsSection } from '@components/reconciliation';
 import { PeriodChargesEditor, AdminOperations } from '@components/payment-management';
-import type { HousePaymentTransaction, UnreconciledVoucher, PeriodResponseDto, PeriodPaymentDetail, ConceptBreakdown, HouseStatus, BackfillRecordResult } from '@shared';
+import type { HousePaymentTransaction, UnreconciledVoucher, PeriodResponseDto, PeriodPaymentDetail, ConceptBreakdown, HouseStatus, BackfillRecordResult, MorosidadReason } from '@shared';
 import type { ActiveTab } from '@/shared/types/payment-management.types';
 
 interface PaymentMovement extends HousePaymentTransaction {
@@ -122,6 +122,16 @@ export function PaymentManagement() {
       case 'partial': return 'Parcial';
       case 'unpaid': return 'No Pagado';
       default: return status;
+    }
+  };
+
+  const getConceptLabel = (conceptType: string): string => {
+    switch (conceptType) {
+      case 'maintenance': return 'Mantenimiento';
+      case 'water': return 'Agua';
+      case 'extraordinary_fee': return 'Cuota Extraordinaria';
+      case 'penalties': return 'Penalidad';
+      default: return conceptType.replace(/_/g, ' ');
     }
   };
 
@@ -721,6 +731,28 @@ export function PaymentManagement() {
                   </p>
                 )}
               </div>
+
+              {/* Panel de razones de morosidad */}
+              {houseStatus.status === 'morosa' && houseStatus.morosidad_reasons?.length > 0 && (
+                <div className="rounded-lg border-l-4 border-error bg-error/10 p-4">
+                  <p className="font-bold text-error mb-3">⚠️ Conceptos vencidos pendientes de pago</p>
+                  <div className="space-y-2">
+                    {houseStatus.morosidad_reasons.map((reason: MorosidadReason, idx: number) => (
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between bg-secondary rounded-lg px-4 py-2 text-sm"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-error font-semibold">{reason.period_display_name}</span>
+                          <span className="text-foreground-secondary">—</span>
+                          <span className="capitalize">{getConceptLabel(reason.concept_type)}</span>
+                        </div>
+                        <span className="font-bold text-error">${reason.pending_amount.toFixed(2)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Cards de estadísticas */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

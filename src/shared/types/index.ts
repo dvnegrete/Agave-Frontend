@@ -70,6 +70,7 @@ export type {
 export type {
   HouseStatus,
   PeriodPaymentStatus,
+  MorosidadReason,
   ConceptBreakdown,
   PeriodPaymentDetail,
   EnrichedHouseBalance,

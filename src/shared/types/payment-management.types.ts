@@ -93,6 +93,12 @@ export interface PeriodPaymentDetail {
   is_overdue: boolean;
 }
 
+export interface MorosidadReason {
+  period_display_name: string;
+  concept_type: string;
+  pending_amount: number;
+}
+
 export interface EnrichedHouseBalance {
   house_id: number;
   house_number: number;
@@ -108,6 +114,7 @@ export interface EnrichedHouseBalance {
   deadline_message: string | null;
   bank_coverage_date?: string | null;
   total_unpaid_periods: number;
+  morosidad_reasons: MorosidadReason[];
   summary: {
     total_expected: number;
     total_paid: number;
