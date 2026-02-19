@@ -734,7 +734,7 @@ export function PaymentManagement() {
 
               {/* Panel de razones de morosidad */}
               {houseStatus.status === 'morosa' && houseStatus.morosidad_reasons?.length > 0 && (
-                <div className="rounded-lg border-l-4 border-error bg-error/10 p-4">
+                <div className="rounded-lg border-l-4 border-error p-4">
                   <p className="font-bold text-error mb-3">⚠️ Conceptos vencidos pendientes de pago</p>
                   <div className="space-y-2">
                     {houseStatus.morosidad_reasons.map((reason: MorosidadReason, idx: number) => (

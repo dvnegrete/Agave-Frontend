@@ -176,7 +176,7 @@ export function UnclaimedDepositsSection({ onDepositAssigned }: UnclaimedDeposit
       {isExpanded && data && (
         <>
           {data.items.length === 0 ? (
-            <div className="bg-success/10 border border-success rounded-lg p-8 text-center">
+            <div className="border border-success rounded-lg p-8 text-center">
               <p className="text-success font-semibold text-lg">✅ No hay depósitos no reclamados</p>
               <p className="text-foreground-secondary text-sm mt-2">Todos los depósitos han sido asignados correctamente</p>
             </div>

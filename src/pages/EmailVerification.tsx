@@ -100,7 +100,7 @@ export function EmailVerification() {
           {error && !loading && (
             <div className="text-center space-y-4">
               <div className="flex justify-center">
-                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-error/20">
+                <div className="flex items-center justify-center w-16 h-16 rounded-full">
                   <span className="text-3xl text-error">✕</span>
                 </div>
               </div>
