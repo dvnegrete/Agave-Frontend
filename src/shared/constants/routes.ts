@@ -16,4 +16,6 @@ export const ROUTES = {
     USER_MANAGEMENT: '/administracion-de-usuarios',
     EXPENSE_REPORT: '/informe-de-gastos',
     MY_HOUSE_PAYMENTS: '/mis-pagos-casas',
+    FORGOT_PASSWORD: '/olvide-contrasena',
+    CHANGE_PASSWORD: '/cambiar-contrasena',
 }

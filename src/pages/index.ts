@@ -1,5 +1,7 @@
+export { ChangePassword } from './ChangePassword';
 export { EmailConfirmation } from './EmailConfirmation';
 export { EmailVerification } from './EmailVerification';
+export { ForgotPassword } from './ForgotPassword';
 export { Home } from './Home';
 export { Login } from './Login';
 export { PrivacyPolicyPage } from './PrivacyPolicyPage';

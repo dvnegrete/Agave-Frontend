@@ -11,6 +11,8 @@ export const API_ENDPOINTS = {
   authSignOut: '/auth/signout',
   authVerifyEmail: '/auth/verify-email',
   authResendVerificationEmail: '/auth/resend-verification-email',
+  authForgotPassword: '/auth/forgot-password',
+  authChangePassword: '/auth/password',
 
   // Vouchers
   vouchers: '/vouchers',

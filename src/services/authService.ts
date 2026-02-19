@@ -7,10 +7,15 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInWithPopup,
+  getAdditionalUserInfo,
   GoogleAuthProvider,
   FacebookAuthProvider,
   signOut as firebaseSignOut,
   sendEmailVerification,
+  sendPasswordResetEmail,
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
 } from 'firebase/auth';
 import { firebaseAuth } from '@config/firebase';
 import { httpClient } from '@utils/httpClient';
@@ -100,32 +105,65 @@ export const signIn = async (
 };
 
 /**
- * OAuth login (Google, Facebook)
- * Firebase Client SDK maneja popup y callback automáticamente
+ * Inicia el flujo OAuth con Firebase (solo popup).
+ * Devuelve el idToken y si el usuario es nuevo para decidir si mostrar formulario.
+ */
+export const initiateOAuthLogin = async (
+  provider: 'google' | 'facebook',
+): Promise<{ idToken: string; isNewUser: boolean }> => {
+  try {
+    const authProvider =
+      provider === 'google' ? new GoogleAuthProvider() : new FacebookAuthProvider();
+
+    const userCredential = await signInWithPopup(firebaseAuth, authProvider);
+    const additionalInfo = getAdditionalUserInfo(userCredential);
+    const idToken = await userCredential.user.getIdToken();
+
+    return {
+      idToken,
+      isNewUser: additionalInfo?.isNewUser ?? false,
+    };
+  } catch (err: unknown) {
+    console.error('OAuth initiation failed:', err);
+    throw err;
+  }
+};
+
+/**
+ * Completa el registro/login OAuth enviando idToken al backend.
+ * Acepta houseNumber opcional para usuarios nuevos.
+ */
+export const completeOAuthLogin = async (
+  idToken: string,
+  houseNumber?: number,
+  signal?: AbortSignal,
+): Promise<AuthResponse> => {
+  try {
+    return httpClient.post<AuthResponse>(
+      API_ENDPOINTS.authOAuthCallback,
+      {
+        idToken,
+        ...(houseNumber !== undefined && { houseNumber }),
+      },
+      { signal },
+    );
+  } catch (err: unknown) {
+    console.error('OAuth completion failed:', err);
+    throw err;
+  }
+};
+
+/**
+ * OAuth login (Google, Facebook) — flujo completo sin pausa para formulario.
+ * Usado por AuthContext para usuarios existentes.
  */
 export const loginWithOAuth = async (
   provider: 'google' | 'facebook',
   signal?: AbortSignal,
 ): Promise<AuthResponse> => {
   try {
-    // 1. Configurar provider
-    const authProvider =
-      provider === 'google' ? new GoogleAuthProvider() : new FacebookAuthProvider();
-
-    // 2. Popup de autenticación (Firebase maneja todo)
-    const userCredential = await signInWithPopup(firebaseAuth, authProvider);
-
-    // 3. Obtener ID Token
-    const idToken = await userCredential.user.getIdToken();
-
-    // 4. Enviar al backend
-    const response = await httpClient.post<AuthResponse>(
-      API_ENDPOINTS.authOAuthCallback,
-      { idToken },
-      { signal },
-    );
-
-    return response;
+    const { idToken } = await initiateOAuthLogin(provider);
+    return completeOAuthLogin(idToken, undefined, signal);
   } catch (err: unknown) {
     console.error('OAuth login failed:', err);
     throw err;
@@ -204,6 +242,74 @@ export const verifyEmail = async (
     );
   } catch (err: unknown) {
     console.error('Email verification failed:', err);
+    throw err;
+  }
+};
+
+/**
+ * Solicita recuperación de contraseña.
+ * Firebase Client SDK envía el email; el backend registra la solicitud.
+ */
+export const forgotPassword = async (
+  email: string,
+  signal?: AbortSignal,
+): Promise<{ message: string }> => {
+  try {
+    // 1. Firebase envía el email de recuperación
+    await sendPasswordResetEmail(firebaseAuth, email);
+
+    // 2. Notificar al backend (auditoría / anti-enumeración)
+    try {
+      await httpClient.post<{ message: string }>(
+        API_ENDPOINTS.authForgotPassword,
+        { email },
+        { signal },
+      );
+    } catch (err) {
+      // No fallar si el backend tiene problemas
+      console.error('Backend forgot-password notification failed:', err);
+    }
+
+    return {
+      message: 'Si el correo está registrado, recibirás un enlace de recuperación.',
+    };
+  } catch (err: unknown) {
+    console.error('Forgot password failed:', err);
+    throw err;
+  }
+};
+
+/**
+ * Cambia la contraseña del usuario autenticado.
+ * Verifica la contraseña actual, luego actualiza en Firebase y sincroniza con el backend.
+ */
+export const changePassword = async (
+  currentPassword: string,
+  newPassword: string,
+  signal?: AbortSignal,
+): Promise<{ message: string }> => {
+  try {
+    const user = firebaseAuth.currentUser;
+
+    if (!user || !user.email) {
+      throw new Error('Usuario no autenticado');
+    }
+
+    // 1. Reautenticar para verificar contraseña actual
+    const credential = EmailAuthProvider.credential(user.email, currentPassword);
+    await reauthenticateWithCredential(user, credential);
+
+    // 2. Actualizar contraseña en Firebase Client SDK
+    await updatePassword(user, newPassword);
+
+    // 3. Sincronizar con el backend vía Admin SDK
+    return httpClient.patch<{ message: string }>(
+      API_ENDPOINTS.authChangePassword,
+      { newPassword },
+      { signal },
+    );
+  } catch (err: unknown) {
+    console.error('Change password failed:', err);
     throw err;
   }
 };

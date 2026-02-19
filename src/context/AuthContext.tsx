@@ -92,33 +92,53 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, [navigate]);
 
   /**
+   * Lógica compartida para finalizar el flujo OAuth: guarda tokens, setea usuario y navega.
+   * Usado por loginWithOAuth y completeOAuthRegistration.
+   */
+  const finalizeOAuthLogin = useCallback(async (idToken: string, houseNumber?: number) => {
+    const response = await authService.completeOAuthLogin(idToken, houseNumber);
+
+    if (response.accessToken) {
+      tokenManager.setAccessToken(response.accessToken);
+    }
+    if (response.refreshToken) {
+      tokenManager.setRefreshToken(response.refreshToken);
+    }
+    tokenManager.setUser(response.user);
+    setUser(response.user);
+
+    const redirectRoute = getRedirectRoute(response.user);
+    navigate(redirectRoute);
+  }, [navigate]);
+
+  /**
    * Login with OAuth provider (Google, Facebook, etc.)
-   * Firebase Client SDK maneja el popup y callback automáticamente
+   * Firebase Client SDK maneja el popup y callback automáticamente.
+   * Para usuarios nuevos que necesitan ingresar número de casa, usar initiateOAuthLogin
+   * en useLogin y luego completeOAuthRegistration.
    */
   const loginWithOAuth = useCallback(async (provider: 'google' | 'facebook') => {
     try {
-      const response = await authService.loginWithOAuth(provider);
-
-      // Backend establece access_token en httpOnly cookie Y retorna en response
-      // Guardar accessToken para enviar en Authorization header (fallback si cookies no funcionan)
-      if (response.accessToken) {
-        tokenManager.setAccessToken(response.accessToken);
-      }
-      if (response.refreshToken) {
-        tokenManager.setRefreshToken(response.refreshToken);
-      }
-      tokenManager.setUser(response.user);
-
-      setUser(response.user);
-
-      // Redirigir según rol y estado del usuario
-      const redirectRoute = getRedirectRoute(response.user);
-      navigate(redirectRoute);
+      const { idToken } = await authService.initiateOAuthLogin(provider);
+      await finalizeOAuthLogin(idToken);
     } catch (error) {
       console.error('OAuth login failed:', error);
       throw error;
     }
-  }, [navigate]);
+  }, [finalizeOAuthLogin]);
+
+  /**
+   * Completa el registro OAuth de un usuario nuevo con el número de casa opcional.
+   * Llamado desde useLogin después de que el usuario llena el formulario.
+   */
+  const completeOAuthRegistration = useCallback(async (idToken: string, houseNumber?: number) => {
+    try {
+      await finalizeOAuthLogin(idToken, houseNumber);
+    } catch (error) {
+      console.error('OAuth registration completion failed:', error);
+      throw error;
+    }
+  }, [finalizeOAuthLogin]);
 
   /**
    * Logout current user
@@ -149,6 +169,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isLoading,
     login,
     loginWithOAuth,
+    completeOAuthRegistration,
     logout,
     updateUser,
   };

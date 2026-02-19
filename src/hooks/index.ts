@@ -1,5 +1,7 @@
 export * from './useAlert'
 export * from './useAuth'
+export * from './useChangePassword'
+export * from './useForgotPassword'
 export * from './useBankReconciliation'
 export * from './useBankReconciliationQuery'
 export * from './useBankReconciliationEndpoints'
