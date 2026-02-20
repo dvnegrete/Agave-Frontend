@@ -15,6 +15,7 @@ import {
 } from '@shared/ui';
 import type { BankTransaction } from '@shared/types/bank-transactions.types';
 import { ROUTES, PREDEFINED_BANKS, BANKS } from '@shared/constants';
+import { formatCurrency } from '@/utils/formatters';
 
 // Type for transaction with additional optional fields
 type TransactionWithExtras = BankTransaction & {
@@ -412,7 +413,7 @@ export function TransactionUpload() {
                   </div>
                   <div>
                     <span className="text-foreground-secondary">Monto:</span>
-                    <p className="font-semibold text-success">${Number(lastTransaction.amount).toFixed(2)} {String(lastTransaction.currency)}</p>
+                    <p className="font-semibold text-success">${formatCurrency(Number(lastTransaction.amount))} {String(lastTransaction.currency)}</p>
                   </div>
                   <div>
                     <span className="text-foreground-secondary">Banco:</span>
@@ -497,7 +498,7 @@ export function TransactionUpload() {
                         const currency = getTransactionCurrency(txn);
                         return (
                           <span className={isDeposit ? 'text-success font-bold' : 'text-error font-bold'}>
-                            {isDeposit ? '+' : '-'}${Math.abs(amount).toFixed(2)} {currency}
+                            {isDeposit ? '+' : '-'}${formatCurrency(Math.abs(amount))} {currency}
                           </span>
                         );
                       },

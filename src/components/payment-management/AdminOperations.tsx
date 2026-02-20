@@ -479,7 +479,7 @@ export function AdminOperations() {
               value={initialDebtForm.amount}
               onChange={(value) => setInitialDebtForm({ ...initialDebtForm, amount: value })}
               placeholder="Ej: 600.00"
-              min="0.01"
+              min="0"
               required
             />
           </div>

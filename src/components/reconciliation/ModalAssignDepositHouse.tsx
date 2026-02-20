@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Modal, FormInput, FormTextarea, ErrorAlert, ModalActions, InfoCard } from '@shared/ui';
 import { HOUSE_NUMBER_RANGE, VALIDATION_MESSAGES, MODAL_MESSAGES } from '@shared';
 import type { UnclaimedDeposit, DepositAssignHouseRequest } from '@/shared';
+import { formatCurrency } from '@/utils/formatters';
 
 interface ModalAssignDepositHouseProps {
   isOpen: boolean;
@@ -76,7 +77,7 @@ export function ModalAssignDepositHouse({
         items={[
           {
             label: 'Monto:',
-            value: `$${deposit.amount.toFixed(2)}`,
+            value: `$${formatCurrency(deposit.amount)}`,
             className: 'text-success',
           },
           {

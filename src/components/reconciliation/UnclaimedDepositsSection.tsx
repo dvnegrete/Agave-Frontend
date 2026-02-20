@@ -4,6 +4,7 @@ import { Button, Table, DateTimeCell } from '@shared';
 import type { TableColumn } from '@shared/ui';
 import type { UnclaimedDeposit, UnclaimedDepositsPage, DepositAssignHouseRequest, } from '@shared';
 import { unclaimedDepositsService } from '@services/unclaimedDepositsService';
+import { formatCurrency } from '@/utils/formatters';
 
 interface UnclaimedDepositsSectionProps {
   onDepositAssigned?: () => void;
@@ -80,7 +81,7 @@ export function UnclaimedDepositsSection({ onDepositAssigned }: UnclaimedDeposit
       id: 'amount',
       header: 'Monto',
       align: 'right',
-      render: (item) => `$${item.amount.toFixed(2)}`,
+      render: (item) => `$${formatCurrency(item.amount)}`,
     },
     {
       id: 'dateTime',

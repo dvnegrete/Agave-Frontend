@@ -5,6 +5,7 @@ import { useAuth } from '@hooks/useAuth';
 import { StatusBadge } from '@shared/ui';
 import { ExpandableTable } from '@shared/ui';
 import type { HousePaymentTransaction, UnreconciledVoucher } from '@shared';
+import { formatCurrency } from '@/utils/formatters';
 
 interface PaymentMovement extends HousePaymentTransaction {
   type: 'transaction' | 'voucher';
@@ -59,7 +60,7 @@ export function MyHousePayments() {
   );
 
   const renderMovementAmount = (movement: PaymentMovement): string =>
-    `$${movement.amount.toFixed(2)}`;
+    `$${formatCurrency(movement.amount)}`;
 
   const renderMovementConcept = (movement: PaymentMovement) => {
     if (movement.type === 'voucher') {
@@ -206,7 +207,7 @@ export function MyHousePayments() {
                     <div className="bg-secondary p-3 rounded">
                       <p className="text-xs text-foreground-secondary mb-1">Monto Total</p>
                       <p className="text-xl font-bold text-success">
-                        ${paymentHistory.total_amount.toFixed(2)}
+                        ${formatCurrency(paymentHistory.total_amount)}
                       </p>
                     </div>
                     <div className="bg-secondary p-3 rounded">

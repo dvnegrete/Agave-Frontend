@@ -377,7 +377,7 @@ export function BankReconciliation() {
                   id: 'amount',
                   header: 'Monto',
                   align: 'center',
-                  render: (item) => `$${item.amount ? item.amount.toFixed(2) : '0.00'}`,
+                  render: (item) => `$${item.amount ? formatCurrency(item.amount) : '0.00'}`,
                 },
                 {
                   id: 'confidenceLevel',
@@ -437,7 +437,7 @@ export function BankReconciliation() {
                   id: 'amount',
                   header: 'Monto',
                   align: 'center',
-                  render: (item) => `$${item.amount ? item.amount.toFixed(2) : '0.00'}`,
+                  render: (item) => `$${item.amount ? formatCurrency(item.amount) : '0.00'}`,
                 },
                 {
                   id: 'reason',
@@ -466,7 +466,7 @@ export function BankReconciliation() {
                   id: 'amount',
                   header: 'Monto',
                   align: 'center',
-                  render: (item) => `$${item.amount ? item.amount.toFixed(2) : '0.00'}`,
+                  render: (item) => `$${item.amount ? formatCurrency(item.amount) : '0.00'}`,
                 },
                 {
                   id: 'dateTime',
@@ -558,7 +558,7 @@ export function BankReconciliation() {
                   id: 'transactionAmount',
                   header: 'Monto',
                   align: 'right',
-                  render: (item) => `$${item.transactionAmount.toFixed(2)}`,
+                  render: (item) => `$${formatCurrency(item.transactionAmount)}`,
                 },
                 {
                   id: 'possibleMatches',
@@ -633,7 +633,7 @@ export function BankReconciliation() {
                     </div>
                     <div>
                       <label className="text-sm font-medium">Monto:</label>
-                      <p className="text-foreground">${selectedManualValidationItem.transactionAmount.toFixed(2)}</p>
+                      <p className="text-foreground">${formatCurrency(selectedManualValidationItem.transactionAmount)}</p>
                     </div>
                     <div>
                       <label className="text-sm font-medium">Vouchers Posibles:</label>
@@ -646,7 +646,7 @@ export function BankReconciliation() {
                         <option value="">Selecciona un voucher</option>
                         {selectedManualValidationItem.possibleMatches.map((match: any, idx: number) => (
                           <option key={idx} value={match.voucherId}>
-                            Voucher #{match.voucherId} - ${match.voucherAmount.toFixed(2)} ({(match.similarity * 100).toFixed(0)}%)
+                            Voucher #{match.voucherId} - ${formatCurrency(match.voucherAmount)} ({(match.similarity * 100).toFixed(0)}%)
                           </option>
                         ))}
                       </select>
@@ -844,7 +844,7 @@ export function BankReconciliation() {
               </div>
               <div>
                 <label className="text-sm font-medium">Monto:</label>
-                <p className="text-foreground">${selectedDepositForAssign.amount.toFixed(2)}</p>
+                <p className="text-foreground">${formatCurrency(selectedDepositForAssign.amount)}</p>
               </div>
               <div>
                 <label className="text-sm font-medium">Número de Casa (1-66):</label>
@@ -1123,7 +1123,7 @@ export function BankReconciliation() {
               </div>
               <div>
                 <label className="text-sm font-medium">Monto:</label>
-                <p className="text-foreground">${selectedVoucherForMatch.amount.toFixed(2)}</p>
+                <p className="text-foreground">${formatCurrency(selectedVoucherForMatch.amount)}</p>
               </div>
               <div>
                 <label className="text-sm font-medium">Transacción Bancaria ID:</label>

@@ -12,6 +12,7 @@ import { UnclaimedDepositsSection } from '@components/reconciliation';
 import { PeriodChargesEditor, AdminOperations } from '@components/payment-management';
 import type { HousePaymentTransaction, UnreconciledVoucher, PeriodResponseDto, PeriodPaymentDetail, ConceptBreakdown, HouseStatus, BackfillRecordResult, MorosidadReason } from '@shared';
 import type { ActiveTab } from '@/shared/types/payment-management.types';
+import { formatCurrency } from '@/utils/formatters';
 
 interface PaymentMovement extends HousePaymentTransaction {
   type: 'transaction' | 'voucher';
@@ -460,7 +461,7 @@ export function PaymentManagement() {
                           >
                             <p>Casa #{result.house_number} - {result.status.toUpperCase()}</p>
                             <p className="text-xs opacity-75">
-                              {result.period_year}-{String(result.period_month).padStart(2, '0')} - ${result.amount.toFixed(2)}
+                              {result.period_year}-{String(result.period_month).padStart(2, '0')} - ${formatCurrency(result.amount)}
                             </p>
                             {result.error && <p className="text-xs opacity-75">Error: {result.error}</p>}
                           </div>
@@ -504,7 +505,7 @@ export function PaymentManagement() {
                 />
                 <StatsCard
                   label="Monto Total"
-                  value={`$${paymentHistory.total_amount.toFixed(2)}`}
+                  value={`$${formatCurrency(paymentHistory.total_amount)}`}
                   variant="success"
                   icon="💰"
                 />
@@ -581,7 +582,7 @@ export function PaymentManagement() {
                 );
 
                 const renderMovementAmount = (movement: PaymentMovement): string =>
-                  `$${movement.amount.toFixed(2)}`;
+                  `$${formatCurrency(movement.amount)}`;
 
                 const renderMovementConcept = (movement: PaymentMovement): React.ReactNode => {
                   if (movement.type === 'voucher') {
@@ -747,7 +748,7 @@ export function PaymentManagement() {
                           <span className="text-foreground-secondary">—</span>
                           <span className="capitalize">{getConceptLabel(reason.concept_type)}</span>
                         </div>
-                        <span className="font-bold text-error">${reason.pending_amount.toFixed(2)}</span>
+                        <span className="font-bold text-error">${formatCurrency(reason.pending_amount)}</span>
                       </div>
                     ))}
                   </div>
@@ -758,25 +759,25 @@ export function PaymentManagement() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <StatsCard
                   label="Deuda Total"
-                  value={`$${houseStatus.total_debt.toFixed(2)}`}
+                  value={`$${formatCurrency(houseStatus.total_debt)}`}
                   variant="error"
                   icon="📉"
                 />
                 <StatsCard
                   label="Crédito"
-                  value={`$${houseStatus.credit_balance.toFixed(2)}`}
+                  value={`$${formatCurrency(houseStatus.credit_balance)}`}
                   variant="success"
                   icon="💰"
                 />
                 <StatsCard
                   label="Penalidades"
-                  value={`$${houseStatus.summary.total_penalties.toFixed(2)}`}
+                  value={`$${formatCurrency(houseStatus.summary.total_penalties)}`}
                   variant="warning"
                   icon="⚠️"
                 />
                 <StatsCard
                   label="Centavos Acumlados"
-                  value={`$${houseStatus.accumulated_cents.toFixed(2)}`}
+                  value={`$${formatCurrency(houseStatus.accumulated_cents)}`}
                   variant="info"
                   icon="🪙"
                 />
@@ -809,20 +810,20 @@ export function PaymentManagement() {
                         id: 'expected_total',
                         header: 'Esperado',
                         align: 'center',
-                        render: (period) => `$${period.expected_total.toFixed(2)}`,
+                        render: (period) => `$${formatCurrency(period.expected_total)}`,
                       },
                       {
                         id: 'paid_total',
                         header: 'Pagado',
                         align: 'center',
-                        render: (period) => `$${period.paid_total.toFixed(2)}`,
+                        render: (period) => `$${formatCurrency(period.paid_total)}`,
                         className: 'text-success font-semibold',
                       },
                       {
                         id: 'pending_total',
                         header: 'Pendiente',
                         align: 'center',
-                        render: (period) => `$${period.pending_total.toFixed(2)}`,
+                        render: (period) => `$${formatCurrency(period.pending_total)}`,
                         className: 'text-error font-semibold',
                       },
                       {
@@ -854,13 +855,13 @@ export function PaymentManagement() {
                               id: 'expected_amount',
                               header: 'Esperado',
                               align: 'center',
-                              render: (concept) => `$${concept.expected_amount.toFixed(2)}`,
+                              render: (concept) => `$${formatCurrency(concept.expected_amount)}`,
                             },
                             {
                               id: 'paid_amount',
                               header: 'Pagado',
                               align: 'center',
-                              render: (concept) => `$${concept.paid_amount.toFixed(2)}`,
+                              render: (concept) => `$${formatCurrency(concept.paid_amount)}`,
                             },
                             {
                               id: 'pending_amount',
@@ -868,7 +869,7 @@ export function PaymentManagement() {
                               align: 'center',
                               render: (concept) => (
                                 <span className={concept.pending_amount > 0 ? 'text-error font-semibold' : 'text-success font-semibold'}>
-                                  ${concept.pending_amount.toFixed(2)}
+                                  ${formatCurrency(concept.pending_amount)}
                                 </span>
                               ),
                             },
@@ -918,13 +919,13 @@ export function PaymentManagement() {
                           id: 'expected_total',
                           header: 'Esperado',
                           align: 'center',
-                          render: (period) => `$${period.expected_total.toFixed(2)}`,
+                          render: (period) => `$${formatCurrency(period.expected_total)}`,
                         },
                         {
                           id: 'paid_total',
                           header: 'Pagado',
                           align: 'center',
-                          render: (period) => `$${period.paid_total.toFixed(2)}`,
+                          render: (period) => `$${formatCurrency(period.paid_total)}`,
                         },
                         {
                           id: 'status',
@@ -963,13 +964,13 @@ export function PaymentManagement() {
                           id: 'expected_total',
                           header: 'Esperado',
                           align: 'center',
-                          render: (period) => `$${period.expected_total.toFixed(2)}`,
+                          render: (period) => `$${formatCurrency(period.expected_total)}`,
                         },
                         {
                           id: 'pending_total',
                           header: 'Pendiente',
                           align: 'center',
-                          render: (period) => `$${period.pending_total.toFixed(2)}`,
+                          render: (period) => `$${formatCurrency(period.pending_total)}`,
                           className: 'text-foreground-secondary font-semibold',
                         },
                         {
@@ -1002,15 +1003,15 @@ export function PaymentManagement() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                   <div className="text-center">
                     <p className="text-foreground-secondary">Total Esperado</p>
-                    <p className="font-bold text-foreground">${houseStatus.summary.total_expected.toFixed(2)}</p>
+                    <p className="font-bold text-foreground">${formatCurrency(houseStatus.summary.total_expected)}</p>
                   </div>
                   <div className="text-center">
                     <p className="text-foreground-secondary">Total Pagado</p>
-                    <p className="font-bold text-success">${houseStatus.summary.total_paid.toFixed(2)}</p>
+                    <p className="font-bold text-success">${formatCurrency(houseStatus.summary.total_paid)}</p>
                   </div>
                   <div className="text-center">
                     <p className="text-foreground-secondary">Total Pendiente</p>
-                    <p className="font-bold text-error">${houseStatus.summary.total_pending.toFixed(2)}</p>
+                    <p className="font-bold text-error">${formatCurrency(houseStatus.summary.total_pending)}</p>
                   </div>
                   <div className="text-center">
                     <p className="text-foreground-secondary">Próx. Vencimiento</p>
