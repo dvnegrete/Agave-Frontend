@@ -45,7 +45,7 @@ export function UnfundedVouchersSection() {
       <CollapsibleSection
         title="⏳ Comprobantes Sin Fondos"
         subtitle={subtitle}
-        borderColor="border-warning"
+        borderColor="warning"
       >
         {isLoading ? (
           <p className="text-center text-foreground-tertiary py-4">Cargando...</p>

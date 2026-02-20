@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useBankReconciliationMutations, useAlert } from '@hooks/index';
+import { useBankReconciliationMutations } from '@hooks/index';
 import {
   StartReconciliationModal,
   ReconciliationResults,
@@ -12,7 +12,6 @@ import { Button } from '@shared/ui';
 import type { StartReconciliationResponse } from '@shared/types/bank-reconciliation.types';
 
 export function BankReconciliation() {
-  const alert = useAlert();
   const { start, reconciling, error } = useBankReconciliationMutations();
   const [showStartModal, setShowStartModal] = useState(false);
   const [reconciliationResult, setReconciliationResult] = useState<StartReconciliationResponse | null>(null);

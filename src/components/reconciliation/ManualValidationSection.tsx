@@ -51,7 +51,7 @@ export function ManualValidationSection() {
       <CollapsibleSection
         title="🔍 Validación Manual - Casos Pendientes"
         subtitle={subtitle}
-        borderColor="border-error"
+        borderColor="error"
       >
         {isLoading ? (
           <p className="text-center text-foreground-tertiary py-4">Cargando...</p>

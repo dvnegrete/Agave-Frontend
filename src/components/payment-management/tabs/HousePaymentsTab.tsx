@@ -23,8 +23,8 @@ function mergeMovements(paymentHistory: ReturnType<typeof usePaymentHistoryQuery
     });
   }
 
-  if (paymentHistory.unreconciled_vouchers?.vouchers?.length > 0) {
-    paymentHistory.unreconciled_vouchers.vouchers.forEach((v: UnreconciledVoucher) => {
+  if ((paymentHistory.unreconciled_vouchers?.vouchers?.length ?? 0) > 0) {
+    paymentHistory.unreconciled_vouchers!.vouchers!.forEach((v: UnreconciledVoucher) => {
       movements.push({
         date: v.date,
         time: new Date(v.date).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),

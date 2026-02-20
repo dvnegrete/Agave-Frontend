@@ -42,7 +42,7 @@ export function UnclaimedDepositsListSection() {
       <CollapsibleSection
         title="➕ Depósitos No Asociados"
         subtitle={subtitle}
-        borderColor="border-warning"
+        borderColor="warning"
       >
         <div className="mb-4 flex gap-2">
           <select

@@ -57,7 +57,7 @@ export function MatchSuggestionsSection() {
     <CollapsibleSection
       title="🔗 Sugerencias de Conciliación (Cross-Matching)"
       subtitle={subtitle}
-      borderColor="border-success"
+      borderColor="success"
     >
       {isLoading ? (
         <p className="text-center text-foreground-tertiary py-4">Cargando sugerencias...</p>
