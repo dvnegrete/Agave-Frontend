@@ -33,11 +33,11 @@ export interface ExpandableTableProps<T = unknown> {
 
 const headerVariantStyles: Record<string, string> = {
   default: 'bg-tertiary',
-  primary: 'bg-primary/20',
-  success: 'bg-success/20',
-  warning: 'bg-warning/20',
-  error: 'bg-error/20',
-  info: 'bg-info/20',
+  primary: 'bg-primary',
+  success: 'bg-success',
+  warning: 'bg-warning',
+  error: 'bg-error',
+  info: 'bg-info',
 };
 
 const variantPadding: Record<string, string> = {
@@ -128,7 +128,7 @@ export function ExpandableTable<T = unknown>({
     }
 
     if (isExpanded) {
-      classes += ' bg-primary/5 border-l-4 border-primary shadow-md transition-all duration-300';
+      classes += ' bg-primary border-l-4 border-primary shadow-md transition-all duration-300';
     } else if (hoverable) {
       classes += ' hover:bg-base transition-colors';
     }
@@ -261,7 +261,7 @@ export function ExpandableTable<T = unknown>({
                             >
                               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {expandableColumns.map((column) => (
-                                  <div key={column.id} className="bg-base rounded-lg p-4 border border-primary/10">
+                                  <div key={column.id} className="bg-base rounded-lg p-4 border border-primary">
                                     <p className="text-xs font-bold text-primary uppercase tracking-widest mb-2">
                                       {column.header}
                                     </p>
