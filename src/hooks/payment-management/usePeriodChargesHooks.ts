@@ -98,7 +98,10 @@ export const useBackfillAllocationsMutation = (): UseBackfillAllocationsMutation
 
   const mutation = useMutation({
     mutationFn: (houseNumber?: number) => backfillAllocations(houseNumber),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: paymentManagementKeys.balances() }); },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: paymentManagementKeys.balances() });
+      queryClient.invalidateQueries({ queryKey: paymentManagementKeys.periodCharges() });
+    },
   });
 
   return {
