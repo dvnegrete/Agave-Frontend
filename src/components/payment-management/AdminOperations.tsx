@@ -6,10 +6,13 @@ import {
   useCondonePenaltyMutation,
   useAdjustChargeMutation,
   useReverseChargeMutation,
+  useInitialDebtMutation,
+  usePeriodsQuery,
 } from '@hooks/usePaymentManagement';
 
 export function AdminOperations() {
   const alert = useAlert();
+  const { periods } = usePeriodsQuery();
 
   // State para cada operación
   const [initialBalanceForm, setInitialBalanceForm] = useState({
@@ -32,11 +35,20 @@ export function AdminOperations() {
     chargeId: '',
   });
 
+  const [initialDebtForm, setInitialDebtForm] = useState({
+    houseId: '',
+    periodId: '',
+    conceptType: 'maintenance' as 'maintenance' | 'water' | 'extraordinary_fee' | 'penalties',
+    amount: '',
+    reason: '',
+  });
+
   // Mutations
   const { setBalance, isPending: isSettingBalance } = useInitialBalanceMutation();
   const { condone, isPending: isCondoningPenalty } = useCondonePenaltyMutation();
   const { adjust, isPending: isAdjustingCharge } = useAdjustChargeMutation();
   const { reverse, isPending: isReversingCharge } = useReverseChargeMutation();
+  const { setDebt, isPending: isSettingDebt } = useInitialDebtMutation();
 
   // Handlers
   const handleSetInitialBalance = async (e: React.FormEvent) => {
@@ -146,6 +158,49 @@ export function AdminOperations() {
     } catch (error) {
       console.error('Error reversing charge:', error);
       alert.error('Error', 'No se pudo reversar el cargo. Verifica que no tenga pagos asignados y no sea de más de 3 meses.');
+    }
+  };
+
+  const handleSetInitialDebt = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const houseId = parseInt(initialDebtForm.houseId);
+    const periodId = parseInt(initialDebtForm.periodId);
+    const amount = parseFloat(initialDebtForm.amount);
+
+    if (isNaN(houseId) || houseId < 1 || houseId > 66) {
+      alert.error('Error', 'El número de casa debe estar entre 1 y 66');
+      return;
+    }
+
+    if (isNaN(periodId) || periodId < 1) {
+      alert.error('Error', 'Debes seleccionar un período válido');
+      return;
+    }
+
+    if (isNaN(amount) || amount <= 0) {
+      alert.error('Error', 'El monto debe ser mayor a 0');
+      return;
+    }
+
+    try {
+      const result = await setDebt(houseId, {
+        period_id: periodId,
+        concept_type: initialDebtForm.conceptType,
+        amount,
+        reason: initialDebtForm.reason || undefined,
+      });
+
+      const actionText = result.action === 'created' ? 'registrada' : 'actualizada';
+      alert.success(
+        `Deuda ${actionText}`,
+        result.message,
+      );
+
+      setInitialDebtForm({ houseId: '', periodId: '', conceptType: 'maintenance', amount: '', reason: '' });
+    } catch (error) {
+      console.error('Error setting initial debt:', error);
+      alert.error('Error', 'No se pudo registrar la deuda inicial. Verifica los datos.');
     }
   };
 
@@ -343,6 +398,110 @@ export function AdminOperations() {
             isLoading={isReversingCharge}
           >
             {isReversingCharge ? 'Procesando...' : 'Reversar Cargo'}
+          </Button>
+        </form>
+      </div>
+
+      {/* 5. Asignar Deuda Inicial */}
+      <div className="bg-secondary shadow-lg rounded-lg border-4 border-primary/10 p-6">
+        <div className="mb-4 p-4 border-l-4 border-warning rounded-lg">
+          <h3 className="text-lg font-bold text-warning mb-2 flex items-center gap-2">
+            <span className="text-2xl">📋</span>
+            5. Asignar Deuda Inicial (Pre-Sistema)
+          </h3>
+          <p className="text-sm text-foreground-secondary">
+            Registra una deuda que existía antes del sistema. Crea o actualiza el cargo esperado
+            (house_period_charge) para el trío casa/período/concepto. Aparecerá en morosidad
+            hasta que sea pagada.
+          </p>
+        </div>
+
+        <form onSubmit={handleSetInitialDebt} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormInput
+              id="debt-house-id"
+              label="Casa"
+              type="number"
+              value={initialDebtForm.houseId}
+              onChange={(value) => setInitialDebtForm({ ...initialDebtForm, houseId: value })}
+              placeholder="Ej: 47"
+              min={1}
+              max={66}
+              required
+            />
+            <div className="flex flex-col gap-1">
+              <label htmlFor="debt-period-id" className="text-sm font-medium text-foreground">
+                Período
+              </label>
+              <select
+                id="debt-period-id"
+                value={initialDebtForm.periodId}
+                onChange={(e) => setInitialDebtForm({ ...initialDebtForm, periodId: e.target.value })}
+                className="border rounded-md px-3 py-2 bg-base text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                required
+              >
+                <option value="">Selecciona un período</option>
+                {periods.map((period) => (
+                  <option key={period.id} value={period.id}>
+                    {String(period['display_name'] ?? `${period.month}/${period.year}`)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1">
+              <label htmlFor="debt-concept-type" className="text-sm font-medium text-foreground">
+                Concepto
+              </label>
+              <select
+                id="debt-concept-type"
+                value={initialDebtForm.conceptType}
+                onChange={(e) =>
+                  setInitialDebtForm({
+                    ...initialDebtForm,
+                    conceptType: e.target.value as typeof initialDebtForm.conceptType,
+                  })
+                }
+                className="border border-border rounded-md px-3 py-2 bg-base text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                <option value="maintenance">Mantenimiento</option>
+                <option value="water">Agua</option>
+                <option value="extraordinary_fee">Cuota Extraordinaria</option>
+                <option value="penalties">Penalidades</option>
+              </select>
+            </div>
+            <FormInput
+              id="debt-amount"
+              label="Monto ($)"
+              type="number"
+              value={initialDebtForm.amount}
+              onChange={(value) => setInitialDebtForm({ ...initialDebtForm, amount: value })}
+              placeholder="Ej: 600.00"
+              min="0.01"
+              required
+            />
+          </div>
+
+          <FormInput
+            id="debt-reason"
+            label="Razón"
+            type="text"
+            value={initialDebtForm.reason}
+            onChange={(value) => setInitialDebtForm({ ...initialDebtForm, reason: value })}
+            placeholder="Ej: Cuota extraordinaria pendiente Ene 2025"
+            optional
+            required={false}
+          />
+
+          <Button
+            type="submit"
+            variant="warning"
+            disabled={isSettingDebt}
+            isLoading={isSettingDebt}
+          >
+            {isSettingDebt ? 'Procesando...' : 'Registrar Deuda'}
           </Button>
         </form>
       </div>

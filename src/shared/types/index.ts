@@ -107,6 +107,8 @@ export type {
   AdjustChargeRequest,
   AdjustChargeResponse,
   ReverseChargeResponse,
+  InitialDebtRequest,
+  InitialDebtResponse,
 } from './payment-management.types';
 
 // Historical records types

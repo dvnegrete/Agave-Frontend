@@ -16,6 +16,7 @@ import {
   condonePenalty,
   adjustCharge,
   reverseCharge,
+  setInitialDebt,
 } from '@services/paymentManagementService';
 import type {
   CreatePeriodDto,
@@ -35,6 +36,8 @@ import type {
   AdjustChargeRequest,
   AdjustChargeResponse,
   ReverseChargeResponse,
+  InitialDebtRequest,
+  InitialDebtResponse,
 } from '@shared';
 
 // Query Keys
@@ -567,6 +570,41 @@ export const useReverseChargeMutation = (): UseReverseChargeMutationReturn => {
 
   return {
     reverse: mutation.mutateAsync,
+    isPending: mutation.isPending,
+    data: mutation.data || null,
+    error: mutation.error?.message || null,
+  };
+};
+
+interface UseInitialDebtMutationReturn {
+  setDebt: (houseId: number, data: InitialDebtRequest) => Promise<InitialDebtResponse>;
+  isPending: boolean;
+  data: InitialDebtResponse | null;
+  error: string | null;
+}
+
+/**
+ * Hook para registrar deuda inicial a una casa en un período/concepto.
+ * Hace upsert del house_period_charge con source='manual'.
+ */
+export const useInitialDebtMutation = (): UseInitialDebtMutationReturn => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: ({ houseId, data }: { houseId: number; data: InitialDebtRequest }) =>
+      setInitialDebt(houseId, data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: paymentManagementKeys.houseStatus(variables.houseId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: paymentManagementKeys.periodCharges(),
+      });
+    },
+  });
+
+  return {
+    setDebt: (houseId, data) => mutation.mutateAsync({ houseId, data }),
     isPending: mutation.isPending,
     data: mutation.data || null,
     error: mutation.error?.message || null,

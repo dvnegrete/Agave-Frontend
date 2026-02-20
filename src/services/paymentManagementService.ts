@@ -18,6 +18,8 @@ import type {
   AdjustChargeRequest,
   AdjustChargeResponse,
   ReverseChargeResponse,
+  InitialDebtRequest,
+  InitialDebtResponse,
 } from '@shared/types/payment-management.types';
 
 const API_BASE = '/payment-management';
@@ -333,6 +335,28 @@ export const adjustCharge = async (
     return response;
   } catch (err: unknown) {
     console.error('❌ [Service] Error in adjustCharge:', err);
+    throw err;
+  }
+};
+
+/**
+ * Registrar deuda inicial a una casa en un período/concepto específico.
+ * Hace upsert de house_period_charge con source='manual'.
+ */
+export const setInitialDebt = async (
+  houseId: number,
+  data: InitialDebtRequest,
+  signal?: AbortSignal
+): Promise<InitialDebtResponse> => {
+  try {
+    const response = await httpClient.post<InitialDebtResponse>(
+      `${API_BASE}/houses/${houseId}/initial-debt`,
+      data,
+      { signal }
+    );
+    return response;
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in setInitialDebt:', err);
     throw err;
   }
 };

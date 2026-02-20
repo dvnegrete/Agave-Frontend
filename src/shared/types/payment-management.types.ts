@@ -345,6 +345,25 @@ export interface ReprocessResult {
   };
 }
 
+export interface InitialDebtRequest {
+  period_id: number;
+  concept_type: 'maintenance' | 'water' | 'extraordinary_fee' | 'penalties';
+  amount: number;
+  reason?: string;
+  [key: string]: unknown;
+}
+
+export interface InitialDebtResponse {
+  house_id: number;
+  period_id: number;
+  period_display_name: string;
+  concept_type: string;
+  amount: number;
+  previous_amount: number;
+  action: 'created' | 'updated';
+  message: string;
+}
+
 // Component UI Types
 export type ActiveTab = 'periods' | 'create-period' | 'house-payments' | 'house-balance' | 'unclaimed-deposits' | 'period-charges' | 'admin-operations';
 
