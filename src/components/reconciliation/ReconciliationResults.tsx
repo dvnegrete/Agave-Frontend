@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Tabs, StatsCard, Table, StatusBadge, ReconciliationCard, type TableColumn } from '@shared/ui';
-import { useFormatDate } from '@hooks/useFormatDate';
+import { useFormatDate as formatDate } from '@hooks/useFormatDate';
 import { DateTimeCell } from '@shared/ui';
 import type {
   StartReconciliationResponse,
@@ -9,16 +9,46 @@ import type {
   SurplusTransaction,
 } from '@shared/types/bank-reconciliation.types';
 import { formatCurrency } from '@/utils/formatters';
+import { ModalAssignDepositHouse } from './ModalAssignDepositHouse';
+import { useUnclaimedDepositsMutations } from '@hooks/index';
+import { useAlert } from '@hooks/index';
+import type { UnclaimedDeposit } from '@shared/types/unclaimed-deposits.types';
 
 interface ReconciliationResultsProps {
   result: StartReconciliationResponse;
   reconciling: boolean;
 }
 
+function toModalDeposit(item: SurplusTransaction): UnclaimedDeposit {
+  return {
+    transactionBankId: item.transactionBankId,
+    amount: item.amount,
+    date: item.date,
+    time: item.time ?? '',
+    concept: item.concept ?? null,
+    validationStatus: 'conflict',
+    reason: item.reason,
+    suggestedHouseNumber: item.houseNumber ?? null,
+    conceptHouseNumber: null,
+    processedAt: '',
+  };
+}
+
 export function ReconciliationResults({ result, reconciling }: ReconciliationResultsProps) {
+  const alert = useAlert();
+  const { assignHouse, assigning } = useUnclaimedDepositsMutations();
+  const [selectedDeposit, setSelectedDeposit] = useState<SurplusTransaction | null>(null);
+
   const [activeTab, setActiveTab] = useState<
     'summary' | 'conciliados' | 'unfundedVouchers' | 'unclaimedDeposits' | 'manual'
   >('summary');
+
+  const handleAssignHouse = async (data: { houseNumber: number; adminNotes?: string }) => {
+    if (!selectedDeposit) return;
+    await assignHouse(selectedDeposit.transactionBankId, data);
+    alert.success('Éxito', `Depósito ${selectedDeposit.transactionBankId} asignado a casa ${data.houseNumber}`);
+    setSelectedDeposit(null);
+  };
 
   return (
     <div className="background-general shadow-lg rounded-lg border-4 p-6 mb-6">
@@ -82,7 +112,7 @@ export function ReconciliationResults({ result, reconciling }: ReconciliationRes
         <Table
           columns={[
             { id: 'voucherId', header: 'Voucher ID', align: 'center', render: (item) => item.voucherId ?? 'N/A' },
-            { id: 'date', header: 'Fecha', align: 'center', render: (item) => useFormatDate(item.date) },
+            { id: 'date', header: 'Fecha', align: 'center', render: (item) => formatDate(item.date) },
             { id: 'amount', header: 'Monto', align: 'center', render: (item) => `$${item.amount ? formatCurrency(item.amount) : '0.00'}` },
             { id: 'reason', header: 'Razón', render: (item) => item.reason || 'Sin razón especificada' },
           ] as TableColumn<PendingVoucher>[]}
@@ -102,7 +132,24 @@ export function ReconciliationResults({ result, reconciling }: ReconciliationRes
               id: 'dateTime', header: 'Fecha y Hora', align: 'center',
               render: (item) => <DateTimeCell dateString={item.date} timeString={item.time} variant="compact" showIcon={true} />,
             },
+            {
+              id: 'concept', header: 'Concepto', align: 'left',
+              render: (item) => item.concept
+                ? <span className="text-sm">{item.concept}</span>
+                : <span className="text-foreground-tertiary text-sm">—</span>,
+            },
             { id: 'reason', header: 'Razón', render: (item) => item.reason || 'Sin razón especificada' },
+            {
+              id: 'actions', header: 'Acción', align: 'center',
+              render: (item) => (
+                <button
+                  onClick={() => setSelectedDeposit(item)}
+                  className="text-xs px-2 py-1 rounded bg-info text-white hover:opacity-80 transition-opacity"
+                >
+                  Asignar Casa
+                </button>
+              ),
+            },
           ] as TableColumn<SurplusTransaction>[]}
           data={result.unclaimedDeposits}
           emptyMessage="No hay movimientos bancarios sin asociar/conciliar"
@@ -128,6 +175,13 @@ export function ReconciliationResults({ result, reconciling }: ReconciliationRes
           )}
         </div>
       )}
+
+      <ModalAssignDepositHouse
+        isOpen={!!selectedDeposit}
+        deposit={selectedDeposit ? toModalDeposit(selectedDeposit) : null}
+        onSave={handleAssignHouse}
+        onClose={() => setSelectedDeposit(null)}
+      />
     </div>
   );
 }
