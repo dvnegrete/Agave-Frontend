@@ -26,40 +26,34 @@ interface UseBankReconciliationMutationsReturn {
 export const useBankReconciliationMutations = (): UseBankReconciliationMutationsReturn => {
   const queryClient = useQueryClient();
 
+  const invalidateReconciliationQueries = () => {
+    queryClient.invalidateQueries({ queryKey: ['transactions-bank'] });
+    queryClient.invalidateQueries({ queryKey: ['vouchers'] });
+    queryClient.invalidateQueries({ queryKey: ['unclaimed-deposits'] });
+    queryClient.invalidateQueries({ queryKey: ['unfunded-vouchers'] });
+    queryClient.invalidateQueries({ queryKey: ['manual-validation-pending'] });
+    queryClient.invalidateQueries({ queryKey: ['manual-validation-stats'] });
+    queryClient.invalidateQueries({ queryKey: ['match-suggestions'] });
+  };
+
   const startMutation = useMutation({
     mutationFn: (data?: StartReconciliationRequest) => startReconciliation(data),
-    onSuccess: () => {
-      // Invalidar queries relacionadas después de iniciar conciliación
-      queryClient.invalidateQueries({ queryKey: ['transactions-bank'] });
-      queryClient.invalidateQueries({ queryKey: ['vouchers'] });
-    },
+    onSuccess: invalidateReconciliationQueries,
   });
 
   const reconcileMutation = useMutation({
     mutationFn: (data: ReconcileRequest) => reconcileTransaction(data),
-    onSuccess: () => {
-      // Invalidar queries después de conciliar
-      queryClient.invalidateQueries({ queryKey: ['transactions-bank'] });
-      queryClient.invalidateQueries({ queryKey: ['vouchers'] });
-    },
+    onSuccess: invalidateReconciliationQueries,
   });
 
   const bulkReconcileMutation = useMutation({
     mutationFn: (data: BulkReconcileRequest) => bulkReconcile(data),
-    onSuccess: () => {
-      // Invalidar queries después de conciliación en lote
-      queryClient.invalidateQueries({ queryKey: ['transactions-bank'] });
-      queryClient.invalidateQueries({ queryKey: ['vouchers'] });
-    },
+    onSuccess: invalidateReconciliationQueries,
   });
 
   const undoMutation = useMutation({
     mutationFn: (transactionId: string) => undoReconciliation(transactionId),
-    onSuccess: () => {
-      // Invalidar queries después de deshacer conciliación
-      queryClient.invalidateQueries({ queryKey: ['transactions-bank'] });
-      queryClient.invalidateQueries({ queryKey: ['vouchers'] });
-    },
+    onSuccess: invalidateReconciliationQueries,
   });
 
   return {

@@ -3,7 +3,7 @@ import { useUnclaimedDeposits, useUnclaimedDepositsMutations, useAlert } from '@
 import { Button, Table, StatusBadge, CollapsibleSection, PaginationControls, Modal } from '@shared/ui';
 import type { UnclaimedDepositsItem } from '@shared/types/bank-reconciliation.types';
 import { formatCurrency } from '@/utils/formatters';
-import { useFormatDate } from '@hooks/useFormatDate';
+import { useFormatDate as formatDate } from '@hooks/useFormatDate';
 
 const PAGE_LIMIT = 20;
 
@@ -14,6 +14,7 @@ export function UnclaimedDepositsListSection() {
   const [validationStatus, setValidationStatus] = useState<'all' | 'conflict' | 'not-found'>('all');
   const [selectedDeposit, setSelectedDeposit] = useState<UnclaimedDepositsItem | null>(null);
   const [houseNumber, setHouseNumber] = useState('');
+  const [adminNotes, setAdminNotes] = useState('');
 
   const { data, isLoading, refetch } = useUnclaimedDeposits({ page, limit: PAGE_LIMIT, validationStatus });
   const { assignHouse, assigning } = useUnclaimedDepositsMutations();
@@ -24,10 +25,14 @@ export function UnclaimedDepositsListSection() {
       return;
     }
     try {
-      await assignHouse(selectedDeposit.transactionBankId, { houseNumber: parseInt(houseNumber, 10) });
+      await assignHouse(selectedDeposit.transactionBankId, {
+        houseNumber: parseInt(houseNumber, 10),
+        adminNotes: adminNotes || undefined,
+      });
       alert.success('Éxito', 'Casa asignada exitosamente');
       setSelectedDeposit(null);
       setHouseNumber('');
+      setAdminNotes('');
       refetch();
     } catch (err) {
       console.error('Error assigning house:', err);
@@ -65,9 +70,15 @@ export function UnclaimedDepositsListSection() {
           <>
             <Table
               columns={[
-                { id: 'date', header: 'Fecha', align: 'center', render: (item) => useFormatDate(item.date) },
+                { id: 'date', header: 'Fecha', align: 'center', render: (item) => formatDate(item.date) },
                 { id: 'amount', header: 'Monto', align: 'center', render: (item) => `$${formatCurrency(item.amount)}` },
                 { id: 'concept', header: 'Concepto', align: 'left', render: (item) => item.concept },
+                {
+                  id: 'suggestedHouseNumber',
+                  header: 'Casa Sugerida',
+                  align: 'center',
+                  render: (item) => item.suggestedHouseNumber ? `Casa ${item.suggestedHouseNumber}` : '-',
+                },
                 {
                   id: 'validationStatus',
                   header: 'Estado',
@@ -114,7 +125,7 @@ export function UnclaimedDepositsListSection() {
 
       <Modal
         isOpen={!!selectedDeposit}
-        onClose={() => { setSelectedDeposit(null); setHouseNumber(''); }}
+        onClose={() => { setSelectedDeposit(null); setHouseNumber(''); setAdminNotes(''); }}
         title="Asignar Casa a Depósito"
         maxWidth="sm"
       >
@@ -128,6 +139,12 @@ export function UnclaimedDepositsListSection() {
               <label className="text-sm font-medium">Monto:</label>
               <p className="text-foreground">${formatCurrency(selectedDeposit.amount)}</p>
             </div>
+            {selectedDeposit.suggestedHouseNumber && (
+              <div>
+                <label className="text-sm font-medium">Casa Sugerida:</label>
+                <p className="text-primary font-semibold">Casa {selectedDeposit.suggestedHouseNumber}</p>
+              </div>
+            )}
             <div>
               <label className="text-sm font-medium">Número de Casa (1-66):</label>
               <input
@@ -140,12 +157,22 @@ export function UnclaimedDepositsListSection() {
                 placeholder="Ej: 15"
               />
             </div>
+            <div>
+              <label className="text-sm font-medium">Notas (opcional):</label>
+              <textarea
+                rows={3}
+                className="w-full mt-1 px-3 py-2 border border-base rounded text-sm"
+                value={adminNotes}
+                onChange={(e) => setAdminNotes(e.target.value)}
+                placeholder="Motivo de la asignación manual..."
+              />
+            </div>
             <div className="flex gap-2">
               <Button onClick={handleAssignHouse} variant="success" isLoading={assigning} className="flex-1">
                 Asignar
               </Button>
               <Button
-                onClick={() => { setSelectedDeposit(null); setHouseNumber(''); }}
+                onClick={() => { setSelectedDeposit(null); setHouseNumber(''); setAdminNotes(''); }}
                 variant="info"
                 className="flex-1"
               >
