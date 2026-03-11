@@ -2,6 +2,7 @@ import { httpClient } from '@utils/httpClient';
 import type {
   PeriodResponseDto,
   CreatePeriodDto,
+  UpdatePeriodConceptsRequest,
   PeriodConfigResponseDto,
   CreatePeriodConfigDto,
   PaymentHistoryResponseDTO,
@@ -86,6 +87,28 @@ export const ensurePeriod = async (
     return response;
   } catch (err: unknown) {
     console.error('❌ [Service] Error in ensurePeriod:', err);
+    throw err;
+  }
+};
+
+/**
+ * Actualizar conceptos activos y/o día límite de pago de un período específico.
+ * Endpoint: PATCH /payment-management/periods/:id/concepts
+ */
+export const updatePeriodConcepts = async (
+  periodId: number,
+  data: UpdatePeriodConceptsRequest,
+  signal?: AbortSignal
+): Promise<PeriodResponseDto> => {
+  try {
+    const response = await httpClient.patch<PeriodResponseDto>(
+      `${API_BASE}/periods/${periodId}/concepts`,
+      data,
+      { signal }
+    );
+    return response;
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in updatePeriodConcepts:', err);
     throw err;
   }
 };

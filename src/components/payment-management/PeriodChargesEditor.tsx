@@ -51,6 +51,7 @@ export function PeriodChargesEditor() {
   const [maintenance, setMaintenance] = useState(800);
   const [water, setWater] = useState('');
   const [extraordinary, setExtraordinary] = useState('');
+  const [penalty, setPenalty] = useState('');
 
   // UI state
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -79,7 +80,12 @@ export function PeriodChargesEditor() {
 
   const handleConfirm = async () => {
     try {
-      const amounts: { maintenance_amount: number; water_amount?: number; extraordinary_fee_amount?: number } = {
+      const amounts: {
+        maintenance_amount: number;
+        water_amount?: number;
+        extraordinary_fee_amount?: number;
+        penalty_amount?: number;
+      } = {
         maintenance_amount: maintenance,
       };
 
@@ -88,6 +94,9 @@ export function PeriodChargesEditor() {
       }
       if (extraordinary !== '') {
         amounts.extraordinary_fee_amount = parseFloat(extraordinary);
+      }
+      if (penalty !== '') {
+        amounts.penalty_amount = parseFloat(penalty);
       }
 
       const result = await batchUpdate({
@@ -302,7 +311,7 @@ export function PeriodChargesEditor() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
           {/* Mantenimiento */}
           <div>
             <label className="block text-sm font-semibold text-foreground mb-2">
@@ -327,7 +336,7 @@ export function PeriodChargesEditor() {
             <label className="block text-sm font-semibold text-foreground mb-2">
               Agua
               <span className="text-xs text-foreground/50 ml-1">
-                (0 = desactivar, vacio = no cambiar)
+                (0 = desactivar, vacío = no cambiar)
               </span>
             </label>
             <div className="relative">
@@ -350,7 +359,7 @@ export function PeriodChargesEditor() {
             <label className="block text-sm font-semibold text-foreground mb-2">
               Cuota Extraordinaria
               <span className="text-xs text-foreground/50 ml-1">
-                (0 = desactivar, vacio = no cambiar)
+                (0 = desactivar, vacío = no cambiar)
               </span>
             </label>
             <div className="relative">
@@ -363,6 +372,29 @@ export function PeriodChargesEditor() {
                 className="w-full rounded-lg border border-foreground/20 bg-base pl-7 pr-3 py-2 text-foreground"
                 value={extraordinary}
                 onChange={(e) => setExtraordinary(e.target.value)}
+                placeholder="No cambiar"
+              />
+            </div>
+          </div>
+
+          {/* Penalización */}
+          <div>
+            <label className="block text-sm font-semibold text-foreground mb-2">
+              Penalización
+              <span className="text-xs text-foreground/50 ml-1">
+                (0 = eliminar, vacío = no cambiar)
+              </span>
+            </label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/50">
+                $
+              </span>
+              <input
+                type="number"
+                min="0"
+                className="w-full rounded-lg border border-foreground/20 bg-base pl-7 pr-3 py-2 text-foreground"
+                value={penalty}
+                onChange={(e) => setPenalty(e.target.value)}
                 placeholder="No cambiar"
               />
             </div>
@@ -416,6 +448,14 @@ export function PeriodChargesEditor() {
                     {Number(extraordinary) === 0
                       ? 'Desactivar'
                       : formatCurrency(Number(extraordinary))}
+                  </li>
+                )}
+                {penalty !== '' && (
+                  <li>
+                    Penalización:{' '}
+                    {Number(penalty) === 0
+                      ? 'Eliminar penalizaciones existentes'
+                      : formatCurrency(Number(penalty))}
                   </li>
                 )}
               </ul>

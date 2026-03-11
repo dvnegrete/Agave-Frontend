@@ -4,11 +4,13 @@ import {
   createPeriod,
   ensurePeriod,
   createPeriodConfig,
+  updatePeriodConcepts,
 } from '@services/paymentManagementService';
 import type {
   CreatePeriodDto,
   CreatePeriodConfigDto,
   PeriodResponseDto,
+  UpdatePeriodConceptsRequest,
 } from '@shared';
 import { paymentManagementKeys } from './keys';
 
@@ -70,6 +72,24 @@ export const usePeriodMutations = (): UsePeriodMutationsReturn => {
     ensurePeriod: ensurePeriodMutation.mutateAsync,
     isLoading: createPeriodMutation.isPending || ensurePeriodMutation.isPending,
     error: createPeriodMutation.error?.message || ensurePeriodMutation.error?.message || null,
+  };
+};
+
+export const useUpdatePeriodConceptsMutation = () => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: ({ periodId, data }: { periodId: number; data: UpdatePeriodConceptsRequest }) =>
+      updatePeriodConcepts(periodId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: paymentManagementKeys.periods() });
+    },
+  });
+
+  return {
+    updateConcepts: mutation.mutateAsync,
+    isPending: mutation.isPending,
+    error: mutation.error?.message || null,
   };
 };
 

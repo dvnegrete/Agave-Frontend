@@ -9,6 +9,7 @@ export {
   usePeriodsQuery,
   usePeriodMutations,
   usePeriodConfigMutations,
+  useUpdatePeriodConceptsMutation,
 } from './payment-management/usePeriodHooks';
 
 export {
