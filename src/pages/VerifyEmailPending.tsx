@@ -25,7 +25,7 @@ export function VerifyEmailPending() {
         <div className="w-full max-w-md">
           <div className="bg-secondary border-2 border-primary rounded-lg p-8 shadow-xl text-center space-y-4">
             <div className="flex justify-center">
-              <div className="flex items-center justify-center w-16 h-16 rounded-full bg-error/20">
+              <div className="flex items-center justify-center w-16 h-16 rounded-full">
                 <span className="text-3xl text-error">✕</span>
               </div>
             </div>

@@ -1,5 +1,128 @@
 // Payment Management Types
 
+// House Balance Status (from backend enums)
+export type HouseStatus = 'morosa' | 'al_dia' | 'saldo_a_favor';
+export type PeriodPaymentStatus = 'paid' | 'partial' | 'unpaid';
+
+// Admin Operations Types
+export interface InitialBalanceRequest {
+  amount: number;
+  reason?: string;
+  [key: string]: unknown;
+}
+
+export interface InitialBalanceResponse {
+  house_id: number;
+  house_number: number;
+  amount_added: number;
+  reason: string;
+  credit_distribution: CreditApplicationResult;
+  balance_after: {
+    credit_balance: number;
+  };
+}
+
+export interface CreditApplicationResult {
+  house_id: number;
+  credit_before: number;
+  credit_after: number;
+  total_applied: number;
+  allocations_created: CreditAllocationDetail[];
+  periods_covered: number;
+  periods_partially_covered: number;
+}
+
+export interface CreditAllocationDetail {
+  period_id: number;
+  concept_type: string;
+  allocated_amount: number;
+  expected_amount: number;
+  is_complete: boolean;
+}
+
+export interface CondonePenaltyResponse {
+  houseId: number;
+  periodId: number;
+  condonedAmount: number;
+  message: string;
+}
+
+export interface AdjustChargeRequest {
+  new_amount: number;
+  [key: string]: unknown;
+}
+
+export interface AdjustChargeResponse {
+  chargeId: number;
+  houseId: number;
+  periodId: number;
+  conceptType: string;
+  previousAmount: number;
+  newAmount: number;
+  difference: number;
+  isPaid: boolean;
+}
+
+export interface ReverseChargeResponse {
+  chargeId: number;
+  houseId: number;
+  periodId: number;
+  conceptType: string;
+  removedAmount: number;
+  message: string;
+}
+
+export interface ConceptBreakdown {
+  concept_type: string;
+  expected_amount: number;
+  paid_amount: number;
+  pending_amount: number;
+}
+
+export interface PeriodPaymentDetail {
+  period_id: number;
+  year: number;
+  month: number;
+  display_name: string;
+  expected_total: number;
+  paid_total: number;
+  pending_total: number;
+  penalty_amount: number;
+  status: PeriodPaymentStatus;
+  concepts: ConceptBreakdown[];
+  is_overdue: boolean;
+}
+
+export interface MorosidadReason {
+  period_display_name: string;
+  concept_type: string;
+  pending_amount: number;
+}
+
+export interface EnrichedHouseBalance {
+  house_id: number;
+  house_number: number;
+  status: HouseStatus;
+  total_debt: number;
+  credit_balance: number;
+  accumulated_cents: number;
+  unpaid_periods: PeriodPaymentDetail[];
+  paid_periods: PeriodPaymentDetail[];
+  upcoming_periods?: PeriodPaymentDetail[];
+  current_period: PeriodPaymentDetail | null;
+  next_due_date: string | null;
+  deadline_message: string | null;
+  bank_coverage_date?: string | null;
+  total_unpaid_periods: number;
+  morosidad_reasons: MorosidadReason[];
+  summary: {
+    total_expected: number;
+    total_paid: number;
+    total_pending: number;
+    total_penalties: number;
+  };
+}
+
 // Period Types
 export interface PeriodResponseDto {
   id: number;
@@ -157,8 +280,92 @@ export interface PaymentManagementQuery {
   [key: string]: unknown;
 }
 
+// Backfill Allocations Types
+export interface BackfillRecordResult {
+  record_id: number;
+  house_number: number;
+  transaction_date: string;
+  period_year: number;
+  period_month: number;
+  amount: number;
+  status: 'processed' | 'skipped' | 'failed';
+  error?: string;
+}
+
+export interface BackfillAllocationsResponse {
+  total_records_found: number;
+  processed: number;
+  skipped: number;
+  failed: number;
+  results: BackfillRecordResult[];
+}
+
+// Period Charges Editor Types
+export interface PeriodChargeSummary {
+  period_id: number;
+  year: number;
+  month: number;
+  display_name: string;
+  maintenance_amount: number;
+  water_amount: number | null;
+  extraordinary_fee_amount: number | null;
+  water_active: boolean;
+  extraordinary_fee_active: boolean;
+  has_allocations: boolean;
+}
+
+export interface BatchUpdatePeriodChargesRequest {
+  start_year: number;
+  start_month: number;
+  end_year: number;
+  end_month: number;
+  amounts: {
+    maintenance_amount: number;
+    water_amount?: number;
+    extraordinary_fee_amount?: number;
+  };
+  [key: string]: unknown;
+}
+
+export interface BatchUpdateResult {
+  periods_affected: number;
+  periods_created: number;
+  charges_updated: number;
+  has_retroactive_changes: boolean;
+}
+
+export interface ReprocessResult {
+  allocations_deleted: number;
+  balances_reset: number;
+  backfill_result: {
+    total_records_found: number;
+    processed: number;
+    skipped: number;
+    failed: number;
+  };
+}
+
+export interface InitialDebtRequest {
+  period_id: number;
+  concept_type: 'maintenance' | 'water' | 'extraordinary_fee' | 'penalties';
+  amount: number;
+  reason?: string;
+  [key: string]: unknown;
+}
+
+export interface InitialDebtResponse {
+  house_id: number;
+  period_id: number;
+  period_display_name: string;
+  concept_type: string;
+  amount: number;
+  previous_amount: number;
+  action: 'created' | 'updated';
+  message: string;
+}
+
 // Component UI Types
-export type ActiveTab = 'periods' | 'create-period' | 'house-payments' | 'house-balance' | 'unclaimed-deposits';
+export type ActiveTab = 'periods' | 'create-period' | 'house-payments' | 'house-balance' | 'unclaimed-deposits' | 'period-charges' | 'admin-operations';
 
 // Balance Status Variants
 export type BalanceStatusVariant = 'success' | 'info' | 'error' | 'warning';

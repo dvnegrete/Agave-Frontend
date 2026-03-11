@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import type {
   BankTransaction,
+  UploadedTransaction,
   TransactionsBankQuery,
   TransactionsBankResponse,
   UploadTransactionsResponse,
@@ -9,6 +10,7 @@ import type {
 import {
   getTransactionsBank,
   uploadTransactionsBank,
+  getLastProcessedTransaction,
 } from '@services/transactionBankService';
 
 interface UseTransactionsBankReturn {
@@ -24,6 +26,13 @@ interface UseUploadTransactionsReturn {
   uploadError: string | null;
   uploadResult: UploadTransactionsResponse | null;
   reset: () => void;
+}
+
+interface UseLastProcessedTransactionReturn {
+  lastTransaction: UploadedTransaction | null;
+  loading: boolean;
+  error: string | null;
+  refetch: () => Promise<void>;
 }
 
 export const useTransactionsBank = (query?: TransactionsBankQuery): UseTransactionsBankReturn => {
@@ -126,5 +135,35 @@ export const useUploadTransactions = (): UseUploadTransactionsReturn => {
     uploadError,
     uploadResult,
     reset,
+  };
+};
+
+export const useLastProcessedTransaction = (): UseLastProcessedTransactionReturn => {
+  const {
+    data,
+    isLoading: loading,
+    error: queryError,
+    refetch: refetchQuery,
+  } = useQuery<{ lastTransaction: UploadedTransaction | null }>({
+    queryKey: ['last-processed-transaction'],
+    queryFn: async ({ signal }) => {
+      return getLastProcessedTransaction(signal);
+    },
+    staleTime: 1 * 60 * 1000, // 1 minuto
+    refetchOnWindowFocus: false,
+  });
+
+  const error = queryError instanceof Error ? queryError.message : null;
+  const lastTransaction = data?.lastTransaction || null;
+
+  const refetch = async (): Promise<void> => {
+    await refetchQuery();
+  };
+
+  return {
+    lastTransaction,
+    loading,
+    error,
+    refetch,
   };
 };

@@ -50,7 +50,8 @@ export interface SurplusTransaction {
   transactionBankId: string;
   amount: number;
   date: string;
-  time?: string; // Formato HH:MM:SS desde la API (opcional)
+  time?: string;
+  concept?: string;
   reason: string;
   requiresManualReview?: boolean;
   houseNumber?: number;

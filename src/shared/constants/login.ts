@@ -21,4 +21,11 @@ export const LOGIN_UI_TEXTS = {
   HOME_LINK: 'Volver al inicio',
   SIGNUP_LINK: '✍️ Crear una cuenta',
   ERROR_TITLE: 'Error de autenticación',
+  FORGOT_PASSWORD_LINK: '¿Olvidaste tu contraseña?',
+  // OAuth house number step
+  OAUTH_HOUSE_NUMBER_TITLE: 'Completa tu registro',
+  OAUTH_HOUSE_NUMBER_SUBTITLE: 'Indica el número de tu casa en el condominio (opcional).',
+  OAUTH_HOUSE_NUMBER_SUBMIT_IDLE: 'Continuar',
+  OAUTH_HOUSE_NUMBER_SUBMIT_LOADING: 'Registrando...',
+  OAUTH_HOUSE_NUMBER_SKIP: 'Omitir por ahora',
 } as const;

@@ -4,6 +4,7 @@ import { Button, Table, DateTimeCell } from '@shared';
 import type { TableColumn } from '@shared/ui';
 import type { UnclaimedDeposit, UnclaimedDepositsPage, DepositAssignHouseRequest, } from '@shared';
 import { unclaimedDepositsService } from '@services/unclaimedDepositsService';
+import { formatCurrency } from '@/utils/formatters';
 
 interface UnclaimedDepositsSectionProps {
   onDepositAssigned?: () => void;
@@ -80,7 +81,7 @@ export function UnclaimedDepositsSection({ onDepositAssigned }: UnclaimedDeposit
       id: 'amount',
       header: 'Monto',
       align: 'right',
-      render: (item) => `$${item.amount.toFixed(2)}`,
+      render: (item) => `$${formatCurrency(item.amount)}`,
     },
     {
       id: 'dateTime',
@@ -140,7 +141,7 @@ export function UnclaimedDepositsSection({ onDepositAssigned }: UnclaimedDeposit
         <h3 className="text-lg font-semibold flex items-center gap-2">
           <span>🏦 Depósitos No Reclamados</span>
           {data && (
-            <span className="bg-warning/20 text-warning px-3 py-1 rounded-full text-sm font-bold">
+            <span className="text-warning px-3 py-1 rounded-full text-sm font-bold">
               {data.totalCount}
             </span>
           )}
@@ -176,7 +177,7 @@ export function UnclaimedDepositsSection({ onDepositAssigned }: UnclaimedDeposit
       {isExpanded && data && (
         <>
           {data.items.length === 0 ? (
-            <div className="bg-success/10 border border-success rounded-lg p-8 text-center">
+            <div className="border border-success rounded-lg p-8 text-center">
               <p className="text-success font-semibold text-lg">✅ No hay depósitos no reclamados</p>
               <p className="text-foreground-secondary text-sm mt-2">Todos los depósitos han sido asignados correctamente</p>
             </div>

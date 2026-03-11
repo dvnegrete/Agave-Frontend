@@ -61,6 +61,7 @@ export interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   loginWithOAuth: (provider: 'google' | 'facebook') => Promise<void>;
+  completeOAuthRegistration: (idToken: string, houseNumber?: number) => Promise<void>;
   logout: () => void;
   updateUser: (user: User) => void;
 }

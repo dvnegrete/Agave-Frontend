@@ -17,6 +17,8 @@ import {
   VerifyEmailPending,
   ExpenseReport,
   MyHousePayments,
+  ForgotPassword,
+  ChangePassword,
 } from '@pages/index'
 import { ProtectedRoute } from '@components/index'
 import { ROUTES } from '@/shared'
@@ -32,8 +34,8 @@ export const createAppRoutes = (Layout: (props: BaseLayoutProps) => React.ReactN
     <Route path={ROUTES.EMAIL_CONFIRMATION} element={<EmailConfirmation />} />
     <Route path={ROUTES.EMAIL_VERIFICATION} element={<EmailVerification />} />
     <Route path={ROUTES.VERIFY_EMAIL_PENDING} element={<Layout><VerifyEmailPending /></Layout>} />
-    <Route path={ROUTES.VOUCHER_UPLOAD} element={<Layout><VoucherUpload /></Layout>}
-    />
+    <Route path={ROUTES.VOUCHER_UPLOAD} element={<Layout><VoucherUpload /></Layout>} />
+    <Route path={ROUTES.FORGOT_PASSWORD} element={<Layout><ForgotPassword /></Layout>} />
 
     {/* Protected routes */}
     <Route
@@ -105,6 +107,14 @@ export const createAppRoutes = (Layout: (props: BaseLayoutProps) => React.ReactN
       element={
         <ProtectedRoute>
           <Layout><MyHousePayments /></Layout>
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path={ROUTES.CHANGE_PASSWORD}
+      element={
+        <ProtectedRoute>
+          <Layout><ChangePassword /></Layout>
         </ProtectedRoute>
       }
     />

@@ -122,7 +122,7 @@ export function HistoricalRecordsUpload() {
 
           {/* Error Message */}
           {(error || uploadError) && (
-            <div className="bg-error/10 border-l-4 border-error rounded-lg p-4 mb-4 flex items-start gap-3">
+            <div className="border-l-4 border-error rounded-lg p-4 mb-4 flex items-start gap-3">
               <span className="text-error text-xl">❌</span>
               <div className="flex-1">
                 <p className="text-error font-semibold">Error</p>

@@ -58,7 +58,7 @@ export function UserManagement() {
   if (!currentUser?.role || !isAdmin(currentUser.role)) {
     return (
       <div className="container mx-auto p-6">
-        <div className="bg-error/20 border-2 border-error text-error rounded-lg p-6 text-center">
+        <div className="border-2 border-error text-error rounded-lg p-6 text-center">
           <div className="text-3xl mb-2">⛔</div>
           <h2 className="text-xl font-bold mb-2">Acceso Denegado</h2>
           <p className="text-sm">Solo administradores pueden acceder a esta página.</p>
@@ -126,7 +126,7 @@ export function UserManagement() {
 
       {/* Error Banner */}
       {error && (
-        <div className="bg-error/20 border-2 border-error text-error rounded-lg p-4 mb-6 flex items-start gap-3">
+        <div className="border-2 border-error text-error rounded-lg p-4 mb-6 flex items-start gap-3">
           <span className="text-2xl">❌</span>
           <div>
             <h3 className="font-bold">Error</h3>

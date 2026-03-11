@@ -72,7 +72,7 @@ export function ModalRemoveHouse({
 
         {/* Error Message */}
         {error && (
-          <div className="bg-error/20 border border-error text-error p-3 rounded mb-4 text-sm">
+          <div className="border border-error text-error p-3 rounded mb-4 text-sm">
             ❌ {error}
           </div>
         )}

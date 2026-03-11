@@ -68,6 +68,12 @@ export type {
 
 // Payment management types
 export type {
+  HouseStatus,
+  PeriodPaymentStatus,
+  MorosidadReason,
+  ConceptBreakdown,
+  PeriodPaymentDetail,
+  EnrichedHouseBalance,
   PeriodResponseDto,
   CreatePeriodDto,
   PeriodConfigResponseDto,
@@ -87,6 +93,22 @@ export type {
   ActiveTab as PaymentActiveTab,
   BalanceStatusVariant,
   PaymentMovement,
+  BackfillRecordResult,
+  BackfillAllocationsResponse,
+  PeriodChargeSummary,
+  BatchUpdatePeriodChargesRequest,
+  BatchUpdateResult,
+  ReprocessResult,
+  InitialBalanceRequest,
+  InitialBalanceResponse,
+  CreditApplicationResult,
+  CreditAllocationDetail,
+  CondonePenaltyResponse,
+  AdjustChargeRequest,
+  AdjustChargeResponse,
+  ReverseChargeResponse,
+  InitialDebtRequest,
+  InitialDebtResponse,
 } from './payment-management.types';
 
 // Historical records types
