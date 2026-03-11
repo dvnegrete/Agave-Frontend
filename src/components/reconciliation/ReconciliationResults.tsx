@@ -36,16 +36,22 @@ function toModalDeposit(item: SurplusTransaction): UnclaimedDeposit {
 
 export function ReconciliationResults({ result, reconciling }: ReconciliationResultsProps) {
   const alert = useAlert();
-  const { assignHouse, assigning } = useUnclaimedDepositsMutations();
+  const { assignHouse } = useUnclaimedDepositsMutations();
   const [selectedDeposit, setSelectedDeposit] = useState<SurplusTransaction | null>(null);
+  const [assignedIds, setAssignedIds] = useState<Set<string>>(new Set());
 
   const [activeTab, setActiveTab] = useState<
     'summary' | 'conciliados' | 'unfundedVouchers' | 'unclaimedDeposits' | 'manual'
   >('summary');
 
+  const pendingDeposits = result.unclaimedDeposits.filter(
+    (d) => !assignedIds.has(d.transactionBankId),
+  );
+
   const handleAssignHouse = async (data: { houseNumber: number; adminNotes?: string }) => {
     if (!selectedDeposit) return;
     await assignHouse(selectedDeposit.transactionBankId, data);
+    setAssignedIds((prev) => new Set(prev).add(selectedDeposit.transactionBankId));
     alert.success('Éxito', `Depósito ${selectedDeposit.transactionBankId} asignado a casa ${data.houseNumber}`);
     setSelectedDeposit(null);
   };
@@ -59,7 +65,7 @@ export function ReconciliationResults({ result, reconciling }: ReconciliationRes
           { id: 'summary', label: 'Resumen', icon: '📊', color: 'blue' },
           { id: 'conciliados', label: 'Conciliados', icon: '✅', badge: result.conciliados.length, color: 'green' },
           { id: 'unfundedVouchers', label: 'Comprobantes NO Conciliados', icon: '⏳', badge: result.unfundedVouchers.length, color: 'yellow' },
-          { id: 'unclaimedDeposits', label: 'Depósitos NO Asociados', icon: '➕', badge: result.unclaimedDeposits.length, color: 'orange' },
+          { id: 'unclaimedDeposits', label: 'Depósitos NO Asociados', icon: '➕', badge: pendingDeposits.length, color: 'orange' },
           { id: 'manual', label: 'Validación Manual', icon: '🔍', badge: result.manualValidationRequired.length, color: 'red' },
         ]}
         activeTab={activeTab}
@@ -151,8 +157,8 @@ export function ReconciliationResults({ result, reconciling }: ReconciliationRes
               ),
             },
           ] as TableColumn<SurplusTransaction>[]}
-          data={result.unclaimedDeposits}
-          emptyMessage="No hay movimientos bancarios sin asociar/conciliar"
+          data={pendingDeposits}
+          emptyMessage="✅ Todos los depósitos han sido asignados"
           headerVariant="warning"
           hoverable
         />
