@@ -5,6 +5,8 @@
  */
 
 export { AlertDialog } from './AlertDialog';
+export { CollapsibleSection } from './CollapsibleSection';
+export { PaginationControls } from './PaginationControls';
 export type { AlertVariant, AlertConfig } from './AlertDialog';
 export { BankSelector } from './BankSelector';
 export { Button } from './Button';

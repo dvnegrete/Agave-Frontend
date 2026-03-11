@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUploadTransactions, useTransactionsBank } from '@hooks/useTransactionsBank';
+import { useUploadTransactions, useTransactionsBank, useLastProcessedTransaction } from '@hooks/useTransactionsBank';
 import { useFormatDate } from '@hooks/useFormatDate';
 import { useAlert } from '@hooks/useAlert';
 import {
@@ -15,6 +15,7 @@ import {
 } from '@shared/ui';
 import type { BankTransaction } from '@shared/types/bank-transactions.types';
 import { ROUTES, PREDEFINED_BANKS, BANKS } from '@shared/constants';
+import { formatCurrency } from '@/utils/formatters';
 
 // Type for transaction with additional optional fields
 type TransactionWithExtras = BankTransaction & {
@@ -73,6 +74,7 @@ export function TransactionUpload() {
   const navigate = useNavigate();
   const alert = useAlert();
   const { upload, uploading, uploadResult, uploadError, reset } = useUploadTransactions();
+  const { lastTransaction, loading: lastTxLoading, error: lastTxError, refetch: refetchLastTx } = useLastProcessedTransaction();
 
   // Upload state
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -92,9 +94,9 @@ export function TransactionUpload() {
     () =>
       filtersApplied
         ? {
-            startDate: dateFrom,
-            endDate: dateTo,
-          }
+          startDate: dateFrom,
+          endDate: dateTo,
+        }
         : undefined,
     [filtersApplied, dateFrom, dateTo]
   );
@@ -238,7 +240,7 @@ export function TransactionUpload() {
 
             {/* Upload Error */}
             {uploadError && (
-              <div className="mt-4 bg-error/10 border border-error text-error px-4 py-3 rounded">
+              <div className="mt-4 border border-error text-error px-4 py-3 rounded">
                 Error: {uploadError}
               </div>
             )}
@@ -296,7 +298,7 @@ export function TransactionUpload() {
                   <h4 className="text-sm font-semibold text-error mb-2">
                     Errores ({uploadResult.errors.length}):
                   </h4>
-                  <div className="bg-error/10 border border-error rounded p-3 max-h-32 overflow-y-auto">
+                  <div className="border border-error rounded p-3 max-h-32 overflow-y-auto">
                     <ul className="space-y-1 text-xs text-error">
                       {uploadResult.errors.map((err, idx) => (
                         <li key={idx}>• {typeof err === 'string' ? err : JSON.stringify(err)}</li>
@@ -370,7 +372,7 @@ export function TransactionUpload() {
             </div>
 
             {/* Filter Actions */}
-            <div className="flex gap-3">
+            <div className="flex gap-3 mb-4">
               <Button
                 onClick={handleApplyFilters}
                 disabled={loading}
@@ -386,11 +388,51 @@ export function TransactionUpload() {
               >
                 ↺ Limpiar
               </Button>
+              <Button
+                onClick={() => refetchLastTx()}
+                disabled={lastTxLoading}
+                isLoading={lastTxLoading}
+                variant="sameUi"
+              >
+                📥 Última Transacción
+              </Button>
             </div>
+
+            {/* Last Processed Transaction Display */}
+            {lastTransaction && (
+              <div className="bg-tertiary p-4 rounded mb-4 border-l-4 border-success">
+                <p className="text-sm font-semibold text-foreground mb-2">Última transacción procesada:</p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                  <div>
+                    <span className="text-foreground-secondary">Fecha:</span>
+                    <p className="font-semibold">{useFormatDate(String(lastTransaction.date))}</p>
+                  </div>
+                  <div>
+                    <span className="text-foreground-secondary">Hora:</span>
+                    <p className="font-semibold">{String(lastTransaction.time || '—')}</p>
+                  </div>
+                  <div>
+                    <span className="text-foreground-secondary">Monto:</span>
+                    <p className="font-semibold text-success">${formatCurrency(Number(lastTransaction.amount))} {String(lastTransaction.currency)}</p>
+                  </div>
+                  <div>
+                    <span className="text-foreground-secondary">Banco:</span>
+                    <p className="font-semibold">{String(lastTransaction.bank_name || '—')}</p>
+                  </div>
+                </div>
+                <p className="text-xs text-foreground-secondary mt-2">{String(lastTransaction.concept)}</p>
+              </div>
+            )}
+
+            {lastTxError && (
+              <div className="mt-4 border border-error text-error px-4 py-3 rounded text-sm">
+                {lastTxError}
+              </div>
+            )}
 
             {/* Error Message */}
             {error && (
-              <div className="mt-4 bg-error/10 border border-error text-error px-4 py-3 rounded text-sm">
+              <div className="mt-4 border border-error text-error px-4 py-3 rounded text-sm">
                 {error}
               </div>
             )}
@@ -456,7 +498,7 @@ export function TransactionUpload() {
                         const currency = getTransactionCurrency(txn);
                         return (
                           <span className={isDeposit ? 'text-success font-bold' : 'text-error font-bold'}>
-                            {isDeposit ? '+' : '-'}${Math.abs(amount).toFixed(2)} {currency}
+                            {isDeposit ? '+' : '-'}${formatCurrency(Math.abs(amount))} {currency}
                           </span>
                         );
                       },

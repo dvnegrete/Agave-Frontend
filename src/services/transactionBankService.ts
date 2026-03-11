@@ -2,6 +2,7 @@ import { httpClient } from '@utils/httpClient';
 import { API_ENDPOINTS } from '@config/api';
 import type {
   BankTransaction,
+  UploadedTransaction,
   TransactionsBankQuery,
   TransactionsBankResponse,
   UploadTransactionsResponse,
@@ -115,6 +116,23 @@ export const getExpensesByMonth = async (
     return httpClient.get<ExpensesByMonthResponse>(endpoint, { signal });
   } catch (err: unknown) {
     console.error('❌ [Service] Error in getExpensesByMonth:', err);
+    throw err;
+  }
+};
+
+/**
+ * Get the last processed bank transaction
+ */
+export const getLastProcessedTransaction = async (
+  signal?: AbortSignal
+): Promise<{ lastTransaction: UploadedTransaction | null }> => {
+  try {
+    return httpClient.get<{ lastTransaction: UploadedTransaction | null }>(
+      API_ENDPOINTS.transactionsBankLastProcessed,
+      { signal }
+    );
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in getLastProcessedTransaction:', err);
     throw err;
   }
 };

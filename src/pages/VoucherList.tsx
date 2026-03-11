@@ -6,6 +6,7 @@ import { useAlert } from '@hooks/useAlert';
 import { getVoucherById } from '@services/voucherService';
 import { Button, StatusBadge, ExpandableTable, type ExpandableTableColumn } from '@shared/ui';
 import type { Voucher } from '@shared';
+import { formatCurrency } from '@/utils/formatters';
 
 export function VoucherList() {
   const alert = useAlert();
@@ -104,7 +105,7 @@ export function VoucherList() {
 
   if (error) {
     return (
-      <div className="bg-error/20 border border-error text-error px-4 py-3 rounded">
+      <div className="border border-error text-error px-4 py-3 rounded">
         Error: {error}
       </div>
     );
@@ -136,7 +137,7 @@ export function VoucherList() {
       id: 'amount',
       header: 'Monto',
       align: 'center',
-      render: (voucher: Voucher) => `$${voucher.amount.toFixed(2)}`,
+      render: (voucher: Voucher) => `$${formatCurrency(voucher.amount)}`,
       className: 'font-bold text-primary-light',
     },
     {
@@ -225,7 +226,7 @@ export function VoucherList() {
       )}
 
       {error && (
-        <div className="bg-error/20 border border-error text-error px-4 py-3 rounded">
+        <div className="border border-error text-error px-4 py-3 rounded">
           Error: {error}
         </div>
       )}

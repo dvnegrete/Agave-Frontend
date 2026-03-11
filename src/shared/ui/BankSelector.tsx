@@ -16,18 +16,18 @@ export function BankSelector({
   onCustomChange,
   predefinedBanks,
   disabled = false,
-  customPlaceholder = 'Ej: Scotiabank, Inbursa, HSBC',
+  customPlaceholder = 'Ej: Scotiabank, Efectivo',
   customHint = '💡 Ingresa el nombre exacto del banco para identificar la fuente de los registros',
 }: BankSelectorProps) {
   return (
-    <div className="mb-6 p-4 bg-info border border-info rounded-lg">
+    <div className="h-fit bg-secondary mb-6 p-4 border border-info rounded-lg">
       <label className="block text-sm font-semibold text-foreground mb-4">
         🏦 Selecciona el Banco Origen:
       </label>
 
       {/* Predefined Banks */}
       <div className="mb-4">
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col justify-around sm:flex-row gap-4">
           {predefinedBanks.map((bank) => (
             <label key={bank} className="flex items-center cursor-pointer">
               <input
@@ -63,8 +63,8 @@ export function BankSelector({
 
       {/* Custom Bank Input */}
       {value === 'custom' && (
-        <div className="mt-4 p-3 bg-base border border-light rounded-md">
-          <label className="block text-xs font-semibold text-info mb-2 uppercase tracking-wide">
+        <div className="mt-4 p-3 border border-light rounded-md">
+          <label className="block text-xs font-semibold mb-2 uppercase tracking-wide">
             Nombre del Banco
           </label>
           <input
@@ -73,7 +73,7 @@ export function BankSelector({
             onChange={(e) => onCustomChange(e.target.value)}
             placeholder={customPlaceholder}
             disabled={disabled}
-            className="w-full px-3 py-2 border border-base rounded-md bg-secondary text-info focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full px-3 py-2 border border-primary rounded-md bg-tertiary focus:outline-none focus:ring-2 focus:ring-primary"
           />
           <p className="text-xs text-foreground-secondary mt-2">{customHint}</p>
         </div>

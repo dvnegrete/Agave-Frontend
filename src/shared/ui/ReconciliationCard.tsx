@@ -22,7 +22,7 @@ export function ReconciliationCard({
   isProcessing = false,
 }: ReconciliationCardProps) {
   return (
-    <div className="border border-error/30 rounded-lg p-4 bg-error/5">
+    <div className="border border-error/30 rounded-lg p-4">
       <div className="mb-3">
         <h3 className="font-semibold text-error">
           Transacción Bancaria #{transactionBankId}

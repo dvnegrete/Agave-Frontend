@@ -11,6 +11,8 @@ export const API_ENDPOINTS = {
   authSignOut: '/auth/signout',
   authVerifyEmail: '/auth/verify-email',
   authResendVerificationEmail: '/auth/resend-verification-email',
+  authForgotPassword: '/auth/forgot-password',
+  authChangePassword: '/auth/password',
 
   // Vouchers
   vouchers: '/vouchers',
@@ -22,6 +24,7 @@ export const API_ENDPOINTS = {
   transactionsBankUpload: '/transactions-bank/upload',
   transactionsBank: '/transactions-bank',
   transactionsBankExpenses: '/transactions-bank/expenses',
+  transactionsBankLastProcessed: '/transactions-bank/last-processed',
 
   // Bank Reconciliation
   bankReconciliation: '/bank-reconciliation',
@@ -34,6 +37,7 @@ export const API_ENDPOINTS = {
   paymentManagementConfig: '/payment-management/config',
   paymentManagementHousePayments: (houseId: number) => `/payment-management/houses/${houseId}/payments`,
   paymentManagementHouseBalance: (houseId: number) => `/payment-management/houses/${houseId}/balance`,
+  paymentManagementHouseStatus: (houseId: number) => `/payment-management/houses/${houseId}/status`,
 
   // User Management
   userManagementUsers: '/user-management/users',
