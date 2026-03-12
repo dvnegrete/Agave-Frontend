@@ -14,6 +14,7 @@ export interface User {
   cel_phone: number | null;
   houses: number[]; // Array of house numbers
   observations: string | null;
+  auth_provider: string | null;
   created_at: string;
   updated_at: string;
 }
