@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Button, FormInput, GoogleLoginButton } from '@/shared/ui';
 import { ROUTES, LOGIN_UI_TEXTS, HOUSE_NUMBER_RANGE, SIGNUP_UI_TEXTS, VALIDATION_MESSAGES } from '@/shared';
 import { useLogin } from '@hooks/useLogin';
-import { warmupBackend } from '@services/warmupService';
+import { warmupBackendWithRetry } from '@services/warmupService';
 
 export function Login() {
   const [email, setEmail] = useState('');
@@ -23,7 +23,7 @@ export function Login() {
 
   // Warmup del backend cuando se carga la página de login
   useEffect(() => {
-    warmupBackend().catch(() => {
+    warmupBackendWithRetry().catch(() => {
       // Ignorar errores silenciosamente
     });
   }, []);

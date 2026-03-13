@@ -73,6 +73,31 @@ export const signUp = async (
 };
 
 /**
+ * Reintenta una función async si el error contiene un código HTTP 502 o 503
+ * (backend o BD en estado sleeping)
+ */
+async function retryOnServiceUnavailable<T>(
+  fn: () => Promise<T>,
+  maxRetries: number = 4,
+  delayMs: number = 3000,
+): Promise<T> {
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : '';
+      const isTransient = msg.includes('502') || msg.includes('503') || msg.includes('Service Unavailable');
+      if (!isTransient || attempt === maxRetries) throw err;
+      console.log(`[Auth] Backend no disponible, reintentando (${attempt}/${maxRetries})...`);
+      await new Promise((resolve) => setTimeout(resolve, delayMs * attempt));
+      lastError = err;
+    }
+  }
+  throw lastError;
+}
+
+/**
  * Sign in with email and password
  */
 export const signIn = async (
@@ -90,14 +115,10 @@ export const signIn = async (
     // 2. Obtener ID Token
     const idToken = await userCredential.user.getIdToken();
 
-    // 3. Enviar al backend para generar JWTs propios
-    const response = await httpClient.post<AuthResponse>(
-      API_ENDPOINTS.authSignIn,
-      { idToken },
-      { signal },
+    // 3. Enviar al backend con reintentos por si está en estado sleeping (502/503)
+    return retryOnServiceUnavailable(() =>
+      httpClient.post<AuthResponse>(API_ENDPOINTS.authSignIn, { idToken }, { signal }),
     );
-
-    return response;
   } catch (err: unknown) {
     console.error('Sign in failed:', err);
     throw err;
@@ -132,6 +153,7 @@ export const initiateOAuthLogin = async (
 /**
  * Completa el registro/login OAuth enviando idToken al backend.
  * Acepta houseNumber opcional para usuarios nuevos.
+ * Reintenta automáticamente si el backend está en estado sleeping (502/503).
  */
 export const completeOAuthLogin = async (
   idToken: string,
@@ -139,13 +161,15 @@ export const completeOAuthLogin = async (
   signal?: AbortSignal,
 ): Promise<AuthResponse> => {
   try {
-    return httpClient.post<AuthResponse>(
-      API_ENDPOINTS.authOAuthCallback,
-      {
-        idToken,
-        ...(houseNumber !== undefined && { houseNumber }),
-      },
-      { signal },
+    return retryOnServiceUnavailable(() =>
+      httpClient.post<AuthResponse>(
+        API_ENDPOINTS.authOAuthCallback,
+        {
+          idToken,
+          ...(houseNumber !== undefined && { houseNumber }),
+        },
+        { signal },
+      ),
     );
   } catch (err: unknown) {
     console.error('OAuth completion failed:', err);
