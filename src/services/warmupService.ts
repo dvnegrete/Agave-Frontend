@@ -14,8 +14,7 @@ import { API_BASE_URL } from '@config/api';
 export const warmupBackend = async (): Promise<void> => {
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000); // timeout de 5 segundos
-
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
     try {
       const response = await fetch(`${API_BASE_URL}/health`, {
         method: 'GET',
@@ -30,20 +29,19 @@ export const warmupBackend = async (): Promise<void> => {
     } catch (fetchError) {
       clearTimeout(timeoutId);
 
-      // Si el endpoint /health no existe, intentar con otro
-      if (fetchError instanceof Error && fetchError.name === 'AbortError') {      
-        try {
-          const altResponse = await fetch(`${API_BASE_URL}/auth/me`, {
-            method: 'GET',
-            signal: controller.signal,
-          });
+      // Intentar con /db como alternativa (cualquier error, no solo AbortError)
+      try {
+        const altController = new AbortController();
+        const altTimeoutId = setTimeout(() => altController.abort(), 10000);
 
-          if (altResponse.ok) {
-            console.log('✅ [Warmup] Backend despertado exitosamente (endpoint alternativo)');
-          }
-        } catch {
-          console.log('ℹ️ [Warmup] No se pudo despertar el backend, pero continuando con login');
-        }
+        await fetch(`${API_BASE_URL}/db`, {
+          method: 'GET',
+          signal: altController.signal,
+        });
+
+        clearTimeout(altTimeoutId);
+      } catch {
+        console.log('ℹ️ [Warmup] No se pudo despertar el backend, pero continuando con login');
       }
     }
   } catch (error: unknown) {
@@ -55,7 +53,7 @@ export const warmupBackend = async (): Promise<void> => {
  * Variante con reintentos para mayor confiabilidad
  * Útil si queremos asegurar que el backend está despierto
  */
-export const warmupBackendWithRetry = async (maxRetries: number = 3): Promise<void> => {
+export const warmupBackendWithRetry = async (maxRetries: number = 5): Promise<void> => {
   let lastError: unknown;
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -63,7 +61,7 @@ export const warmupBackendWithRetry = async (maxRetries: number = 3): Promise<vo
       console.log(`🔥 [Warmup] Intento ${attempt}/${maxRetries}`);
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s por intento
 
       const response = await fetch(`${API_BASE_URL}/health`, {
         method: 'GET',
@@ -78,9 +76,10 @@ export const warmupBackendWithRetry = async (maxRetries: number = 3): Promise<vo
       }
     } catch (error: unknown) {
       lastError = error;
-      // Esperar un poco antes del siguiente intento
       if (attempt < maxRetries) {
-        await new Promise((resolve) => setTimeout(resolve, 500 * attempt));
+        const delay = 3000 * attempt; // 3s, 6s, 9s, 12s — tiempo real para backends sleeping
+        console.log(`⏳ [Warmup] Esperando ${delay}ms antes de reintentar...`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
       }
     }
   }
