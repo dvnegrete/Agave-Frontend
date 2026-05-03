@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, FormInput } from '@/shared/ui';
 import { HOUSE_NUMBER_RANGE, ROUTES, SIGNUP_UI_TEXTS } from '@/shared';
 import { useSignup } from '@hooks/useSignup';
 import type { SignupFormData } from '@hooks/useSignup';
+import { warmupBackendWithRetry } from '@services/warmupService';
 
 export function Signup() {
   const [firstName, setFirstName] = useState('');
@@ -13,6 +14,12 @@ export function Signup() {
   const [confirmPassword, setConfirmPassword] = useState('');
 
   const { isLoading, error, handleSignup, setError } = useSignup();
+
+  useEffect(() => {
+    warmupBackendWithRetry().catch(() => {
+      // Ignorar errores silenciosamente
+    });
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();

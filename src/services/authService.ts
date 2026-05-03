@@ -55,16 +55,18 @@ export const signUp = async (
     // 3. Obtener ID Token
     const idToken = await userCredential.user.getIdToken();
 
-    // 4. Enviar al backend para crear en PostgreSQL y generar JWTs propios
-    return httpClient.post<AuthResponse>(
-      API_ENDPOINTS.authSignUp,
-      {
-        idToken,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        houseNumber: data.houseNumber,
-      },
-      { signal },
+    // 4. Enviar al backend con reintentos por si está en estado sleeping (502/503)
+    return retryOnServiceUnavailable(() =>
+      httpClient.post<AuthResponse>(
+        API_ENDPOINTS.authSignUp,
+        {
+          idToken,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          houseNumber: data.houseNumber,
+        },
+        { signal },
+      ),
     );
   } catch (err: unknown) {
     console.error('Sign up failed:', err);
