@@ -27,6 +27,7 @@ export const MODAL_MESSAGES = {
   ERRORS: {
     INVALID_HOUSE: 'Por favor ingresa un número de casa válido',
     HOUSE_ALREADY_ASSIGNED: 'Este usuario ya tiene asignada esta casa',
+    MAX_OWNERS_REACHED: 'Esta casa ya tiene 2 propietarios asignados. Debes desasignar a uno antes de asignar a este usuario.',
     REQUIRED_ROLE: 'Por favor selecciona un rol',
     REQUIRED_STATUS: 'Por favor selecciona un estado',
     SAVE_FAILED: 'Error al guardar los cambios',
