@@ -99,6 +99,16 @@ export interface MorosidadReason {
   pending_amount: number;
 }
 
+export interface HousesSummaryResponse {
+  total_houses: number;
+  morosas: number;
+  al_dia: number;
+  saldo_a_favor: number;
+  total_debt: number;
+  total_credit: number;
+  houses: EnrichedHouseBalance[];
+}
+
 export interface EnrichedHouseBalance {
   house_id: number;
   house_number: number;

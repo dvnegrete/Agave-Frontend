@@ -63,6 +63,7 @@ export const useInitialBalanceMutation = (): UseInitialBalanceMutationReturn => 
       queryClient.invalidateQueries({ queryKey: paymentManagementKeys.houseBalance(variables.houseId) });
       queryClient.invalidateQueries({ queryKey: paymentManagementKeys.houseStatus(variables.houseId) });
       queryClient.invalidateQueries({ queryKey: paymentManagementKeys.paymentHistory(variables.houseId) });
+      queryClient.invalidateQueries({ queryKey: paymentManagementKeys.housesSummary() });
     },
   });
 
@@ -83,6 +84,7 @@ export const useCondonePenaltyMutation = (): UseCondonePenaltyMutationReturn => 
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: paymentManagementKeys.houseStatus(variables.houseId) });
       queryClient.invalidateQueries({ queryKey: paymentManagementKeys.periodCharges() });
+      queryClient.invalidateQueries({ queryKey: paymentManagementKeys.housesSummary() });
     },
   });
 
@@ -103,6 +105,7 @@ export const useAdjustChargeMutation = (): UseAdjustChargeMutationReturn => {
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: paymentManagementKeys.houseStatus(response.houseId) });
       queryClient.invalidateQueries({ queryKey: paymentManagementKeys.periodCharges() });
+      queryClient.invalidateQueries({ queryKey: paymentManagementKeys.housesSummary() });
     },
   });
 
@@ -122,6 +125,7 @@ export const useReverseChargeMutation = (): UseReverseChargeMutationReturn => {
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: paymentManagementKeys.houseStatus(response.houseId) });
       queryClient.invalidateQueries({ queryKey: paymentManagementKeys.periodCharges() });
+      queryClient.invalidateQueries({ queryKey: paymentManagementKeys.housesSummary() });
     },
   });
 
@@ -142,6 +146,7 @@ export const useInitialDebtMutation = (): UseInitialDebtMutationReturn => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: paymentManagementKeys.houseStatus(variables.houseId) });
       queryClient.invalidateQueries({ queryKey: paymentManagementKeys.periodCharges() });
+      queryClient.invalidateQueries({ queryKey: paymentManagementKeys.housesSummary() });
     },
   });
 

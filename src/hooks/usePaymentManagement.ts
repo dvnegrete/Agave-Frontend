@@ -17,6 +17,7 @@ export {
   usePaymentsByPeriodQuery,
   useHouseBalanceQuery,
   useHouseStatusQuery,
+  useHousesSummaryQuery,
 } from './payment-management/useHouseHooks';
 
 export {

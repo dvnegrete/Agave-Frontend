@@ -11,5 +11,6 @@ export const paymentManagementKeys = {
   balances: () => [...paymentManagementKeys.all, 'balances'] as const,
   houseBalance: (houseId: number) => [...paymentManagementKeys.balances(), houseId] as const,
   houseStatus: (houseId: number) => [...paymentManagementKeys.balances(), 'status', houseId] as const,
+  housesSummary: () => [...paymentManagementKeys.balances(), 'summary'] as const,
   periodCharges: () => [...paymentManagementKeys.all, 'period-charges'] as const,
 };

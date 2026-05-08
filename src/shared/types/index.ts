@@ -74,6 +74,7 @@ export type {
   ConceptBreakdown,
   PeriodPaymentDetail,
   EnrichedHouseBalance,
+  HousesSummaryResponse,
   PeriodResponseDto,
   CreatePeriodDto,
   UpdatePeriodConceptsRequest,

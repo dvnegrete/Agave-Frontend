@@ -22,6 +22,7 @@ export interface TableProps<T = unknown> {
   stickyHeader?: boolean;
   variant?: 'default' | 'compact' | 'spacious';
   headerVariant?: 'default' | 'primary' | 'success' | 'warning' | 'error' | 'info';
+  onRowClick?: (row: T, index: number) => void;
 }
 
 const headerVariantStyles: Record<string, string> = {
@@ -58,6 +59,7 @@ export function Table<T = unknown>({
   stickyHeader = true,
   variant = 'default',
   headerVariant = 'default',
+  onRowClick,
 }: TableProps<T>): React.ReactNode {
   const getRowKey = (row: T, index: number): string | number => {
     if (typeof keyField === 'function') {
@@ -132,6 +134,7 @@ export function Table<T = unknown>({
                 <tr
                   key={getRowKey(row, idx)}
                   className={`divide-x divide-base ${getRowClassName(row, idx)}`}
+                  onClick={onRowClick ? () => onRowClick(row, idx) : undefined}
                 >
                   {columns.map((column) => (
                     <td

@@ -8,6 +8,7 @@ import type {
   PaymentHistoryResponseDTO,
   HouseBalanceDTO,
   EnrichedHouseBalance,
+  HousesSummaryResponse,
   BackfillAllocationsResponse,
   PeriodChargeSummary,
   BatchUpdatePeriodChargesRequest,
@@ -211,6 +212,25 @@ export const getHouseStatus = async (
     return response;
   } catch (err: unknown) {
     console.error('❌ [Service] Error in getHouseStatus:', err);
+    throw err;
+  }
+};
+
+/**
+ * Obtener resumen global del estado de cuenta de todas las casas.
+ * Incluye conteos por status (morosa/al_dia/saldo_a_favor) y la lista completa.
+ */
+export const getHousesSummary = async (
+  signal?: AbortSignal,
+): Promise<HousesSummaryResponse> => {
+  try {
+    const response = await httpClient.get<HousesSummaryResponse>(
+      `${API_BASE}/summary`,
+      { signal },
+    );
+    return response;
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in getHousesSummary:', err);
     throw err;
   }
 };

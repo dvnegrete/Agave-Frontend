@@ -4,11 +4,13 @@ import {
   getPaymentsByPeriod,
   getHouseBalance,
   getHouseStatus,
+  getHousesSummary,
 } from '@services/paymentManagementService';
 import type {
   PaymentHistoryResponseDTO,
   HouseBalanceDTO,
   EnrichedHouseBalance,
+  HousesSummaryResponse,
 } from '@shared';
 import { paymentManagementKeys } from './keys';
 
@@ -38,6 +40,14 @@ interface UseHouseBalanceQueryReturn {
 
 interface UseHouseStatusQueryReturn {
   houseStatus: EnrichedHouseBalance | null;
+  isLoading: boolean;
+  isFetching: boolean;
+  error: string | null;
+  refetch: () => Promise<void>;
+}
+
+interface UseHousesSummaryQueryReturn {
+  summary: HousesSummaryResponse | null;
   isLoading: boolean;
   isFetching: boolean;
   error: string | null;
@@ -122,6 +132,22 @@ export const useHouseStatusQuery = (houseId: number | null): UseHouseStatusQuery
 
   return {
     houseStatus: data || null,
+    isLoading,
+    isFetching,
+    error: error?.message || null,
+    refetch: async () => { await refetch(); },
+  };
+};
+
+export const useHousesSummaryQuery = (): UseHousesSummaryQueryReturn => {
+  const { data, isLoading, error, refetch, isFetching } = useQuery({
+    queryKey: paymentManagementKeys.housesSummary(),
+    queryFn: async ({ signal }) => getHousesSummary(signal),
+    staleTime: 3 * 60 * 1000,
+  });
+
+  return {
+    summary: data ?? null,
     isLoading,
     isFetching,
     error: error?.message || null,
