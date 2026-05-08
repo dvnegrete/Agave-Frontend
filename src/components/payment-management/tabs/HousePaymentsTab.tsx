@@ -114,7 +114,7 @@ export function HousePaymentsTab() {
         </summary>
         <div className="mt-4 space-y-4">
           <p className="text-sm text-foreground-secondary">
-            Sincronizar asignaciones de pagos pendientes. Operación idempotente y segura.
+            Sincronizar asignaciones de pagos. <strong>Sin casa específica:</strong> idempotente, solo procesa records sin asignación. <strong>Con casa:</strong> además detecta y corrige sobre-asignaciones por ajuste retroactivo de cargos, redistribuye FIFO y aplica créditos a períodos pendientes.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -150,6 +150,17 @@ export function HousePaymentsTab() {
           {showBackfillResults && backfillData && (
             <div className="border-l-4 border-success rounded-lg p-4 space-y-2">
               <p className="font-semibold text-success">✅ Backfill Completado</p>
+              {backfillData.mode === 'house-fix' && (backfillData.fixed_buckets ?? 0) > 0 && (
+                <div className="bg-warning/10 border-l-4 border-warning rounded p-3 text-sm">
+                  <p className="font-semibold text-warning">🔧 Corrección de sobre-asignaciones aplicada</p>
+                  <p className="text-xs mt-1">
+                    Records reseteados: <strong>{backfillData.reset_records ?? 0}</strong> · Conceptos corregidos: <strong>{backfillData.fixed_buckets ?? 0}</strong>
+                  </p>
+                  <p className="text-xs opacity-75 mt-1">
+                    Las allocations desfasadas por ajustes retroactivos de cargos se redistribuyeron FIFO y el credit_balance se aplicó a períodos pendientes.
+                  </p>
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div><p className="text-foreground-secondary">Total Encontrados</p><p className="font-bold text-success">{backfillData.total_records_found}</p></div>
                 <div><p className="text-foreground-secondary">Procesados</p><p className="font-bold text-success">{backfillData.processed}</p></div>

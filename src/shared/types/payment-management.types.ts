@@ -309,6 +309,15 @@ export interface BackfillAllocationsResponse {
   skipped: number;
   failed: number;
   results: BackfillRecordResult[];
+  /**
+   * 'global' = sin houseNumber, idempotente (solo orphan records).
+   * 'house-fix' = houseNumber dado, además detecta y corrige sobre-asignaciones.
+   */
+  mode: 'global' | 'house-fix';
+  /** Records reseteados por estar contribuyendo a buckets sobre-asignados (solo en house-fix). */
+  reset_records?: number;
+  /** Buckets (period, concept) que estaban sobre-asignados antes del reset (solo en house-fix). */
+  fixed_buckets?: number;
 }
 
 // Period Charges Editor Types
