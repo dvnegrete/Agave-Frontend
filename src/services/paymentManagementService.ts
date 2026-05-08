@@ -9,6 +9,7 @@ import type {
   HouseBalanceDTO,
   EnrichedHouseBalance,
   HousesSummaryResponse,
+  PeriodTransactionsResponse,
   BackfillAllocationsResponse,
   PeriodChargeSummary,
   BatchUpdatePeriodChargesRequest,
@@ -212,6 +213,29 @@ export const getHouseStatus = async (
     return response;
   } catch (err: unknown) {
     console.error('❌ [Service] Error in getHouseStatus:', err);
+    throw err;
+  }
+};
+
+/**
+ * Obtener transacciones bancarias asociadas (vía record_allocations) a un
+ * período específico de una casa. Útil para auditar trazado de pagos FIFO.
+ * @param houseId número de casa (1-66, number_house)
+ * @param periodId id interno del período
+ */
+export const getPeriodTransactions = async (
+  houseId: number,
+  periodId: number,
+  signal?: AbortSignal,
+): Promise<PeriodTransactionsResponse> => {
+  try {
+    const response = await httpClient.get<PeriodTransactionsResponse>(
+      `${API_BASE}/houses/${houseId}/periods/${periodId}/transactions`,
+      { signal },
+    );
+    return response;
+  } catch (err: unknown) {
+    console.error('❌ [Service] Error in getPeriodTransactions:', err);
     throw err;
   }
 };

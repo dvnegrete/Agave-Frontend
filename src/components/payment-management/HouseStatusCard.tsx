@@ -11,6 +11,7 @@ import {
 } from '@/utils/paymentStatusHelpers';
 import type { PeriodPaymentDetail, ConceptBreakdown, MorosidadReason } from '@shared';
 import { formatCurrency } from '@/utils/formatters';
+import { PeriodTransactionsBreakdown } from './PeriodTransactionsBreakdown';
 
 interface HouseStatusCardProps {
   houseId: number;
@@ -111,31 +112,34 @@ export function HouseStatusCard({ houseId }: HouseStatusCardProps) {
               },
             ]}
             expandedContent={(period) => (
-              <div className="p-4">
-                <h4 className="text-sm font-bold text-foreground mb-3">Desglose por Concepto</h4>
-                <Table<ConceptBreakdown>
-                  columns={[
-                    { id: 'concept_type', header: 'Concepto', align: 'left', render: (concept) => <span className="font-medium capitalize">{concept.concept_type.replace(/_/g, ' ')}</span> },
-                    { id: 'expected_amount', header: 'Esperado', align: 'center', render: (concept) => `$${formatCurrency(concept.expected_amount)}` },
-                    { id: 'paid_amount', header: 'Pagado', align: 'center', render: (concept) => `$${formatCurrency(concept.paid_amount)}` },
-                    {
-                      id: 'pending_amount', header: 'Pendiente', align: 'center',
-                      render: (concept) => (
-                        <span className={concept.pending_amount > 0 ? 'text-error font-semibold' : 'text-success font-semibold'}>
-                          ${formatCurrency(concept.pending_amount)}
-                        </span>
-                      ),
-                    },
-                  ]}
-                  data={[
-                    ...period.concepts,
-                    ...(period.penalty_amount > 0
-                      ? [{ concept_type: 'penalidad', expected_amount: period.penalty_amount, paid_amount: 0, pending_amount: period.penalty_amount }]
-                      : []),
-                  ]}
-                  emptyMessage="Sin conceptos"
-                  hoverable
-                />
+              <div className="p-4 space-y-4">
+                <div>
+                  <h4 className="text-sm font-bold text-foreground mb-3">Desglose por Concepto</h4>
+                  <Table<ConceptBreakdown>
+                    columns={[
+                      { id: 'concept_type', header: 'Concepto', align: 'left', render: (concept) => <span className="font-medium capitalize">{concept.concept_type.replace(/_/g, ' ')}</span> },
+                      { id: 'expected_amount', header: 'Esperado', align: 'center', render: (concept) => `$${formatCurrency(concept.expected_amount)}` },
+                      { id: 'paid_amount', header: 'Pagado', align: 'center', render: (concept) => `$${formatCurrency(concept.paid_amount)}` },
+                      {
+                        id: 'pending_amount', header: 'Pendiente', align: 'center',
+                        render: (concept) => (
+                          <span className={concept.pending_amount > 0 ? 'text-error font-semibold' : 'text-success font-semibold'}>
+                            ${formatCurrency(concept.pending_amount)}
+                          </span>
+                        ),
+                      },
+                    ]}
+                    data={[
+                      ...period.concepts,
+                      ...(period.penalty_amount > 0
+                        ? [{ concept_type: 'penalidad', expected_amount: period.penalty_amount, paid_amount: 0, pending_amount: period.penalty_amount }]
+                        : []),
+                    ]}
+                    emptyMessage="Sin conceptos"
+                    hoverable
+                  />
+                </div>
+                <PeriodTransactionsBreakdown houseId={houseId} periodId={period.period_id} />
               </div>
             )}
             keyField="period_id"
@@ -155,16 +159,23 @@ export function HouseStatusCard({ houseId }: HouseStatusCardProps) {
             ✅ Períodos Pagados ({houseStatus.paid_periods.length})
           </summary>
           <div className="mt-3">
-            <Table<PeriodPaymentDetail>
-              columns={[
+            <ExpandableTable<PeriodPaymentDetail>
+              data={houseStatus.paid_periods}
+              mainColumns={[
                 { id: 'display_name', header: 'Período', align: 'left', render: (period) => <span className="font-semibold">{period.display_name}</span> },
                 { id: 'expected_total', header: 'Esperado', align: 'center', render: (period) => `$${formatCurrency(period.expected_total)}` },
                 { id: 'paid_total', header: 'Pagado', align: 'center', render: (period) => `$${formatCurrency(period.paid_total)}` },
                 { id: 'status', header: 'Estado', align: 'center', render: () => <StatusBadge status="success" label="Pagado" icon="✅" /> },
-              ] as TableColumn<PeriodPaymentDetail>[]}
-              data={houseStatus.paid_periods}
+              ]}
+              expandedContent={(period) => (
+                <div className="p-4">
+                  <PeriodTransactionsBreakdown houseId={houseId} periodId={period.period_id} />
+                </div>
+              )}
+              keyField="period_id"
+              variant="default"
               emptyMessage="No hay períodos pagados"
-              hoverable
+              expandButtonLabel={{ expand: '▶ Ver pagos', collapse: '▼ Ocultar' }}
             />
           </div>
         </details>

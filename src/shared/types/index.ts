@@ -75,6 +75,8 @@ export type {
   PeriodPaymentDetail,
   EnrichedHouseBalance,
   HousesSummaryResponse,
+  PeriodTransaction,
+  PeriodTransactionsResponse,
   PeriodResponseDto,
   CreatePeriodDto,
   UpdatePeriodConceptsRequest,

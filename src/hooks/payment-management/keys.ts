@@ -8,6 +8,8 @@ export const paymentManagementKeys = {
   paymentHistory: (houseId: number) => [...paymentManagementKeys.payments(), 'history', houseId] as const,
   paymentsByPeriod: (houseId: number, periodId: number) =>
     [...paymentManagementKeys.payments(), 'history', houseId, periodId] as const,
+  periodTransactions: (houseId: number, periodId: number) =>
+    [...paymentManagementKeys.payments(), 'period-transactions', houseId, periodId] as const,
   balances: () => [...paymentManagementKeys.all, 'balances'] as const,
   houseBalance: (houseId: number) => [...paymentManagementKeys.balances(), houseId] as const,
   houseStatus: (houseId: number) => [...paymentManagementKeys.balances(), 'status', houseId] as const,

@@ -330,6 +330,23 @@ export interface BackfillAllocationsResponse {
   fixed_buckets?: number;
 }
 
+// Period Transactions (transacciones aplicadas a un período de una casa)
+export interface PeriodTransaction {
+  transaction_id: number;
+  date: string;
+  amount: number;
+  allocated_to_period: number;
+  bank_name: string;
+  confirmation_status: boolean;
+}
+
+export interface PeriodTransactionsResponse {
+  house_id: number;
+  period_id: number;
+  total_allocated: number;
+  transactions: PeriodTransaction[];
+}
+
 // Period Charges Editor Types
 export interface PeriodChargeSummary {
   period_id: number;
