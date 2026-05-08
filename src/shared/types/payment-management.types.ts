@@ -332,13 +332,19 @@ export interface BackfillAllocationsResponse {
 
 // Period Transactions (transacciones aplicadas a un período de una casa)
 export interface PeriodTransaction {
-  transaction_id: number;
+  transaction_id: number | null;
   date: string;
-  amount: number;
+  amount: number | null;
   allocated_to_period: number;
   concept: string | null;
-  bank_name: string;
+  bank_name: string | null;
   confirmation_status: boolean;
+  /**
+   * 'bank' = transacción bancaria real (transactions_bank).
+   * 'system_credit' = crédito acumulado aplicado vía FIFO desde credit_balance.
+   *   No tiene tx fuente; representa saldo a favor que cubrió el período.
+   */
+  source: 'bank' | 'system_credit';
 }
 
 export interface PeriodTransactionsResponse {

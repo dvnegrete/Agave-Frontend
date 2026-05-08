@@ -39,17 +39,29 @@ export function PeriodTransactionsBreakdown({ houseId, periodId }: Props) {
       id: 'amount',
       header: 'Monto',
       align: 'right',
-      render: (t) => <span className="font-semibold">${formatCurrency(t.amount)}</span>,
+      render: (t) =>
+        t.source === 'system_credit' ? (
+          <span className="text-xs italic text-foreground-secondary">
+            (aplicado: ${formatCurrency(t.allocated_to_period)})
+          </span>
+        ) : (
+          <span className="font-semibold">${formatCurrency(t.amount ?? 0)}</span>
+        ),
     },
     {
       id: 'concept',
       header: 'Concepto',
       align: 'left',
-      render: (t) => (
-        <span className="text-xs" title={t.concept ?? undefined}>
-          {t.concept || '—'}
-        </span>
-      ),
+      render: (t) =>
+        t.source === 'system_credit' ? (
+          <span className="text-xs font-semibold text-info">
+            💰 Crédito del sistema (saldo a favor aplicado vía FIFO)
+          </span>
+        ) : (
+          <span className="text-xs" title={t.concept ?? undefined}>
+            {t.concept || '—'}
+          </span>
+        ),
     },
     {
       id: 'bank_name',
@@ -61,26 +73,34 @@ export function PeriodTransactionsBreakdown({ houseId, periodId }: Props) {
       id: 'confirmation_status',
       header: 'Estado',
       align: 'center',
-      render: (t) => (
-        <StatusBadge
-          status={t.confirmation_status ? 'success' : 'warning'}
-          label={t.confirmation_status ? 'Confirmada' : 'Pendiente'}
-          icon={t.confirmation_status ? '✓' : '⏳'}
-        />
-      ),
+      render: (t) =>
+        t.source === 'system_credit' ? (
+          <StatusBadge status="info" label="Sistema" icon="⚙️" />
+        ) : (
+          <StatusBadge
+            status={t.confirmation_status ? 'success' : 'warning'}
+            label={t.confirmation_status ? 'Confirmada' : 'Pendiente'}
+            icon={t.confirmation_status ? '✓' : '⏳'}
+          />
+        ),
     },
   ];
+
+  const rowKey = (t: PeriodTransaction): string =>
+    t.source === 'system_credit'
+      ? `sc-${t.date}-${t.allocated_to_period}`
+      : `bank-${t.transaction_id}`;
 
   return (
     <div className="mt-3">
       <h5 className="text-xs font-bold text-foreground mb-2">
-        💳 Transacciones aplicadas a este período ({transactions.length})
+        💳 Fuentes de pago aplicadas a este período ({transactions.length})
       </h5>
       <Table<PeriodTransaction>
         columns={columns}
         data={transactions}
-        keyField={(t) => t.transaction_id}
-        emptyMessage="Sin transacciones"
+        keyField={rowKey}
+        emptyMessage="Sin fuentes de pago"
         variant="compact"
         hoverable={false}
       />
