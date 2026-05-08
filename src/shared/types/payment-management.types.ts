@@ -144,6 +144,7 @@ export interface UpdatePeriodConceptsRequest {
   extraordinary_fee_active?: boolean;
   /** Día del mes (1–28) o null para volver al valor del PeriodConfig activo. */
   payment_due_day?: number | null;
+  [key: string]: unknown;
 }
 
 export interface CreatePeriodDto {

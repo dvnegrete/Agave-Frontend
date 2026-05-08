@@ -76,6 +76,7 @@ export type {
   EnrichedHouseBalance,
   PeriodResponseDto,
   CreatePeriodDto,
+  UpdatePeriodConceptsRequest,
   PeriodConfigResponseDto,
   CreatePeriodConfigDto,
   PaymentRecord,
