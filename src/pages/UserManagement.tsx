@@ -45,6 +45,7 @@ export function UserManagement() {
     { id: 'phone', label: 'Teléfono' },
     { id: 'role', label: 'Rol' },
     { id: 'status', label: 'Estado' },
+    { id: 'provider', label: 'Tipo de Registro' },
     { id: 'observations', label: 'Observaciones' },
     { id: 'houses', label: 'Casas Asignadas' },
     { id: 'actions', label: 'Acciones' },
