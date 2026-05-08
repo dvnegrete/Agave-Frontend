@@ -131,8 +131,19 @@ export interface PeriodResponseDto {
   period_config_id: string;
   start_date: string;        // ISO date
   end_date: string;          // ISO date
+  /** Día límite de pago específico para este período. null = usar el del PeriodConfig. */
+  payment_due_day: number | null;
   created_at: string;
   updated_at: string;
+  [key: string]: unknown;
+}
+
+/** Payload para PATCH /payment-management/periods/:id/concepts */
+export interface UpdatePeriodConceptsRequest {
+  water_active?: boolean;
+  extraordinary_fee_active?: boolean;
+  /** Día del mes (1–28) o null para volver al valor del PeriodConfig activo. */
+  payment_due_day?: number | null;
   [key: string]: unknown;
 }
 
@@ -323,6 +334,8 @@ export interface BatchUpdatePeriodChargesRequest {
     maintenance_amount: number;
     water_amount?: number;
     extraordinary_fee_amount?: number;
+    /** Monto de penalidad. 0 = eliminar penalidades existentes. vacío = no cambiar. */
+    penalty_amount?: number;
   };
   [key: string]: unknown;
 }

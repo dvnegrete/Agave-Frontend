@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '@hooks/useAuth';
-import { HousePaymentCard, PeriodChargesTable } from '@components/payment-management';
+import { HousePaymentCard, HouseStatusCard, PeriodChargesTable } from '@components/payment-management';
 
 export function MyHousePayments() {
   const { user } = useAuth();
@@ -44,14 +44,16 @@ export function MyHousePayments() {
 
       <div className="space-y-6 my-2">
         {houseNumbers.map((houseId) => (
-          <HousePaymentCard
-            key={houseId}
-            houseId={houseId}
-            isExpanded={expandedHouses.includes(houseId)}
-            activeYear={houseId in expandedHouseYears ? expandedHouseYears[houseId] : undefined}
-            onToggleExpand={() => toggleHouseExpanded(houseId)}
-            onToggleYear={(year) => toggleHouseYear(houseId, year)}
-          />
+          <div key={houseId} className="space-y-4">
+            <HousePaymentCard
+              houseId={houseId}
+              isExpanded={expandedHouses.includes(houseId)}
+              activeYear={houseId in expandedHouseYears ? expandedHouseYears[houseId] : undefined}
+              onToggleExpand={() => toggleHouseExpanded(houseId)}
+              onToggleYear={(year) => toggleHouseYear(houseId, year)}
+            />
+            <HouseStatusCard houseId={houseId} />
+          </div>
         ))}
       </div>
 
