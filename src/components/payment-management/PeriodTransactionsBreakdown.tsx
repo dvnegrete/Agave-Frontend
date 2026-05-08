@@ -42,6 +42,16 @@ export function PeriodTransactionsBreakdown({ houseId, periodId }: Props) {
       render: (t) => <span className="font-semibold">${formatCurrency(t.amount)}</span>,
     },
     {
+      id: 'concept',
+      header: 'Concepto',
+      align: 'left',
+      render: (t) => (
+        <span className="text-xs" title={t.concept ?? undefined}>
+          {t.concept || '—'}
+        </span>
+      ),
+    },
+    {
       id: 'bank_name',
       header: 'Banco',
       align: 'left',

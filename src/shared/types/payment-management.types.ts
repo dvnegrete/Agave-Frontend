@@ -336,6 +336,7 @@ export interface PeriodTransaction {
   date: string;
   amount: number;
   allocated_to_period: number;
+  concept: string | null;
   bank_name: string;
   confirmation_status: boolean;
 }
