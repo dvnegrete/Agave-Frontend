@@ -17,6 +17,7 @@ export interface UploadCondoDocumentRequest {
   file: File;
   type: CondoDocumentType;
   date?: string;
+  name?: string;
 }
 
 export interface UploadCondoDocumentResponse {

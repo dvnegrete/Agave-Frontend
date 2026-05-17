@@ -8,9 +8,32 @@ interface UploadDocumentFormProps {
   onUploadSuccess?: () => void;
 }
 
+const MONTHS_ES = [
+  'enero',
+  'febrero',
+  'marzo',
+  'abril',
+  'mayo',
+  'junio',
+  'julio',
+  'agosto',
+  'septiembre',
+  'octubre',
+  'noviembre',
+  'diciembre',
+];
+
 const dateToDdmmaaaa = (isoDate: string): string => {
   const [yyyy, mm, dd] = isoDate.split('-');
   return `${dd}${mm}${yyyy}`;
+};
+
+const buildMinuteFileName = (isoDate: string): string => {
+  if (!isoDate) return '';
+  const [yyyy, mm, dd] = isoDate.split('-');
+  const month = MONTHS_ES[Number(mm) - 1];
+  if (!month) return '';
+  return `Minuta ${dd} ${month} ${yyyy}.pdf`;
 };
 
 export function UploadDocumentForm({
@@ -20,6 +43,7 @@ export function UploadDocumentForm({
   const [type, setType] = useState<CondoDocumentType>(defaultType);
   const [file, setFile] = useState<File | null>(null);
   const [date, setDate] = useState<string>('');
+  const [name, setName] = useState<string>('');
   const [feedback, setFeedback] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -28,6 +52,7 @@ export function UploadDocumentForm({
   const resetForm = () => {
     setFile(null);
     setDate('');
+    setName('');
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -52,11 +77,17 @@ export function UploadDocumentForm({
       return;
     }
 
+    if (type === 'document' && !name.trim()) {
+      setFeedback('El nombre del documento es requerido');
+      return;
+    }
+
     try {
       await mutateAsync({
         file,
         type,
         date: type === 'minute' ? dateToDdmmaaaa(date) : undefined,
+        name: type === 'document' ? name.trim() : undefined,
       });
       setFeedback('Documento subido exitosamente');
       resetForm();
@@ -65,6 +96,8 @@ export function UploadDocumentForm({
       setFeedback(err instanceof Error ? err.message : 'Error al subir el documento');
     }
   };
+
+  const minuteFileNamePreview = buildMinuteFileName(date);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -91,6 +124,29 @@ export function UploadDocumentForm({
         />
       </div>
 
+      {type === 'document' && (
+        <div className="flex flex-col gap-2">
+          <label
+            htmlFor="document-name"
+            className="text-sm font-semibold text-foreground"
+          >
+            Nombre del documento
+          </label>
+          <input
+            id="document-name"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Ej. Reglamento interno 2026"
+            required
+            className="px-4 py-3 bg-base border-2 border-base rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+          <p className="text-xs text-foreground-secondary">
+            Se guardará como <code>{name.trim() ? `${name.trim()}.pdf` : '<nombre>.pdf'}</code>
+          </p>
+        </div>
+      )}
+
       {type === 'minute' && (
         <div className="flex flex-col gap-2">
           <label
@@ -107,6 +163,11 @@ export function UploadDocumentForm({
             required
             className="px-4 py-3 bg-base border-2 border-base rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
           />
+          {minuteFileNamePreview && (
+            <p className="text-xs text-foreground-secondary">
+              Se guardará como <code>{minuteFileNamePreview}</code>
+            </p>
+          )}
         </div>
       )}
 

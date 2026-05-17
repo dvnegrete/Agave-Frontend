@@ -35,6 +35,9 @@ export const uploadCondoDocument = (
   if (payload.date) {
     formData.append('date', payload.date);
   }
+  if (payload.name) {
+    formData.append('name', payload.name);
+  }
   return httpClient.post<UploadCondoDocumentResponse>(
     API_ENDPOINTS.condoDocumentsUpload,
     formData,
