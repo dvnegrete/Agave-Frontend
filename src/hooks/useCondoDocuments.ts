@@ -3,6 +3,7 @@ import {
   listCondoDocuments,
   uploadCondoDocument,
   getCondoDocumentSignedUrl,
+  deleteCondoDocument,
 } from '@services/condoDocumentsService';
 import type {
   CondoDocumentItem,
@@ -40,6 +41,16 @@ export const useUploadCondoDocumentMutation = () => {
       queryClient.invalidateQueries({
         queryKey: condoDocumentsKeys.list(variables.type),
       });
+    },
+  });
+};
+
+export const useDeleteCondoDocumentMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation<{ deleted: true; name: string }, Error, string>({
+    mutationFn: (name) => deleteCondoDocument(name),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: condoDocumentsKeys.all });
     },
   });
 };

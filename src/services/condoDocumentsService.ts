@@ -26,6 +26,13 @@ export const getCondoDocumentSignedUrl = (
   return httpClient.get<CondoDocumentSignedUrl>(url, { signal });
 };
 
+export const deleteCondoDocument = (
+  name: string,
+): Promise<{ deleted: true; name: string }> => {
+  const url = `${API_ENDPOINTS.condoDocuments}?name=${encodeURIComponent(name)}`;
+  return httpClient.delete<{ deleted: true; name: string }>(url);
+};
+
 export const uploadCondoDocument = (
   payload: UploadCondoDocumentRequest,
 ): Promise<UploadCondoDocumentResponse> => {
