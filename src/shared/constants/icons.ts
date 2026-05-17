@@ -12,4 +12,5 @@ export const ICONS = {
     USER_MANAGEMENT: '👥',
     EXPENSE_REPORT: '📈',
     MY_HOUSE_PAYMENTS: '🏠',
+    CONDO_DOCUMENTS: '📁',
 }

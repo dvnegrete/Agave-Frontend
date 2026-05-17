@@ -12,4 +12,5 @@ export const LABELS = {
     USER_MANAGEMENT: 'Administración de Usuarios',
     EXPENSE_REPORT: 'Informe de Gastos',
     MY_HOUSE_PAYMENTS: 'Mis Pagos',
+    CONDO_DOCUMENTS: 'Documentos del Condominio',
 }

@@ -152,3 +152,12 @@ export type {
   ApiStatus,
   Step,
 } from './common.types';
+
+// Condo documents types
+export type {
+  CondoDocumentType,
+  CondoDocumentItem,
+  CondoDocumentSignedUrl,
+  UploadCondoDocumentRequest,
+  UploadCondoDocumentResponse,
+} from './condo-documents.types';
