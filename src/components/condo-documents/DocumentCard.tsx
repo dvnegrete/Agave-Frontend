@@ -71,7 +71,7 @@ export function DocumentCard({ document, type }: DocumentCardProps) {
   };
 
   return (
-    <li className="bg-secondary border border-base rounded-lg shadow-sm p-4 flex items-center justify-between gap-4">
+    <li className="bg-secondary border border-base rounded-lg shadow-sm p-4 gap-4">
       <div className="flex-1 min-w-0">
         <p className="text-base font-semibold text-foreground truncate">
           {title}
@@ -81,7 +81,7 @@ export function DocumentCard({ document, type }: DocumentCardProps) {
         )}
         {error && <p className="text-xs text-error mt-1">{error}</p>}
       </div>
-      <div className="flex gap-2 flex-shrink-0">
+      <div className="flex gap-2 justify-evenly mt-3">
         <Button variant="info" onClick={handleOpen} isLoading={isOpening}>
           Ver documento
         </Button>

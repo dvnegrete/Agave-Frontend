@@ -42,7 +42,7 @@ export function DocumentList({
   }
 
   return (
-    <ol className="space-y-3 list-none">
+    <ol className="space-y-3 list-none flex flex-wrap justify-between">
       {documents.map((doc) => (
         <DocumentCard key={doc.name} document={doc} type={type} />
       ))}
