@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Button, StatsCard, RoleBadge } from '@shared/ui';
 import { useDashboardMetrics } from '@hooks/useDashboardMetrics';
 import { useAuth } from '@hooks/useAuth';
-import { DASHBOARD_FEATURES } from '@shared/constants';
-import { isAdmin, isAdminOrOwner } from '@shared/utils/roleAndStatusHelpers';
+import { DASHBOARD_FEATURES, ROUTES } from '@shared/constants';
+import { canViewCondoDocuments, isAdmin, isAdminOrOwner } from '@shared/utils/roleAndStatusHelpers';
 
 export function Dashboard() {
   const navigate = useNavigate();
@@ -15,6 +15,9 @@ export function Dashboard() {
   // Filtrar funcionalidades disponibles según rol
   const availableFeatures = DASHBOARD_FEATURES.filter((feature) => {
     if (!user?.role) return false;
+    if (feature.route === ROUTES.CONDO_DOCUMENTS) {
+      return canViewCondoDocuments(user.role, user.houses);
+    }
     return feature.roles.some((r) => r === user.role);
   });
 
