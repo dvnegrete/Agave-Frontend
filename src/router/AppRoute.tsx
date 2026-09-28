@@ -19,6 +19,7 @@ import {
   MyHousePayments,
   ForgotPassword,
   ChangePassword,
+  CondoDocuments,
 } from '@pages/index'
 import { ProtectedRoute } from '@components/index'
 import { ROUTES } from '@/shared'
@@ -115,6 +116,14 @@ export const createAppRoutes = (Layout: (props: BaseLayoutProps) => React.ReactN
       element={
         <ProtectedRoute>
           <Layout><ChangePassword /></Layout>
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path={ROUTES.CONDO_DOCUMENTS}
+      element={
+        <ProtectedRoute>
+          <Layout><CondoDocuments /></Layout>
         </ProtectedRoute>
       }
     />

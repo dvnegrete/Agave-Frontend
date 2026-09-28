@@ -18,4 +18,5 @@ export const ROUTES = {
     MY_HOUSE_PAYMENTS: '/mis-pagos-casas',
     FORGOT_PASSWORD: '/olvide-contrasena',
     CHANGE_PASSWORD: '/cambiar-contrasena',
+    CONDO_DOCUMENTS: '/documentos-condominio',
 }

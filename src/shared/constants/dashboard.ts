@@ -18,6 +18,7 @@ export interface DashboardFeature {
 const FEATURE_DESCRIPTIONS = {
   EXPENSE_REPORT: 'Visualiza y analiza gastos por mes',
   MY_HOUSE_PAYMENTS: 'Revisa los pagos y movimientos de tu casa',
+  CONDO_DOCUMENTS: 'Consulta documentos y minutas del condominio',
   VOUCHER_LIST: 'Gestiona comprobantes de mantenimiento',
   TRANSACTION_UPLOAD: 'Sube y revisa las transacciones bancarias',
   BANK_RECONCILIATION: 'Concilia transacciones con vouchers automáticamente',
@@ -41,6 +42,14 @@ export const DASHBOARD_FEATURES: DashboardFeature[] = [
     icon: ICONS.MY_HOUSE_PAYMENTS,
     route: ROUTES.MY_HOUSE_PAYMENTS,
     roles: ['admin', 'owner'],
+  },
+  {
+    id: 'condo-documents',
+    title: LABELS.CONDO_DOCUMENTS,
+    description: FEATURE_DESCRIPTIONS.CONDO_DOCUMENTS,
+    icon: ICONS.CONDO_DOCUMENTS,
+    route: ROUTES.CONDO_DOCUMENTS,
+    roles: ['admin', 'owner', 'tenant'],
   },
   {
     id: 'vouchers',

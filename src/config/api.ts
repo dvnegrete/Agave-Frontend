@@ -48,4 +48,9 @@ export const API_ENDPOINTS = {
   userManagementUserHouseRemove: (userId: string, houseNumber: number) =>
     `/user-management/users/${userId}/houses/${houseNumber}`,
   userManagementUserDelete: (userId: string) => `/user-management/users/${userId}`,
+
+  // Condo Documents
+  condoDocuments: '/condo-documents',
+  condoDocumentsSignedUrl: '/condo-documents/signed-url',
+  condoDocumentsUpload: '/condo-documents/upload',
 } as const;

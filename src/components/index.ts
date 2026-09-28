@@ -7,3 +7,4 @@ export * from './ProtectedRoute'
 // Feature exports
 export * from './reconciliation'
 export * from './user-management'
+export * from './condo-documents'
