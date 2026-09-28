@@ -6,12 +6,14 @@ import { useSortBy } from '@hooks/useSortBy';
 import { useAlert } from '@hooks/useAlert';
 import { getVoucherById } from '@services/voucherService';
 import { Button, StatusBadge, ExpandableTable, type ExpandableTableColumn } from '@shared/ui';
+import { ModalMatchVoucherDeposit } from '@components/vouchers';
 import type { Voucher } from '@shared';
 import { formatCurrency } from '@/utils/formatters';
 
 export function VoucherList() {
   const alert = useAlert();
   const [loadingViewUrl, setLoadingViewUrl] = useState<number | null>(null);
+  const [voucherToMatch, setVoucherToMatch] = useState<Voucher | null>(null);
 
   const {
     vouchers,
@@ -31,7 +33,7 @@ export function VoucherList() {
     }
   );
 
-  const { update, remove, isLoading: mutating } = useVoucherMutations();
+  const { remove, isLoading: mutating } = useVoucherMutations();
 
   const handleViewVoucher = async (id: number): Promise<void> => {
     setLoadingViewUrl(id);
@@ -48,20 +50,6 @@ export function VoucherList() {
       alert.error('Error', 'No se pudo obtener el comprobante');
     } finally {
       setLoadingViewUrl(null);
-    }
-  };
-
-  const handleConfirmVoucher = async (id: number): Promise<void> => {
-    try {
-      await update({
-        id: id.toString(),
-        data: { confirmation_status: true }
-      });
-      alert.success('Éxito', 'Voucher confirmado exitosamente');
-      // React Query automáticamente invalida y refetch las queries
-    } catch (err) {
-      console.error('Error confirming voucher:', err);
-      alert.error('Error', 'No se pudo confirmar el voucher');
     }
   };
 
@@ -165,11 +153,11 @@ export function VoucherList() {
         </Button>
         {!voucher.confirmation_status && (
           <Button
-            onClick={() => handleConfirmVoucher(voucher.id)}
+            onClick={() => setVoucherToMatch(voucher)}
             disabled={mutating}
             variant="success"
           >
-            ✓ Confirmar
+            🔗 Asociar movimiento
           </Button>
         )}
         <Button
@@ -233,6 +221,11 @@ export function VoucherList() {
           </div>
         </>
       )}
+
+      <ModalMatchVoucherDeposit
+        voucher={voucherToMatch}
+        onClose={() => setVoucherToMatch(null)}
+      />
 
       {!isLoading && (!vouchers || !Array.isArray(vouchers)) && (
         <div className="flex justify-center items-center p-8">
