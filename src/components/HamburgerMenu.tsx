@@ -3,7 +3,12 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@hooks/useAuth';
 import type { MenuItem } from '@/shared';
 import { ICONS, LABELS, ROUTES } from '@/shared';
-import { isAdmin, isTenant } from '@shared/utils/roleAndStatusHelpers';
+import {
+  canViewCondoDocuments,
+  isAdmin,
+  isAdminOrOwner,
+  isTenant,
+} from '@shared/utils/roleAndStatusHelpers';
 
 const menuItems: MenuItem[] = [
   { path: '/', label: LABELS.HOME, icon: ICONS.HOME },
@@ -79,6 +84,14 @@ export function HamburgerMenu() {
     setIsOpen(false);
   };
 
+  // Hide items the user has no permission for
+  const visibleAuthenticatedMenuItems = authenticatedMenuItems.filter((item) => {
+    const role = user?.role ?? '';
+    if (item.path === ROUTES.EXPENSE_REPORT) return isAdminOrOwner(role);
+    if (item.path === ROUTES.CONDO_DOCUMENTS) return canViewCondoDocuments(role, user?.houses);
+    return true;
+  });
+
   return (
     <>
       {/* Hamburger Button */}
@@ -145,7 +158,7 @@ export function HamburgerMenu() {
               {/* Authenticated User Menu Items */}
               {user && (
                 <>
-                  {authenticatedMenuItems.map((item) => {
+                  {visibleAuthenticatedMenuItems.map((item) => {
                     const isActive = location.pathname === item.path;
                     return (
                       <li key={item.path}>

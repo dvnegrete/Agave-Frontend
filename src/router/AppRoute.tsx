@@ -24,6 +24,7 @@ import {
 import { ProtectedRoute } from '@components/index'
 import { ROUTES } from '@/shared'
 import type { BaseLayoutProps } from '@/shared'
+import { canViewCondoDocuments, isAdminOrOwner } from '@shared/utils/roleAndStatusHelpers'
 
 export const createAppRoutes = (Layout: (props: BaseLayoutProps) => React.ReactNode) => (
   <>
@@ -98,7 +99,7 @@ export const createAppRoutes = (Layout: (props: BaseLayoutProps) => React.ReactN
     <Route
       path={ROUTES.EXPENSE_REPORT}
       element={
-        <ProtectedRoute>
+        <ProtectedRoute canAccess={(user) => isAdminOrOwner(user.role ?? '')}>
           <Layout><ExpenseReport /></Layout>
         </ProtectedRoute>
       }
@@ -122,7 +123,7 @@ export const createAppRoutes = (Layout: (props: BaseLayoutProps) => React.ReactN
     <Route
       path={ROUTES.CONDO_DOCUMENTS}
       element={
-        <ProtectedRoute>
+        <ProtectedRoute canAccess={(user) => canViewCondoDocuments(user.role ?? '', user.houses)}>
           <Layout><CondoDocuments /></Layout>
         </ProtectedRoute>
       }
