@@ -71,9 +71,9 @@ export function DocumentCard({ document, type }: DocumentCardProps) {
   };
 
   return (
-    <li className="bg-secondary border border-base rounded-lg shadow-sm p-4 gap-4">
+    <li className="bg-secondary border border-base rounded-lg shadow-sm p-4 gap-4 w-md">
       <div className="flex-1 min-w-0">
-        <p className="text-base font-semibold text-foreground truncate">
+        <p className="text-base font-semibold text-foreground">
           {title}
         </p>
         {minuteDate && (
