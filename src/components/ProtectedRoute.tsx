@@ -6,13 +6,17 @@
 
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@hooks/useAuth';
+import { ROUTES } from '@/shared';
+import type { User } from '@shared/types/auth.types';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  /** Optional permission check; redirects to dashboard when it returns false */
+  canAccess?: (user: User) => boolean;
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth();
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, canAccess }) => {
+  const { isAuthenticated, isLoading, user } = useAuth();
 
   if (isLoading) {
     return (
@@ -24,6 +28,10 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (canAccess && (!user || !canAccess(user))) {
+    return <Navigate to={ROUTES.DASHBOARD} replace />;
   }
 
   return <>{children}</>;

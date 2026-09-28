@@ -118,6 +118,15 @@ export function isTenant(role: Role | string): boolean {
 }
 
 /**
+ * Check if user can view condo documents:
+ * admin/owner always; tenant only with at least one assigned house
+ */
+export function canViewCondoDocuments(role: Role | string, houses?: number[]): boolean {
+  if (isAdminOrOwner(role)) return true;
+  return isTenant(role) && (houses?.length ?? 0) > 0;
+}
+
+/**
  * Check if status is active
  */
 export function isActive(status: Status | string): boolean {
