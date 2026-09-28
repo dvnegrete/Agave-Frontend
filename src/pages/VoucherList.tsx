@@ -30,7 +30,7 @@ export function VoucherList() {
     }
   );
 
-  const { create, update, remove, isLoading: mutating } = useVoucherMutations();
+  const { update, remove, isLoading: mutating } = useVoucherMutations();
 
   const handleViewVoucher = async (id: number): Promise<void> => {
     setLoadingViewUrl(id);
@@ -47,24 +47,6 @@ export function VoucherList() {
       alert.error('Error', 'No se pudo obtener el comprobante');
     } finally {
       setLoadingViewUrl(null);
-    }
-  };
-
-  const handleCreateVoucher = async (): Promise<void> => {
-    try {
-      await create({
-        authorization_number: 'AUTH-' + Date.now(),
-        date: new Date().toISOString(),
-        confirmation_code: 'CONF-' + Math.random().toString(36).substr(2, 9).toUpperCase(),
-        amount: 1000,
-        confirmation_status: false,
-        url: '',
-      });
-      alert.success('Éxito', 'Voucher creado exitosamente');
-      // React Query automáticamente invalida y refetch las queries
-    } catch (err) {
-      console.error('Error creating voucher:', err);
-      alert.error('Error', 'No se pudo crear el voucher');
     }
   };
 
@@ -210,13 +192,6 @@ export function VoucherList() {
             </div>
           )}
         </div>
-        <Button
-          onClick={handleCreateVoucher}
-          disabled={mutating}
-          variant="sameUi"
-        >
-          ➕ Crear Voucher
-        </Button>
       </div>
 
       {isLoading && (
