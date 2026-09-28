@@ -1,16 +1,19 @@
 import { useState } from 'react';
 import { useVouchersQuery, useVoucherMutations } from '@hooks/useVouchersQuery';
-import { useFormatDate } from '@hooks/useFormatDate';
+// useFormatDate es una función pura (no usa hooks); se renombra para usarla dentro de render
+import { useFormatDate as formatDate } from '@hooks/useFormatDate';
 import { useSortBy } from '@hooks/useSortBy';
 import { useAlert } from '@hooks/useAlert';
 import { getVoucherById } from '@services/voucherService';
 import { Button, StatusBadge, ExpandableTable, type ExpandableTableColumn } from '@shared/ui';
+import { ModalMatchVoucherDeposit } from '@components/vouchers';
 import type { Voucher } from '@shared';
 import { formatCurrency } from '@/utils/formatters';
 
 export function VoucherList() {
   const alert = useAlert();
   const [loadingViewUrl, setLoadingViewUrl] = useState<number | null>(null);
+  const [voucherToMatch, setVoucherToMatch] = useState<Voucher | null>(null);
 
   const {
     vouchers,
@@ -22,7 +25,7 @@ export function VoucherList() {
     confirmation_status: false
   });
 
-  const { sortedItems: sortedVouchers } = useSortBy(
+  const { sortedItems: sortedVouchers, sortConfig, setSortField } = useSortBy(
     vouchers,
     {
       initialField: 'number_house',
@@ -30,7 +33,7 @@ export function VoucherList() {
     }
   );
 
-  const { create, update, remove, isLoading: mutating } = useVoucherMutations();
+  const { remove, isLoading: mutating } = useVoucherMutations();
 
   const handleViewVoucher = async (id: number): Promise<void> => {
     setLoadingViewUrl(id);
@@ -50,38 +53,6 @@ export function VoucherList() {
     }
   };
 
-  const handleCreateVoucher = async (): Promise<void> => {
-    try {
-      await create({
-        authorization_number: 'AUTH-' + Date.now(),
-        date: new Date().toISOString(),
-        confirmation_code: 'CONF-' + Math.random().toString(36).substr(2, 9).toUpperCase(),
-        amount: 1000,
-        confirmation_status: false,
-        url: '',
-      });
-      alert.success('Éxito', 'Voucher creado exitosamente');
-      // React Query automáticamente invalida y refetch las queries
-    } catch (err) {
-      console.error('Error creating voucher:', err);
-      alert.error('Error', 'No se pudo crear el voucher');
-    }
-  };
-
-  const handleConfirmVoucher = async (id: number): Promise<void> => {
-    try {
-      await update({
-        id: id.toString(),
-        data: { confirmation_status: true }
-      });
-      alert.success('Éxito', 'Voucher confirmado exitosamente');
-      // React Query automáticamente invalida y refetch las queries
-    } catch (err) {
-      console.error('Error confirming voucher:', err);
-      alert.error('Error', 'No se pudo confirmar el voucher');
-    }
-  };
-
   const handleDeleteVoucher = async (id: number): Promise<void> => {
     if (confirm('¿Estás seguro de eliminar este voucher?')) {
       try {
@@ -90,7 +61,8 @@ export function VoucherList() {
         // React Query automáticamente invalida y refetch las queries
       } catch (err) {
         console.error('Error deleting voucher:', err);
-        alert.error('Error', 'No se pudo eliminar el voucher');
+        const message = err instanceof Error ? err.message : '';
+        alert.error('No se pudo eliminar el voucher', message);
       }
     }
   };
@@ -123,18 +95,21 @@ export function VoucherList() {
   const mainColumns: ExpandableTableColumn<Voucher>[] = [
     {
       id: 'number_house',
+      sortable: true,
       header: 'Casa',
       align: 'center',
       render: (voucher: Voucher) => voucher.number_house,
     },
     {
       id: 'date',
+      sortable: true,
       header: 'Fecha',
       align: 'center',
-      render: (voucher: Voucher) => useFormatDate(voucher.date),
+      render: (voucher: Voucher) => formatDate(voucher.date),
     },
     {
       id: 'amount',
+      sortable: true,
       header: 'Monto',
       align: 'center',
       render: (voucher: Voucher) => `$${formatCurrency(voucher.amount)}`,
@@ -142,6 +117,7 @@ export function VoucherList() {
     },
     {
       id: 'confirmation_status',
+      sortable: true,
       header: 'Estado',
       align: 'center',
       render: (voucher: Voucher) => (
@@ -177,11 +153,11 @@ export function VoucherList() {
         </Button>
         {!voucher.confirmation_status && (
           <Button
-            onClick={() => handleConfirmVoucher(voucher.id)}
+            onClick={() => setVoucherToMatch(voucher)}
             disabled={mutating}
             variant="success"
           >
-            ✓ Confirmar
+            🔗 Asociar movimiento
           </Button>
         )}
         <Button
@@ -210,13 +186,6 @@ export function VoucherList() {
             </div>
           )}
         </div>
-        <Button
-          onClick={handleCreateVoucher}
-          disabled={mutating}
-          variant="sameUi"
-        >
-          ➕ Crear Voucher
-        </Button>
       </div>
 
       {isLoading && (
@@ -239,6 +208,8 @@ export function VoucherList() {
               mainColumns={mainColumns}
               expandedContent={expandedContentRender}
               keyField="id"
+              sortConfig={sortConfig}
+              onSort={setSortField}
               headerVariant="primary"
               variant="spacious"
               emptyMessage="No hay vouchers disponibles"
@@ -250,6 +221,11 @@ export function VoucherList() {
           </div>
         </>
       )}
+
+      <ModalMatchVoucherDeposit
+        voucher={voucherToMatch}
+        onClose={() => setVoucherToMatch(null)}
+      />
 
       {!isLoading && (!vouchers || !Array.isArray(vouchers)) && (
         <div className="flex justify-center items-center p-8">
