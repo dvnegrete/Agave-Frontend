@@ -35,6 +35,11 @@ const authenticatedMenuItems: MenuItem[] = [
     label: LABELS.MY_HOUSE_PAYMENTS,
     icon: ICONS.MY_HOUSE_PAYMENTS
   },
+  {
+    path: ROUTES.CONDO_DOCUMENTS,
+    label: LABELS.CONDO_DOCUMENTS,
+    icon: ICONS.CONDO_DOCUMENTS
+  },
 ];
 
 const adminMenuItems: MenuItem[] = [
