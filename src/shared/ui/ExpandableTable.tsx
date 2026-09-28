@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { SORTABLE_HEADER_CLASSES, getSortIndicator, type TableSortConfig } from './tableSort';
 
 export interface ExpandableTableColumn<T = unknown> {
   id: string;
@@ -7,6 +8,8 @@ export interface ExpandableTableColumn<T = unknown> {
   className?: string;
   headerClassName?: string;
   align?: 'left' | 'center' | 'right';
+  /** Permite ordenar por esta columna (requiere onSort en la tabla) */
+  sortable?: boolean;
 }
 
 export interface ExpandableTableProps<T = unknown> {
@@ -29,6 +32,10 @@ export interface ExpandableTableProps<T = unknown> {
     expand: string;
     collapse: string;
   };
+  /** Orden actual (ver useSortBy) */
+  sortConfig?: TableSortConfig;
+  /** Click en encabezado de columna sortable */
+  onSort?: (field: string) => void;
 }
 
 const headerVariantStyles: Record<string, string> = {
@@ -100,7 +107,10 @@ export function ExpandableTable<T = unknown>({
   variant = 'default',
   headerVariant = 'default',
   expandButtonLabel = { expand: '▶ Ver detalles', collapse: '▼ Ocultar' },
+  sortConfig,
+  onSort,
 }: ExpandableTableProps<T>): React.ReactNode {
+  const isSortable = (column: ExpandableTableColumn<T>): boolean => Boolean(column.sortable && onSort);
   const [expandedId, setExpandedId] = useState<string | number | null>(null);
 
   const hasExpandableContent = expandableColumns.length > 0 || expandedContent;
@@ -159,14 +169,17 @@ export function ExpandableTable<T = unknown>({
               {mainColumns.map((column) => (
                 <th
                   key={column.id}
+                  onClick={isSortable(column) ? () => onSort?.(column.id) : undefined}
                   className={`
                     ${variantPadding[variant]}
                     text-xs font-bold text-foreground
                     ${alignmentClasses[column.align || 'left']}
+                    ${isSortable(column) ? SORTABLE_HEADER_CLASSES : ''}
                     ${column.headerClassName || ''}
                   `}
                 >
                   {column.header}
+                  {isSortable(column) && getSortIndicator(column.id, sortConfig)}
                 </th>
               ))}
               {hasExpandableContent && (
