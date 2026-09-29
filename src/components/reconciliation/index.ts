@@ -1,6 +1,7 @@
 export { StartReconciliationModal } from './StartReconciliationModal';
 export { UnclaimedDepositsSection } from './UnclaimedDepositsSection';
 export { ModalAssignDepositHouse } from './ModalAssignDepositHouse';
+export { ModalMarkBankRefund } from './ModalMarkBankRefund';
 export { ReconciliationResults } from './ReconciliationResults';
 export { ManualValidationSection } from './ManualValidationSection';
 export { UnclaimedDepositsListSection } from './UnclaimedDepositsListSection';

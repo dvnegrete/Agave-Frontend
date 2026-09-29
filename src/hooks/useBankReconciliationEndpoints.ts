@@ -36,6 +36,8 @@ import {
   applyMatchSuggestion,
   applyBatchMatchSuggestions,
 } from '@services/bankReconciliationService';
+import { unclaimedDepositsService } from '@services/unclaimedDepositsService';
+import type { BankRefundResponse } from '@shared/types/unclaimed-deposits.types';
 
 // Type aliases to ensure TypeScript recognizes all types as used
 type ManualValidationPendingResponse = PaginatedResponse<ManualValidationPendingItem>;
@@ -136,6 +138,49 @@ export const useUnclaimedDepositsMutations = (): UseUnclaimedDepositsMutationsRe
       assignMutation.mutateAsync({ transactionId, data }),
     assigning: assignMutation.isPending,
     error: assignMutation.error?.message || null,
+  };
+};
+
+// ============ Bank Refund Mutations ============
+
+interface UseBankRefundMutationsReturn {
+  markBankRefund: (transactionId: string, adminNotes?: string) => Promise<BankRefundResponse>;
+  revertBankRefund: (transactionId: string) => Promise<BankRefundResponse>;
+  marking: boolean;
+  reverting: boolean;
+}
+
+/**
+ * Marcar/revertir un depósito no reclamado como devolución bancaria (solo admin).
+ * Afecta depósitos no reclamados, sugerencias de cruce, informe de gastos y movimientos bancarios.
+ */
+export const useBankRefundMutations = (): UseBankRefundMutationsReturn => {
+  const queryClient = useQueryClient();
+
+  const invalidateRelated = (): void => {
+    queryClient.invalidateQueries({ queryKey: ['unclaimed-deposits'] });
+    queryClient.invalidateQueries({ queryKey: ['match-suggestions'] });
+    queryClient.invalidateQueries({ queryKey: ['expenses-by-month'] });
+    queryClient.invalidateQueries({ queryKey: ['transactions-bank'] });
+  };
+
+  const markMutation = useMutation({
+    mutationFn: ({ transactionId, adminNotes }: { transactionId: string; adminNotes?: string }) =>
+      unclaimedDepositsService.markAsBankRefund(transactionId, { adminNotes }),
+    onSuccess: invalidateRelated,
+  });
+
+  const revertMutation = useMutation({
+    mutationFn: (transactionId: string) => unclaimedDepositsService.revertBankRefund(transactionId),
+    onSuccess: invalidateRelated,
+  });
+
+  return {
+    markBankRefund: (transactionId: string, adminNotes?: string) =>
+      markMutation.mutateAsync({ transactionId, adminNotes }),
+    revertBankRefund: (transactionId: string) => revertMutation.mutateAsync(transactionId),
+    marking: markMutation.isPending,
+    reverting: revertMutation.isPending,
   };
 };
 
