@@ -61,3 +61,16 @@ export interface DepositAssignHouseResponse {
   };
   assignedAt: string;
 }
+
+// Request para marcar un depósito como devolución bancaria
+export interface BankRefundRequest {
+  adminNotes?: string;
+  [key: string]: unknown;
+}
+
+// DTO de respuesta al marcar/revertir devolución bancaria
+export interface BankRefundResponse {
+  message: string;
+  transactionBankId: string;
+  isBankRefund: boolean;
+}

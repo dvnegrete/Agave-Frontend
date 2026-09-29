@@ -29,6 +29,8 @@ export interface TableProps<T = unknown> {
   sortConfig?: TableSortConfig;
   /** Click en encabezado de columna sortable */
   onSort?: (field: string) => void;
+  /** Click en cualquier celda de la fila */
+  onRowClick?: (row: T, index: number) => void;
 }
 
 const headerVariantStyles: Record<string, string> = {
@@ -67,6 +69,7 @@ export function Table<T = unknown>({
   headerVariant = 'default',
   sortConfig,
   onSort,
+  onRowClick,
 }: TableProps<T>): React.ReactNode {
   const isSortable = (column: TableColumn<T>): boolean => Boolean(column.sortable && onSort);
 
@@ -146,6 +149,7 @@ export function Table<T = unknown>({
                 <tr
                   key={getRowKey(row, idx)}
                   className={`divide-x divide-base ${getRowClassName(row, idx)}`}
+                  onClick={onRowClick ? () => onRowClick(row, idx) : undefined}
                 >
                   {columns.map((column) => (
                     <td
