@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useExpensesByMonth } from '@hooks/useExpensesByMonth';
-import { useFormatDate } from '@hooks/useFormatDate';
+import { useFormatDate as formatDate } from '@hooks/useFormatDate';
 import { useAlert } from '@hooks/useAlert';
 import { formatCurrency } from '@utils/formatters';
 import {
@@ -48,6 +48,13 @@ export function ExpenseReport() {
     };
     return date.toLocaleDateString('es-ES', options);
   };
+
+  // Devoluciones bancarias: entradas que restan del gasto total.
+  // Fallbacks por si el backend aún no envía los campos nuevos.
+  const totalRefunds = data?.summary.totalRefunds ?? 0;
+  const refundCount = data?.summary.refundCount ?? 0;
+  const netExpenses =
+    data?.summary.netExpenses ?? (data ? data.summary.totalExpenses - totalRefunds : 0);
 
   // Check if we can navigate to previous month (limit: December 2024)
   const canNavigatePrevious = (): boolean => {
@@ -124,25 +131,42 @@ export function ExpenseReport() {
       {/* Summary Cards */}
       {data && !loading && (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div
+            className={`grid grid-cols-1 gap-4 ${refundCount > 0 ? 'mb-2 md:grid-cols-3' : 'mb-6 md:grid-cols-2'}`}
+          >
             <StatsCard
               label="Gasto Total"
-              value={`$${formatCurrency(data.summary.totalExpenses)}`}
+              value={`$${formatCurrency(netExpenses)}`}
               variant="error"
               icon="💰"
             />
+            {refundCount > 0 && (
+              <StatsCard
+                label="Devoluciones del Banco"
+                value={`$${formatCurrency(totalRefunds)}`}
+                variant="success"
+                icon="↩"
+              />
+            )}
             <StatsCard
               label="Cantidad de Transacciones"
-              value={data.summary.count}
+              value={data.summary.count + refundCount}
               variant="info"
               icon="📝"
             />
           </div>
+          {refundCount > 0 && (
+            <p className="text-sm text-foreground-secondary mb-6">
+              Gasto Total = Retiros ${formatCurrency(data.summary.totalExpenses)} − Devoluciones $
+              {formatCurrency(totalRefunds)} ({data.summary.count} retiros, {refundCount}{' '}
+              {refundCount === 1 ? 'devolución' : 'devoluciones'})
+            </p>
+          )}
 
           {/* Transactions Table */}
           {data.expenses && data.expenses.length > 0 ? (
             <div className="bg-base shadow-lg rounded-lg border-4 p-6">
-              <h3 className="text-lg font-bold mb-4">Gastos del Mes</h3>
+              <h3 className="text-lg font-bold mb-4">Movimientos del Mes</h3>
               <div className="overflow-x-auto">
                 <Table
                   columns={[
@@ -150,24 +174,38 @@ export function ExpenseReport() {
                       id: 'date',
                       header: 'Fecha',
                       align: 'left',
-                      render: (txn: UploadedTransaction) =>
-                        useFormatDate(txn.date),
+                      render: (txn: UploadedTransaction) => formatDate(txn.date),
                     },
                     {
                       id: 'concept',
                       header: 'Concepto',
                       align: 'left',
-                      render: (txn: UploadedTransaction) => txn.concept || '—',
+                      render: (txn: UploadedTransaction) =>
+                        txn.is_bank_refund ? (
+                          <span className="flex flex-wrap items-center gap-2">
+                            <span className="text-xs font-semibold text-success border border-success rounded-full px-2 py-0.5">
+                              ↩ Devolución
+                            </span>
+                            {txn.concept || '—'}
+                          </span>
+                        ) : (
+                          txn.concept || '—'
+                        ),
                     },
                     {
                       id: 'amount',
                       header: 'Monto',
                       align: 'right',
-                      render: (txn: UploadedTransaction) => (
-                        <span className='text-error font-bold'>
-                          $ {formatCurrency(Math.abs(txn.amount))} {txn.currency}
-                        </span>
-                      ),
+                      render: (txn: UploadedTransaction) =>
+                        txn.is_bank_refund ? (
+                          <span className="text-success font-bold">
+                            + $ {formatCurrency(Math.abs(txn.amount))} {txn.currency}
+                          </span>
+                        ) : (
+                          <span className="text-error font-bold">
+                            $ {formatCurrency(Math.abs(txn.amount))} {txn.currency}
+                          </span>
+                        ),
                     },
                   ]}
                   data={data.expenses}
