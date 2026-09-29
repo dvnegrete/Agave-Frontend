@@ -23,6 +23,8 @@ export interface UploadedTransaction {
   is_deposit: boolean;
   bank_name: string;
   validation_flag: boolean;
+  /** Depósito marcado como devolución del banco: entrada en el informe de gastos */
+  is_bank_refund?: boolean;
   status: string;
   id: string;
   createdAt: string;
@@ -57,10 +59,17 @@ export interface TransactionsBankResponse {
 }
 
 export interface ExpensesSummary {
+  /** Solo retiros */
   totalExpenses: number;
+  /** Cantidad de retiros */
   count: number;
   currencies: string[];
   largestExpense: number;
+  /** Suma de devoluciones bancarias (opcionales mientras se despliega el backend) */
+  totalRefunds?: number;
+  refundCount?: number;
+  /** totalExpenses - totalRefunds */
+  netExpenses?: number;
 }
 
 export interface ExpensesByMonthResponse {

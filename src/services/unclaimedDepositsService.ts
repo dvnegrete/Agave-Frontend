@@ -4,6 +4,8 @@ import type {
   UnclaimedDepositsFilters,
   DepositAssignHouseRequest,
   DepositAssignHouseResponse,
+  BankRefundRequest,
+  BankRefundResponse,
 } from '@/shared/types/unclaimed-deposits.types';
 
 class UnclaimedDepositsService {
@@ -95,6 +97,46 @@ class UnclaimedDepositsService {
       );
 
       return response;
+    } catch (error: unknown) {
+      throw this.handleError(error);
+    }
+  }
+
+  /**
+   * Marcar un depósito no reclamado como devolución bancaria (solo admin)
+   */
+  async markAsBankRefund(
+    transactionId: string,
+    request: BankRefundRequest = {}
+  ): Promise<BankRefundResponse> {
+    try {
+      const options: HttpClientOptions = {
+        headers: this.getAuthHeaders(),
+      };
+
+      return await httpClient.post<BankRefundResponse>(
+        `/bank-reconciliation/unclaimed-deposits/${transactionId}/bank-refund`,
+        request,
+        options
+      );
+    } catch (error: unknown) {
+      throw this.handleError(error);
+    }
+  }
+
+  /**
+   * Revertir una devolución bancaria: regresa a depósitos no reclamados (solo admin)
+   */
+  async revertBankRefund(transactionId: string): Promise<BankRefundResponse> {
+    try {
+      const options: HttpClientOptions = {
+        headers: this.getAuthHeaders(),
+      };
+
+      return await httpClient.delete<BankRefundResponse>(
+        `/bank-reconciliation/unclaimed-deposits/${transactionId}/bank-refund`,
+        options
+      );
     } catch (error: unknown) {
       throw this.handleError(error);
     }

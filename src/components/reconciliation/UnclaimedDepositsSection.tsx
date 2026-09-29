@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ModalAssignDepositHouse } from './ModalAssignDepositHouse';
+import { ModalMarkBankRefund } from './ModalMarkBankRefund';
 import { Button, Table, DateTimeCell } from '@shared';
 import type { TableColumn } from '@shared/ui';
 import type { UnclaimedDeposit, UnclaimedDepositsPage, DepositAssignHouseRequest, } from '@shared';
@@ -19,6 +20,7 @@ export function UnclaimedDepositsSection({ onDepositAssigned }: UnclaimedDeposit
   const [_assignLoading, setAssignLoading] = useState(false);
   const [_assignError, setAssignError] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [refundDeposit, setRefundDeposit] = useState<UnclaimedDeposit | null>(null);
 
   const handleLoadDeposits = async (): Promise<void> => {
     setLoading(true);
@@ -123,13 +125,22 @@ export function UnclaimedDepositsSection({ onDepositAssigned }: UnclaimedDeposit
       header: 'Acción',
       align: 'center',
       render: (item) => (
-        <Button
-          onClick={() => handleAssignClick(item)}
-          variant="info"
-          className="text-xs px-2 py-1"
-        >
-          Asignar
-        </Button>
+        <div className="flex gap-2 justify-center">
+          <Button
+            onClick={() => handleAssignClick(item)}
+            variant="info"
+            className="text-xs px-2 py-1"
+          >
+            Asignar
+          </Button>
+          <Button
+            onClick={() => setRefundDeposit(item)}
+            variant="warning"
+            className="text-xs px-2 py-1"
+          >
+            ↩ Devolución
+          </Button>
+        </div>
       ),
     },
   ];
@@ -206,6 +217,15 @@ export function UnclaimedDepositsSection({ onDepositAssigned }: UnclaimedDeposit
         deposit={selectedDeposit}
         onSave={handleAssignHouse}
         onClose={() => setShowAssignModal(false)}
+      />
+
+      {/* Modal para marcar como devolución bancaria */}
+      <ModalMarkBankRefund
+        deposit={refundDeposit}
+        onClose={() => setRefundDeposit(null)}
+        onMarked={() => {
+          void handleLoadDeposits();
+        }}
       />
     </div>
   );

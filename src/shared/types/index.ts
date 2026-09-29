@@ -138,6 +138,8 @@ export type {
   UnclaimedDepositsFilters,
   DepositAssignHouseRequest,
   DepositAssignHouseResponse,
+  BankRefundRequest,
+  BankRefundResponse,
 } from './unclaimed-deposits.types';
 
 // Common/Generic API types

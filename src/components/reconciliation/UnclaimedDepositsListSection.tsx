@@ -4,6 +4,7 @@ import { Button, Table, StatusBadge, CollapsibleSection, PaginationControls, Mod
 import type { UnclaimedDepositsItem } from '@shared/types/bank-reconciliation.types';
 import { formatCurrency } from '@/utils/formatters';
 import { useFormatDate as formatDate } from '@hooks/useFormatDate';
+import { ModalMarkBankRefund } from './ModalMarkBankRefund';
 
 const PAGE_LIMIT = 20;
 
@@ -15,6 +16,7 @@ export function UnclaimedDepositsListSection() {
   const [selectedDeposit, setSelectedDeposit] = useState<UnclaimedDepositsItem | null>(null);
   const [houseNumber, setHouseNumber] = useState('');
   const [adminNotes, setAdminNotes] = useState('');
+  const [refundDeposit, setRefundDeposit] = useState<UnclaimedDepositsItem | null>(null);
 
   const { data, isLoading, refetch } = useUnclaimedDeposits({ page, limit: PAGE_LIMIT, validationStatus });
   const { assignHouse, assigning } = useUnclaimedDepositsMutations();
@@ -96,13 +98,22 @@ export function UnclaimedDepositsListSection() {
                   header: 'Acciones',
                   align: 'center',
                   render: (item) => (
-                    <Button
-                      onClick={() => { setSelectedDeposit(item); }}
-                      variant="info"
-                      className="text-xs py-1 px-2"
-                    >
-                      Asignar Casa
-                    </Button>
+                    <div className="flex gap-2 justify-center">
+                      <Button
+                        onClick={() => { setSelectedDeposit(item); }}
+                        variant="info"
+                        className="text-xs py-1 px-2"
+                      >
+                        Asignar Casa
+                      </Button>
+                      <Button
+                        onClick={() => setRefundDeposit(item)}
+                        variant="warning"
+                        className="text-xs py-1 px-2"
+                      >
+                        ↩ Devolución
+                      </Button>
+                    </div>
                   ),
                 },
               ]}
@@ -182,6 +193,8 @@ export function UnclaimedDepositsListSection() {
           </div>
         )}
       </Modal>
+
+      <ModalMarkBankRefund deposit={refundDeposit} onClose={() => setRefundDeposit(null)} />
     </>
   );
 }
