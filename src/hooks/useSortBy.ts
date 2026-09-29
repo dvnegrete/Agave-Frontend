@@ -1,19 +1,24 @@
 import { useState, useMemo } from 'react';
 
-export type SortField = 'number_house' | 'amount' | 'date' | 'confirmation_status';
+export type SortField = string;
 export type SortOrder = 'asc' | 'desc';
 
-interface SortConfig {
+export interface SortConfig {
   field: SortField;
   order: SortOrder;
 }
 
-interface UseSortByOptions {
+interface UseSortByOptions<T> {
   initialField?: SortField;
   initialOrder?: SortOrder;
+  /**
+   * Obtiene el valor a comparar para un campo (útil para columnas calculadas).
+   * Por defecto usa item[field].
+   */
+  getSortValue?: (item: T, field: SortField) => unknown;
 }
 
-interface UseSortByReturn<T extends Record<string, unknown>> {
+interface UseSortByReturn<T> {
   sortedItems: T[];
   sortConfig: SortConfig;
   setSortField: (field: SortField) => void;
@@ -29,12 +34,15 @@ interface UseSortByReturn<T extends Record<string, unknown>> {
  * @param options - Configuración inicial (campo y dirección)
  * @returns Object con items ordenados, configuración actual y funciones de cambio
  */
-export function useSortBy<T extends Record<string, unknown>>(
+export function useSortBy<T extends object>(
   items: T[],
-  options?: UseSortByOptions
+  options?: UseSortByOptions<T>
 ): UseSortByReturn<T> {
   const initialField: SortField = options?.initialField || 'number_house';
   const initialOrder: SortOrder = options?.initialOrder || 'asc';
+  const getSortValue =
+    options?.getSortValue ??
+    ((item: T, field: SortField) => (item as Record<string, unknown>)[field]);
 
   const [sortConfig, setSortConfig] = useState<SortConfig>({
     field: initialField,
@@ -46,8 +54,8 @@ export function useSortBy<T extends Record<string, unknown>>(
     if (!items || items.length === 0) return [];
 
     const sorted = [...items].sort((a, b) => {
-      const aValue = a[sortConfig.field];
-      const bValue = b[sortConfig.field];
+      const aValue = getSortValue(a, sortConfig.field);
+      const bValue = getSortValue(b, sortConfig.field);
 
       // Manejar valores nulos/undefined
       if (aValue == null && bValue == null) return 0;
@@ -72,6 +80,8 @@ export function useSortBy<T extends Record<string, unknown>>(
     });
 
     return sorted;
+    // getSortValue se omite a propósito: suele ser una función inline nueva en cada render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items, sortConfig]);
 
   /**

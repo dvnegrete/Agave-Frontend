@@ -1,4 +1,5 @@
 import React from 'react';
+import { SORTABLE_HEADER_CLASSES, getSortIndicator, type TableSortConfig } from './tableSort';
 
 export interface TableColumn<T = unknown> {
   id: string;
@@ -7,6 +8,8 @@ export interface TableColumn<T = unknown> {
   className?: string;
   headerClassName?: string;
   align?: 'left' | 'center' | 'right';
+  /** Permite ordenar por esta columna (requiere onSort en la tabla) */
+  sortable?: boolean;
 }
 
 export interface TableProps<T = unknown> {
@@ -22,6 +25,10 @@ export interface TableProps<T = unknown> {
   stickyHeader?: boolean;
   variant?: 'default' | 'compact' | 'spacious';
   headerVariant?: 'default' | 'primary' | 'success' | 'warning' | 'error' | 'info';
+  /** Orden actual (ver useSortBy) */
+  sortConfig?: TableSortConfig;
+  /** Click en encabezado de columna sortable */
+  onSort?: (field: string) => void;
 }
 
 const headerVariantStyles: Record<string, string> = {
@@ -58,7 +65,11 @@ export function Table<T = unknown>({
   stickyHeader = true,
   variant = 'default',
   headerVariant = 'default',
+  sortConfig,
+  onSort,
 }: TableProps<T>): React.ReactNode {
+  const isSortable = (column: TableColumn<T>): boolean => Boolean(column.sortable && onSort);
+
   const getRowKey = (row: T, index: number): string | number => {
     if (typeof keyField === 'function') {
       return keyField(row, index);
@@ -105,14 +116,17 @@ export function Table<T = unknown>({
               {columns.map((column) => (
                 <th
                   key={column.id}
+                  onClick={isSortable(column) ? () => onSort?.(column.id) : undefined}
                   className={`
                     ${variantPadding[variant]}
                     text-xs font-bold text-foreground
                     ${alignmentClasses[column.align || 'left']}
+                    ${isSortable(column) ? SORTABLE_HEADER_CLASSES : ''}
                     ${column.headerClassName || ''}
                   `}
                 >
                   {column.header}
+                  {isSortable(column) && getSortIndicator(column.id, sortConfig)}
                 </th>
               ))}
             </tr>

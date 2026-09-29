@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@hooks/useAuth';
 import { useUserManagement } from '@hooks/useUserManagement';
+import { useSortBy } from '@hooks/useSortBy';
 import {
   UserManagementTable,
   ModalEditUserRole,
@@ -14,6 +15,23 @@ import { ColumnSelector, type ColumnOption } from '@shared/ui';
 import type { User, ModalType } from '@/shared/types/user-management.types';
 import { isAdmin, isActive, isSuspended, isInactive } from '@shared/utils/roleAndStatusHelpers';
 import { USER_ROLES, ROLE_LABELS } from '@shared/constants';
+
+/**
+ * Valor de ordenamiento por columna de la tabla.
+ * Casas: la de menor número; sin casa → null (quedan al final)
+ */
+function getUserSortValue(user: User, field: string): unknown {
+  switch (field) {
+    case 'houses':
+      return user.houses.length > 0 ? Math.min(...user.houses) : null;
+    case 'phone':
+      return user.cel_phone;
+    case 'provider':
+      return user.auth_provider;
+    default:
+      return (user as unknown as Record<string, unknown>)[field];
+  }
+}
 
 export function UserManagement() {
   const { user: currentUser } = useAuth();
@@ -55,6 +73,38 @@ export function UserManagement() {
     fetchUsers();
   }, []);
 
+  // Filter users based on criteria
+  const filteredUsers = users.filter((user) => {
+    // Filter by name (case insensitive)
+    if (searchName && !user.name?.toLowerCase().includes(searchName.toLowerCase())) {
+      return false;
+    }
+
+    // Filter by role
+    if (selectedRole && user.role !== selectedRole) {
+      return false;
+    }
+
+    // Filter by house
+    if (selectedHouse && !user.houses.includes(Number(selectedHouse))) {
+      return false;
+    }
+
+    // Filter: show only users with no house assigned
+    if (showOnlyNoHouse && user.houses.length > 0) {
+      return false;
+    }
+
+    return true;
+  });
+
+  // Ordenamiento por columna (antes del early return: es un hook)
+  const { sortedItems: sortedUsers, sortConfig, setSortField } = useSortBy(filteredUsers, {
+    initialField: 'houses',
+    initialOrder: 'asc',
+    getSortValue: getUserSortValue,
+  });
+
   // Check if current user is admin
   if (!currentUser?.role || !isAdmin(currentUser.role)) {
     return (
@@ -86,31 +136,6 @@ export function UserManagement() {
     setSelectedHouseNumber(null);
     setShowEditActionsModal(false);
   };
-
-  // Filter users based on criteria
-  const filteredUsers = users.filter((user) => {
-    // Filter by name (case insensitive)
-    if (searchName && !user.name?.toLowerCase().includes(searchName.toLowerCase())) {
-      return false;
-    }
-
-    // Filter by role
-    if (selectedRole && user.role !== selectedRole) {
-      return false;
-    }
-
-    // Filter by house
-    if (selectedHouse && !user.houses.includes(Number(selectedHouse))) {
-      return false;
-    }
-
-    // Filter: show only users with no house assigned
-    if (showOnlyNoHouse && user.houses.length > 0) {
-      return false;
-    }
-
-    return true;
-  });
 
   // Get unique house numbers from all users for the house filter dropdown
   const uniqueHouses = Array.from(new Set(users.flatMap((u) => u.houses))).sort((a, b) => a - b);
@@ -277,7 +302,9 @@ export function UserManagement() {
       {/* Table */}
       <div className="bg-secondary border border-base rounded-lg overflow-hidden shadow-lg">
         <UserManagementTable
-          users={filteredUsers}
+          users={sortedUsers}
+          sortConfig={sortConfig}
+          onSort={setSortField}
           loading={loading}
           onEdit={handleEdit}
           onAssignHouse={(user) => openModal('assign', user)}

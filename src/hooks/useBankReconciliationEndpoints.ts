@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { voucherKeys } from './useVouchersQuery';
 import type {
   ManualValidationQueryParams,
   ManualValidationPendingItem,
@@ -164,6 +165,9 @@ export const useUnfundedVouchersMutations = (): UseUnfundedVouchersMutationsRetu
       matchVoucherWithDeposit(voucherId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['unfunded-vouchers'] });
+      // El voucher deja de estar pendiente y el depósito queda conciliado
+      queryClient.invalidateQueries({ queryKey: voucherKeys.all });
+      queryClient.invalidateQueries({ queryKey: ['transactions-bank'] });
     },
   });
 

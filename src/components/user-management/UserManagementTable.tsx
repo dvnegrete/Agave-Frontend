@@ -1,4 +1,4 @@
-import type { TableColumn } from '@shared/ui';
+import type { TableColumn, TableSortConfig } from '@shared/ui';
 import { RoleBadge, StatusBadge, Button, Table } from '@shared/ui';
 import type { User } from '@/shared';
 import { getStatusBadgeColor, getStatusLabel } from '@shared/utils/roleAndStatusHelpers';
@@ -10,6 +10,8 @@ interface UserManagementTableProps {
   onAssignHouse: (user: User) => void;
   onRemoveHouse: (user: User, houseNumber: number) => void;
   visibleColumnIds?: string[];
+  sortConfig?: TableSortConfig;
+  onSort?: (field: string) => void;
 }
 
 export function UserManagementTable({
@@ -18,10 +20,13 @@ export function UserManagementTable({
   onEdit,
   onRemoveHouse,
   visibleColumnIds = ['name', 'role', 'houses', 'actions'],
+  sortConfig,
+  onSort,
 }: UserManagementTableProps) {
   const allColumns: TableColumn<User>[] = [
     {
       id: 'name',
+      sortable: true,
       header: 'Nombre',
       render: (user) =>
         user.name ? (
@@ -32,6 +37,7 @@ export function UserManagementTable({
     },
     {
       id: 'email',
+      sortable: true,
       header: 'Email',
       render: (user) =>
         user.email ? (
@@ -42,6 +48,7 @@ export function UserManagementTable({
     },
     {
       id: 'phone',
+      sortable: true,
       header: 'Teléfono',
       render: (user) =>
         user.cel_phone ? (
@@ -52,11 +59,13 @@ export function UserManagementTable({
     },
     {
       id: 'role',
+      sortable: true,
       header: 'Rol',
       render: (user) => <RoleBadge role={user.role} />,
     },
     {
       id: 'status',
+      sortable: true,
       header: 'Estado',
       render: (user) => (
         <StatusBadge
@@ -67,6 +76,7 @@ export function UserManagementTable({
     },
     {
       id: 'provider',
+      sortable: true,
       header: 'Proveedor',
       render: (user) => {
         if (user.auth_provider === 'google') {
@@ -97,6 +107,7 @@ export function UserManagementTable({
     },
     {
       id: 'observations',
+      sortable: true,
       header: 'Observaciones',
       render: (user) => (
         <div>
@@ -110,12 +121,13 @@ export function UserManagementTable({
     },
     {
       id: 'houses',
+      sortable: true,
       header: 'Casas Asignadas',
       render: (user) => (
         <div className="flex flex-wrap gap-1">
           {user.houses.length > 0 ? (
             <>
-              {user.houses.map((house) => (
+              {[...user.houses].sort((a, b) => a - b).map((house) => (
                 <span
                   key={house}
                   className="bg-primary/20 px-2 py-1 rounded text-xs flex items-center gap-1 text-foreground font-semibold"
@@ -170,6 +182,8 @@ export function UserManagementTable({
       columns={columns}
       data={users}
       keyField="id"
+      sortConfig={sortConfig}
+      onSort={onSort}
       hoverable
       striped
       headerVariant="primary"
