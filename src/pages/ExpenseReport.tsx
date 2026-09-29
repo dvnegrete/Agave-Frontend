@@ -2,16 +2,27 @@ import { useState, useEffect } from 'react';
 import { useExpensesByMonth } from '@hooks/useExpensesByMonth';
 import { useFormatDate as formatDate } from '@hooks/useFormatDate';
 import { useAlert } from '@hooks/useAlert';
+import { useAuth } from '@hooks/useAuth';
+import { useBankRefundMutations } from '@hooks/useBankReconciliationEndpoints';
 import { formatCurrency } from '@utils/formatters';
+import { isAdmin } from '@shared/utils/roleAndStatusHelpers';
 import {
   Button,
+  InfoCard,
+  Modal,
+  ModalActions,
   StatsCard,
   Table,
 } from '@shared/ui';
+import type { TableColumn } from '@shared/ui';
 import type { UploadedTransaction } from '@shared/types/bank-transactions.types';
 
 export function ExpenseReport() {
   const alert = useAlert();
+  const { user } = useAuth();
+  const canRevertRefunds = !!user?.role && isAdmin(user.role);
+  const { revertBankRefund, reverting } = useBankRefundMutations();
+  const [refundToRevert, setRefundToRevert] = useState<UploadedTransaction | null>(null);
 
   // Get previous month on component load
   const getPreviousMonth = (): Date => {
@@ -55,6 +66,42 @@ export function ExpenseReport() {
   const refundCount = data?.summary.refundCount ?? 0;
   const netExpenses =
     data?.summary.netExpenses ?? (data ? data.summary.totalExpenses - totalRefunds : 0);
+
+  const handleConfirmRevert = async (): Promise<void> => {
+    if (!refundToRevert) return;
+    try {
+      await revertBankRefund(refundToRevert.id);
+      alert.success('Devolución revertida', 'El depósito regresó a Depósitos No Reclamados');
+      setRefundToRevert(null);
+    } catch (err) {
+      alert.error(
+        'Error',
+        err instanceof Error ? err.message : 'No se pudo revertir la devolución'
+      );
+    }
+  };
+
+  // Columna de acciones solo para admin (revertir devoluciones bancarias)
+  const actionsColumn: TableColumn<UploadedTransaction>[] =
+    canRevertRefunds && refundCount > 0
+      ? [
+          {
+            id: 'actions',
+            header: 'Acción',
+            align: 'center',
+            render: (txn: UploadedTransaction) =>
+              txn.is_bank_refund ? (
+                <Button
+                  onClick={() => setRefundToRevert(txn)}
+                  variant="warning"
+                  className="text-xs px-2 py-1"
+                >
+                  Revertir
+                </Button>
+              ) : null,
+          },
+        ]
+      : [];
 
   // Check if we can navigate to previous month (limit: December 2024)
   const canNavigatePrevious = (): boolean => {
@@ -207,6 +254,7 @@ export function ExpenseReport() {
                           </span>
                         ),
                     },
+                    ...actionsColumn,
                   ]}
                   data={data.expenses}
                   keyField={(row: UploadedTransaction) => row.id}
@@ -225,6 +273,40 @@ export function ExpenseReport() {
           )}
         </>
       )}
+
+      {/* Confirmar reversión de devolución bancaria */}
+      <Modal
+        isOpen={!!refundToRevert}
+        onClose={() => setRefundToRevert(null)}
+        title="Revertir devolución bancaria"
+        maxWidth="sm"
+      >
+        {refundToRevert && (
+          <>
+            <p className="text-sm text-foreground-secondary mb-6">
+              El depósito dejará de contar como entrada en este informe y regresará a
+              Depósitos No Reclamados, donde podrás asignarlo a una casa o volver a marcarlo.
+            </p>
+            <InfoCard
+              items={[
+                {
+                  label: 'Monto:',
+                  value: `$${formatCurrency(Math.abs(refundToRevert.amount))}`,
+                  className: 'text-success',
+                },
+                { label: 'Fecha:', value: formatDate(refundToRevert.date) },
+                { label: 'Concepto:', value: refundToRevert.concept || 'N/A' },
+              ]}
+            />
+            <ModalActions
+              onCancel={() => setRefundToRevert(null)}
+              onConfirm={handleConfirmRevert}
+              isLoading={reverting}
+              confirmText="Revertir"
+            />
+          </>
+        )}
+      </Modal>
 
       {/* Initial Empty State */}
       {!data && !loading && !error && (
