@@ -14,7 +14,6 @@ import {
   StatsCard,
   Table,
 } from '@shared/ui';
-import type { TableColumn } from '@shared/ui';
 import type { UploadedTransaction } from '@shared/types/bank-transactions.types';
 
 export function ExpenseReport() {
@@ -81,27 +80,12 @@ export function ExpenseReport() {
     }
   };
 
-  // Columna de acciones solo para admin (revertir devoluciones bancarias)
-  const actionsColumn: TableColumn<UploadedTransaction>[] =
-    canRevertRefunds && refundCount > 0
-      ? [
-          {
-            id: 'actions',
-            header: 'Acción',
-            align: 'center',
-            render: (txn: UploadedTransaction) =>
-              txn.is_bank_refund ? (
-                <Button
-                  onClick={() => setRefundToRevert(txn)}
-                  variant="warning"
-                  className="text-xs px-2 py-1"
-                >
-                  Revertir
-                </Button>
-              ) : null,
-          },
-        ]
-      : [];
+  // Solo admin: click en una fila de devolución bancaria abre la confirmación para revertirla
+  const handleRowClick = (txn: UploadedTransaction): void => {
+    if (canRevertRefunds && txn.is_bank_refund) {
+      setRefundToRevert(txn);
+    }
+  };
 
   // Check if we can navigate to previous month (limit: December 2024)
   const canNavigatePrevious = (): boolean => {
@@ -214,6 +198,11 @@ export function ExpenseReport() {
           {data.expenses && data.expenses.length > 0 ? (
             <div className="bg-base shadow-lg rounded-lg border-4 p-6">
               <h3 className="text-lg font-bold mb-4">Movimientos del Mes</h3>
+              {canRevertRefunds && refundCount > 0 && (
+                <p className="text-xs text-foreground-secondary -mt-2 mb-4">
+                  Presiona una fila marcada como ↩ Devolución para revertirla.
+                </p>
+              )}
               <div className="overflow-x-auto">
                 <Table
                   columns={[
@@ -254,9 +243,9 @@ export function ExpenseReport() {
                           </span>
                         ),
                     },
-                    ...actionsColumn,
                   ]}
                   data={data.expenses}
+                  onRowClick={handleRowClick}
                   keyField={(row: UploadedTransaction) => row.id}
                   maxHeight="600px"
                   emptyMessage="No hay transacciones"
